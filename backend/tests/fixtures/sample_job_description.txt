@@ -1,1 +1,18 @@
-TODO: sample text for tests.
+Job Title: Junior Machine Learning Engineer
+
+Required Skills:
+- Python
+- SQL
+- Pandas and NumPy
+- Scikit-learn
+- Data preprocessing and model evaluation
+
+Responsibilities:
+- Prepare and analyze datasets.
+- Build and evaluate basic machine learning models.
+- Explain technical decisions and model limitations.
+- Collaborate with team members on data-related tasks.
+
+Preferred:
+- Experience deploying machine learning models.
+- Familiarity with Docker and cloud platforms.

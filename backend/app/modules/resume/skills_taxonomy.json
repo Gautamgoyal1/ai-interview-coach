@@ -1,5 +1,19 @@
+
 {
   "machine learning": ["ml", "machine learning", "machine-learning"],
   "python": ["python", "python3"],
-  "docker": ["docker", "containers", "containerization"]
+  "sql": ["sql", "structured query language"],
+  "numpy": ["numpy"],
+  "pandas": ["pandas"],
+  "scikit-learn": ["scikit-learn", "sklearn", "scikit learn"],
+  "data preprocessing": ["data preprocessing", "data pre-processing", "preprocessing"],
+  "model evaluation": [
+  "model evaluation",
+  "model assessment",
+  "evaluated the model",
+  "evaluate the model",
+  "model performance evaluation"
+],
+  "docker": ["docker", "containers", "containerization"],
+  "cloud platforms": ["cloud platforms", "cloud platform"]
 }
