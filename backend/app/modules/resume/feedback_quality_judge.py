@@ -24,16 +24,46 @@ Classify the feedback item using exactly three Boolean labels:
    Merely mentioning a field or experience does not assert that the candidate
    already has that experience.
 
-   However, if the feedback explicitly states an unsupported fact, the item
-   is not grounded, even if it later uses conditional language such as
-   "if applicable".
+   A recommendation to add missing information is grounded when it clearly
+   asks the candidate to provide, calculate, verify, or document that
+   information. For example, "Add performance metrics such as RMSE or MAE
+   to quantify model results" is grounded even if the resume does not state
+   that those metrics were previously calculated.
+
+   Do not confuse recommending a future action with claiming that the
+   action has already been completed. However, if a recommendation explicitly
+   asserts an unsupported past or present fact, classify it as not grounded.
+   For example, "Add the RMSE of 12.5 that your model achieved" is not
+   grounded if that result is not supported by the resume.
+
+   If the feedback explicitly states an unsupported fact, the item is not
+   grounded, even if it later uses conditional language such as "if applicable".
 
    Questions that presuppose an undocumented action or method are not grounded.
+
+   Questions must not presuppose specific details that the resume does not
+   establish. For example, if the resume says only that a model was evaluated
+   using a train-test split, do not assume that specific evaluation metrics
+   were used. If the resume mentions SQL queries but does not describe their
+   complexity, do not assume the candidate wrote complex queries.
+
+   Distinguish between asking about documented experience and asking a
+   question that embeds an undocumented claim. A question mark does not make
+   an unsupported presupposition acceptable.
+
+   A question about a relevant concept is grounded if it is clearly framed
+   as a general knowledge question, such as "How would you choose an
+   evaluation metric?" A question about the candidate's past actions must
+   be supported by the resume.
+
+   Apply these rules to the meaning of the entire feedback item, not just
+   whether it is phrased as a question or recommendation.
 
 2. relevant:
    True if the item is useful for the target job role and the supplied resume
    context. False if it is unrelated to the target role.
    Relevance must be judged independently of grounding.
+   An item can be relevant but ungrounded.
 
 3. actionable:
    True if the item provides a concrete next step, a specific useful question,
@@ -42,6 +72,7 @@ Classify the feedback item using exactly three Boolean labels:
    next step.
    False for vague advice without a meaningful next step.
    Actionability must be judged independently of grounding and relevance.
+   An item can be actionable but ungrounded.
 
 Return only a JSON object with exactly these keys:
 {

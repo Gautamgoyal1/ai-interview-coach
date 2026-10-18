@@ -4,7 +4,10 @@ import json
 import anyio
 import pytest
 
-from app.modules.resume.feedback_quality_judge import FeedbackQualityJudge
+from app.modules.resume.feedback_quality_judge import (
+    FeedbackQualityJudge,
+    JUDGE_SYSTEM_PROMPT,
+)
 
 
 class FakeLLM:
@@ -85,3 +88,20 @@ def test_judge_rejects_invalid_json():
             })
 
     anyio.run(run_test)
+
+
+def test_judge_prompt_distinguishes_recommendations_from_claims():
+    prompt = JUDGE_SYSTEM_PROMPT.lower()
+
+    assert "recommendation to add missing information is grounded" in prompt
+    assert "do not confuse recommending a future action" in prompt
+    assert "rmse of 12.5" in prompt
+    assert "not grounded" in prompt
+
+
+def test_judge_prompt_covers_unsupported_question_assumptions():
+    prompt = JUDGE_SYSTEM_PROMPT.lower()
+
+    assert "questions that presuppose an undocumented action" in prompt
+    assert "a question mark does not make" in prompt
+    assert "general knowledge question" in prompt
