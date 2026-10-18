@@ -151,3 +151,36 @@ def test_docker_is_missing_when_not_mentioned():
 
     assert "docker" in result["missing_skills"]
     assert "model evaluation" in result["matched_skills"]
+
+def test_extract_skills_currently_matches_negated_mentions(taxonomy):
+    """Document that keyword matching does not understand negation."""
+    result = extract_skills(
+        "I have never used Docker.",
+        taxonomy,
+    )
+
+    # Current limitation: Docker is detected despite the negation.
+    assert result == ["docker"]
+
+
+def test_extract_skills_currently_matches_learning_interests(taxonomy):
+    """Document that keyword matching does not infer skill proficiency."""
+    result = extract_skills(
+        "I am interested in learning Docker.",
+        taxonomy,
+    )
+
+    # Current limitation: interest is treated as a skill mention.
+    assert result == ["docker"]
+
+
+def test_empty_explicit_required_skills_has_zero_score(taxonomy):
+    result = calculate_match_against_skills(
+        "Python and Docker experience",
+        [],
+        taxonomy,
+    )
+
+    assert result["match_score"] == 0.0
+    assert result["matched_skills"] == []
+    assert result["missing_skills"] == []
