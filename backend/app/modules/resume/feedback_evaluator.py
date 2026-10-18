@@ -274,7 +274,7 @@ def evaluate_feedback(
                     ),
                 )
                 # One issue per topic per feedback item.
-                # Continue checking other topics in this item. 
+                # Continue checking other topics in this item.
     structure_issues = {
         ISSUE_EMPTY_SECTION,
         ISSUE_DUPLICATE_ITEM,
