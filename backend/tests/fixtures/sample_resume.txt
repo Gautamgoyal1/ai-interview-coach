@@ -1,1 +1,21 @@
-TODO: sample text for tests.
+Candidate Profile
+
+Skills:
+- Python
+- SQL
+- NumPy
+- Pandas
+- Scikit-learn
+
+Projects:
+1. House Price Prediction
+   - Built a machine learning project using Python and Scikit-learn.
+   - Used Pandas for data preprocessing.
+   - Evaluated the model using a train-test split.
+
+2. Sales Data Analysis
+   - Used SQL to query sales records.
+   - Used Pandas to analyze trends in the data.
+
+Education:
+B.Tech in Computer Science Engineering.

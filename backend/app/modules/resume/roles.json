@@ -3,19 +3,32 @@
   "machine learning engineer": [
     "python",
     "machine learning",
-    "docker"
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "data preprocessing",
+    "model evaluation",
+    "docker",
+    "cloud platforms"
   ],
   "data scientist": [
     "python",
-    "machine learning"
+    "machine learning",
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "data preprocessing",
+    "model evaluation"
   ],
   "ai engineer": [
     "python",
     "machine learning",
-    "docker"
+    "docker",
+    "cloud platforms"
   ],
   "python developer": [
     "python",
+    "sql",
     "docker"
   ]
 }

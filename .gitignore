@@ -1,21 +1,28 @@
-# secrets and local files
+
+# Secrets and local files
 .env
 *.env.local
 storage/*
 !storage/.gitkeep
 
-# python
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
 .venv/
 venv/
 .pytest_cache/
+.coverage
+htmlcov/
 
-# node
+# Node.js / frontend
 node_modules/
 dist/
 
-# os / editor
+# OS / editor
 .DS_Store
 .idea/
 .vscode/
+
+# Generated resume evaluation artifacts
+/backend/eval_results/
+/backend/tests/fixtures/sample_resume.pdf
