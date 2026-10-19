@@ -1,1 +1,86 @@
-"""backend/app/core/security.py: TODO implement."""
+from datetime import datetime, timedelta, timezone
+from typing import Any
+
+import jwt
+from passlib.context import CryptContext
+
+from app.core.config import settings
+
+
+_password_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto",
+)
+
+
+def hash_password(password: str) -> str:
+    """Hash a password before storing it."""
+    if not password:
+        raise ValueError("Password cannot be empty.")
+
+    if len(password.encode("utf-8")) > 72:
+        raise ValueError("Password must not exceed 72 UTF-8 bytes.")
+
+    return _password_context.hash(password)
+
+
+def verify_password(password: str, password_hash: str) -> bool:
+    """Return whether the password matches the stored hash."""
+    if not password or len(password.encode("utf-8")) > 72:
+        return False
+
+    try:
+        return _password_context.verify(password, password_hash)
+    except (ValueError, TypeError):
+        return False
+
+
+def _jwt_secret() -> str:
+    secret = settings.jwt_secret_key
+    if not secret or not secret.strip():
+        raise RuntimeError("JWT_SECRET_KEY must be configured.")
+    return secret
+
+
+def create_access_token(
+    subject: str,
+    expires_delta: timedelta | None = None,
+) -> str:
+    """Create a signed JWT access token."""
+    if not subject:
+        raise ValueError("Token subject cannot be empty.")
+
+    now = datetime.now(timezone.utc)
+    expires_at = now + (
+        expires_delta
+        if expires_delta is not None
+        else timedelta(minutes=settings.access_token_expire_minutes)
+    )
+
+    payload: dict[str, Any] = {
+        "sub": subject,
+        "iat": now,
+        "exp": expires_at,
+        "type": "access",
+    }
+
+    return jwt.encode(
+        payload,
+        _jwt_secret(),
+        algorithm=settings.jwt_algorithm,
+    )
+
+
+def decode_access_token(token: str) -> dict[str, Any]:
+    """Validate a JWT and return its claims."""
+    payload = jwt.decode(
+        token,
+        _jwt_secret(),
+        algorithms=[settings.jwt_algorithm],
+        options={"require": ["sub", "exp", "iat", "type"]},
+    )
+
+    if payload.get("type") != "access":
+        raise jwt.InvalidTokenError("Invalid token type.")
+
+    return payload

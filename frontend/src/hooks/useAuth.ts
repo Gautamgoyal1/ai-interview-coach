@@ -1,2 +1,6 @@
-// frontend/src/hooks/useAuth.ts: TODO implement.
-export {};
+
+import { useAuthContext } from "./AuthContext";
+
+export function useAuth() {
+  return useAuthContext();
+}
