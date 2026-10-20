@@ -1,4 +1,8 @@
 
+"""Pydantic schemas for resume analysis and saved history."""
+
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -24,3 +28,22 @@ class ResumeAnalysisResult(BaseModel):
     strengths: list[str]
     improvement_suggestions: list[str]
     likely_interview_questions: list[str]
+
+
+class ResumeAnalysisHistoryItem(BaseModel):
+    """Compact entry for a user's resume analysis history."""
+
+    id: int
+    filename: str
+    job_role: str
+    created_at: datetime
+    match_score: float = Field(ge=0, le=100)
+
+
+class SavedResumeAnalysis(BaseModel):
+    """Complete saved analysis with its resume metadata."""
+
+    id: int
+    filename: str
+    created_at: datetime
+    result: ResumeAnalysisResult

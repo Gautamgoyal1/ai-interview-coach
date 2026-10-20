@@ -16,3 +16,4 @@ langgraph
 httpx
 pytest
 pypdf
+bcrypt==4.0.1
