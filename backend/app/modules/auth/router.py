@@ -9,6 +9,12 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
+from fastapi import Request
+from app.core.rate_limit import (
+    check_login_rate_limit,
+    clear_login_attempts,
+    record_failed_login,
+)
 from app.db.models.user import User
 from app.db.session import get_db
 from app.modules.auth.schemas import (
@@ -62,11 +68,21 @@ def register(
     return UserResponse.model_validate(user)
 
 
+
 @router.post("/login", response_model=TokenResponse)
 def login(
     request: LoginRequest,
+    http_request: Request,
     db: Session = Depends(get_db),
 ) -> TokenResponse:
+    client_ip = (
+        http_request.client.host
+        if http_request.client is not None
+        else "unknown"
+    )
+
+    check_login_rate_limit(client_ip)
+
     user = db.scalar(
         select(User).where(User.email == request.email)
     )
@@ -77,14 +93,19 @@ def login(
         password,
         user.password_hash,
     ):
+        record_failed_login(client_ip)
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    clear_login_attempts(client_ip)
+
     token = create_access_token(str(user.id))
     return TokenResponse(access_token=token)
+
 
 
 @router.get("/me", response_model=UserResponse)

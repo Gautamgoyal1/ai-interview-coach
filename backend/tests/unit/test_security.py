@@ -75,3 +75,68 @@ def test_wrong_secret_is_rejected(monkeypatch):
 
     with pytest.raises(jwt.InvalidTokenError):
         security.decode_access_token(token)
+def test_jwt_configuration_rejects_missing_secret(monkeypatch):
+    monkeypatch.setattr(security.settings, "jwt_secret_key", "")
+
+    with pytest.raises(RuntimeError, match="must be configured"):
+        security.validate_jwt_configuration()
+
+
+def test_jwt_configuration_rejects_short_secret(monkeypatch):
+    monkeypatch.setattr(security.settings, "jwt_secret_key", "too-short")
+
+    with pytest.raises(RuntimeError, match="at least 32 bytes"):
+        security.validate_jwt_configuration()
+
+
+def test_jwt_configuration_rejects_placeholder(monkeypatch):
+    monkeypatch.setattr(
+        security.settings,
+        "jwt_secret_key",
+        "your-secret-key",
+    )
+
+    with pytest.raises(RuntimeError, match="placeholder"):
+        security.validate_jwt_configuration()
+
+
+def test_jwt_configuration_rejects_whitespace(monkeypatch):
+    monkeypatch.setattr(
+        security.settings,
+        "jwt_secret_key",
+        " " + TEST_JWT_SECRET,
+    )
+
+    with pytest.raises(RuntimeError, match="whitespace"):
+        security.validate_jwt_configuration()
+
+
+def test_jwt_configuration_accepts_valid_secret(monkeypatch):
+    monkeypatch.setattr(
+        security.settings,
+        "jwt_secret_key",
+        TEST_JWT_SECRET,
+    )
+    monkeypatch.setattr(
+        security.settings,
+        "jwt_algorithm",
+        "HS256",
+    )
+
+    security.validate_jwt_configuration()
+
+
+def test_jwt_configuration_rejects_unsupported_algorithm(monkeypatch):
+    monkeypatch.setattr(
+        security.settings,
+        "jwt_secret_key",
+        TEST_JWT_SECRET,
+    )
+    monkeypatch.setattr(
+        security.settings,
+        "jwt_algorithm",
+        "HS384",
+    )
+
+    with pytest.raises(RuntimeError, match="must be HS256"):
+        security.validate_jwt_configuration()
