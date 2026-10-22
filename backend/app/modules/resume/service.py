@@ -7,7 +7,8 @@ import logging
 from pydantic import ValidationError
 
 from app.integrations.llm.base import LLMError
-from app.integrations.llm.gemini import GeminiProvider
+from app.integrations.llm.factory import get_llm_provider
+from app.modules.resume.feedback_evaluator import evaluate_feedback
 from app.modules.resume.parser import extract_resume_text
 from app.modules.resume.prompts import (
     RESUME_ANALYSIS_SYSTEM_PROMPT,
@@ -33,7 +34,7 @@ class ResumeAnalysisError(Exception):
 
 class ResumeAnalysisService:
     def __init__(self, llm=None):
-        self.llm = llm if llm is not None else GeminiProvider()
+        self.llm = llm if llm is not None else get_llm_provider()
 
     async def analyze(
         self,
@@ -48,13 +49,11 @@ class ResumeAnalysisService:
 
         # 2. Calculate deterministic skill coverage.
         if request.job_description and request.job_description.strip():
-            # Use the supplied job description when available.
             match = calculate_match(
                 resume_text,
                 request.job_description,
             )
         else:
-            # Otherwise, use the configured skills for the selected role.
             role_skills = load_role_skills()
             required_skills = role_skills.get(
                 request.job_role.strip().lower()
@@ -72,13 +71,17 @@ class ResumeAnalysisService:
                 required_skills,
             )
 
-        # 3. Build the prompt and request AI feedback.
+        # 3. Build the prompt using deterministic skill analysis.
         prompt = build_resume_analysis_prompt(
             resume_text=resume_text,
             job_role=request.job_role,
             job_description=request.job_description,
+            matched_skills=match["matched_skills"],
+            missing_skills=match["missing_skills"],
+            match_score=match["match_score"],
         )
 
+        # 4. Request AI feedback.
         try:
             raw_response = await self.llm.generate(
                 prompt=prompt,
@@ -87,14 +90,14 @@ class ResumeAnalysisService:
             )
         except LLMError as exc:
             logger.error(
-                "Gemini resume analysis failed: %s",
+                "Resume analysis provider failed: %s",
                 exc,
             )
             raise ResumeAnalysisError(
                 "The AI provider could not complete resume analysis."
             ) from exc
 
-        # 4. Parse and validate Gemini's JSON response.
+        # 5. Parse the response and validate its schema.
         try:
             feedback = json.loads(raw_response)
 
@@ -116,7 +119,7 @@ class ResumeAnalysisService:
                 ],
             }
 
-            return ResumeAnalysisResult.model_validate(result_data)
+            result = ResumeAnalysisResult.model_validate(result_data)
 
         except (
             json.JSONDecodeError,
@@ -132,3 +135,48 @@ class ResumeAnalysisService:
             raise ResumeAnalysisError(
                 "The AI returned an invalid resume analysis. Please retry."
             ) from exc
+
+        # 6. Run deterministic quality checks.
+        # These generic expectations deliberately avoid using the
+        # synthetic benchmark's candidate-specific assumptions.
+        quality_expectations = {
+            "evaluation_id": "live_resume_feedback",
+            "section_expectations": {
+                "strengths": {"must_be_nonempty": True},
+                "improvement_suggestions": {"must_be_nonempty": True},
+                "likely_interview_questions": {"must_be_nonempty": True},
+            },
+            "not_established_by_resume": [],
+        }
+
+        quality_report = evaluate_feedback(
+            {
+                "strengths": result.strengths,
+                "improvement_suggestions": result.improvement_suggestions,
+                "likely_interview_questions": (
+                    result.likely_interview_questions
+                ),
+            },
+            quality_expectations,
+        )
+
+        # Structural failures are not suitable to return to the frontend.
+        if not quality_report["structure_checks_passed"]:
+            logger.warning(
+                "Resume feedback failed structural quality checks: %s",
+                quality_report["issues"],
+            )
+            raise ResumeAnalysisError(
+                "The AI returned feedback that failed quality checks. "
+                "Please retry."
+            )
+
+        # Record other quality warnings without automatically rejecting
+        # potentially useful feedback.
+        if quality_report["issues"]:
+            logger.warning(
+                "Resume feedback quality warnings: %s",
+                quality_report["issues"],
+            )
+
+        return result
