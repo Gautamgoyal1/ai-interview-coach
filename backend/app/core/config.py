@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     database_url: str = ""
     gemini_api_key: str = ""
     gemini_model: str = "gemini-3.8-flash"
+    azure_openai_endpoint: str = ""
+    azure_openai_api_key: str = ""
+    azure_openai_model: str = "gpt-5.4-mini"
     llm_timeout_seconds: float = 60.0
     embedding_model: str = "gemini-embedding-001"
     embedding_dimensions: int = 768

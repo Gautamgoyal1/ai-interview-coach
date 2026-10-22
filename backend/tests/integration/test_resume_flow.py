@@ -43,6 +43,42 @@ def create_mock_llm(response=None):
     return llm
 
 
+def test_service_uses_configured_provider_by_default(monkeypatch):
+    """Use the provider returned by the factory when none is injected."""
+    mock_provider = create_mock_llm()
+
+    def fake_get_provider():
+        return mock_provider
+
+    monkeypatch.setattr(
+        "app.modules.resume.service.get_llm_provider",
+        fake_get_provider,
+    )
+
+    service = ResumeAnalysisService()
+
+    assert service.llm is mock_provider
+
+
+def test_service_preserves_injected_provider(monkeypatch):
+    """Do not call the factory when a provider is explicitly injected."""
+    mock_provider = create_mock_llm()
+
+    def unexpected_factory_call():
+        raise AssertionError(
+            "Provider factory should not run when an LLM is injected"
+        )
+
+    monkeypatch.setattr(
+        "app.modules.resume.service.get_llm_provider",
+        unexpected_factory_call,
+    )
+
+    service = ResumeAnalysisService(llm=mock_provider)
+
+    assert service.llm is mock_provider
+
+
 def test_role_defaults_are_used_when_description_is_missing():
     async def scenario():
         mock_llm = create_mock_llm()
@@ -208,6 +244,7 @@ def test_analysis_prompt_handles_empty_job_description():
     assert "No job description was provided." in prompt
     assert "Python Developer" in prompt
 
+
 def test_schema_accepts_unsupported_claims_as_strings():
     """Document that schema validation does not verify factual grounding."""
     result = ResumeAnalysisResult.model_validate(
@@ -230,3 +267,43 @@ def test_schema_accepts_unsupported_claims_as_strings():
     )
 
     assert "99% accuracy" in result.strengths[0]
+
+def test_empty_feedback_section_raises_analysis_error():
+    async def scenario():
+        feedback = {
+            "strengths": [],
+            "improvement_suggestions": [
+                "Add more ML project details."
+            ],
+            "likely_interview_questions": [
+                "Explain a machine learning project you built."
+            ],
+        }
+        mock_llm = create_mock_llm(json.dumps(feedback))
+        request = ResumeAnalysisRequest(
+            job_role="Machine Learning Engineer",
+        )
+        service = ResumeAnalysisService(llm=mock_llm)
+
+        with (
+            patch(
+                "app.modules.resume.service.extract_resume_text",
+                return_value="Python and machine learning experience",
+            ),
+            patch(
+                "app.modules.resume.service.load_role_skills",
+                return_value={
+                    "machine learning engineer": [
+                        "python",
+                        "machine learning",
+                    ]
+                },
+            ),
+        ):
+            with pytest.raises(
+                ResumeAnalysisError,
+                match="quality checks",
+            ):
+                await service.analyze(b"%PDF-test", request)
+
+    anyio.run(scenario)

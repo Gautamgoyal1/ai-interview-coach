@@ -11,7 +11,9 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-coach} -d ${POSTGRES_DB:-coach}"]
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${POSTGRES_USER:-coach} -d ${POSTGRES_DB:-coach}
       interval: 5s
       timeout: 5s
       retries: 10
@@ -29,7 +31,6 @@ services:
       - ./backend:/app
       - ./storage:/app/storage
       - ./knowledge_base:/app/knowledge_base
-      - ./scripts:/app/scripts
       - ./eval_data:/app/eval_data
 
   frontend:

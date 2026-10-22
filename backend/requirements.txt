@@ -17,3 +17,5 @@ httpx
 pytest
 pypdf
 bcrypt==4.0.1
+openai==3.35.1
+reportlab

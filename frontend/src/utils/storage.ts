@@ -1,14 +1,14 @@
 
-let accessToken: string | null = null;
+const TOKEN_KEY = "access_token";
 
 export function getAccessToken(): string | null {
-  return accessToken;
+  return sessionStorage.getItem(TOKEN_KEY);
 }
 
 export function setAccessToken(token: string): void {
-  accessToken = token;
+  sessionStorage.setItem(TOKEN_KEY, token);
 }
 
 export function clearAccessToken(): void {
-  accessToken = null;
+  sessionStorage.removeItem(TOKEN_KEY);
 }

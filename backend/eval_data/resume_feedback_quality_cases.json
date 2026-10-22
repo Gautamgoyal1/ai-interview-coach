@@ -1,4 +1,3 @@
-
 {
   "evaluation_id": "resume_feedback_quality_v1",
   "label_definitions": {
@@ -162,6 +161,110 @@
         "actionable": true
       },
       "notes": "This is a role-relevant knowledge question, not a claim about the candidate's past work."
+    },
+    {
+      "case_id": "conditional_but_fabricated_metric",
+      "section": "improvement_suggestions",
+      "resume_text": "Built a house price prediction model using Python. No evaluation metrics are documented.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "If applicable, add the RMSE of 12.5 that your model achieved.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "Conditional wording does not make an explicitly asserted unsupported past result acceptable."
+    },
+    {
+      "case_id": "unsupported_missing_value_method",
+      "section": "strengths",
+      "resume_text": "Built a house price prediction model using Python and Pandas. Preprocessing details are not provided.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Demonstrates experience handling missing values with median imputation.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "The resume documents preprocessing tools but not this specific method."
+    },
+    {
+      "case_id": "question_assumes_xgboost",
+      "section": "likely_interview_questions",
+      "resume_text": "Built a house price prediction model using Python. The algorithm is not specified.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Why did you choose XGBoost over Random Forest for your house price prediction model?",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "The question presupposes both a specific algorithm choice and a comparison not established by the resume."
+    },
+    {
+      "case_id": "exaggerated_python_expertise",
+      "section": "strengths",
+      "resume_text": "Skills: Python, SQL. Built one introductory Python project.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Demonstrates expert-level Python proficiency.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "Listing Python and completing an introductory project do not establish expert-level proficiency."
+    },
+    {
+      "case_id": "irrelevant_design_recommendation",
+      "section": "improvement_suggestions",
+      "resume_text": "Built a house price prediction model using Python and Scikit-learn.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Add a decorative color palette and custom typography to your resume.",
+      "expected": {
+        "grounded": true,
+        "relevant": false,
+        "actionable": true
+      },
+      "notes": "The advice gives a concrete action but is not meaningfully relevant to the target role or the supplied technical resume context."
+    },
+    {
+      "case_id": "vague_resume_improvement",
+      "section": "improvement_suggestions",
+      "resume_text": "Skills: Python, SQL. Built a house price prediction project.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Make your resume better.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "The general goal is relevant, but the feedback provides no concrete next step."
+    },
+    {
+      "case_id": "safe_metric_calculation_recommendation",
+      "section": "improvement_suggestions",
+      "resume_text": "Built a house price prediction model using Python. Evaluation results are not documented.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "If you evaluated the model, report the actual RMSE or MAE; otherwise, evaluate it on held-out data before reporting a result.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "The recommendation distinguishes existing evidence from a future evaluation and does not invent a result."
+    },
+    {
+      "case_id": "general_metric_knowledge_question",
+      "section": "likely_interview_questions",
+      "resume_text": "Built a house price prediction model using Python. No evaluation metric is documented.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "How would you choose an appropriate evaluation metric for a house price prediction model?",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "This is clearly framed as a general knowledge question and does not assume the candidate previously used a particular metric."
     }
   ]
 }
