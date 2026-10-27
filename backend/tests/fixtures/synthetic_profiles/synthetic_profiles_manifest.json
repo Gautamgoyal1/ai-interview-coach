@@ -1,0 +1,103 @@
+{
+  "suite_id": "synthetic_profiles_v1",
+  "description": "Four distinct fictional candidate profiles for evaluating evidence-grounded resume feedback.",
+  "profiles": [
+    {
+      "profile_id": "profile_1_negated",
+      "file_base": "profile_1_negated",
+      "candidate_name": "Alex Morgan",
+      "job_role": "Junior Machine Learning Engineer",
+      "description": "Explicitly negated experience with Kubernetes and Docker alongside demonstrated Python and SQL.",
+      "expected_matched_skills": ["docker", "python", "sql"],
+      "expected_evidence": {
+        "python": "demonstrated",
+        "sql": "demonstrated",
+        "docker": "negated"
+      },
+      "prohibited_strength_keywords": [
+        "docker",
+        "kubernetes",
+        "container"
+      ],
+      "required_suggestion_keywords": [
+        "docker",
+        "container"
+      ]
+    },
+    {
+      "profile_id": "profile_2_coursework_only",
+      "file_base": "profile_2_coursework_only",
+      "candidate_name": "Taylor Reed",
+      "job_role": "Junior Machine Learning Engineer",
+      "description": "Coursework-only ML/Scikit-learn knowledge without applied project experience.",
+      "expected_matched_skills": ["machine learning", "model evaluation", "python", "scikit-learn"],
+      "expected_evidence": {
+        "machine learning": "planned_or_learning",
+        "scikit-learn": "planned_or_learning",
+        "model evaluation": "planned_or_learning",
+        "python": "mentioned_only"
+      },
+      "prohibited_strength_keywords": [
+        "deployed",
+        "production model",
+        "applied scikit-learn",
+        "commercial experience"
+      ],
+      "required_suggestion_keywords": [
+        "project",
+        "hands-on",
+        "practical"
+      ]
+    },
+    {
+      "profile_id": "profile_3_team_attributed",
+      "file_base": "profile_3_team_attributed",
+      "candidate_name": "Jordan Lee",
+      "job_role": "Junior Machine Learning Engineer",
+      "description": "Team-attributed tool usage where model training and Docker deployment belong to teammates/managers.",
+      "expected_matched_skills": ["cloud platforms", "docker", "machine learning", "scikit-learn", "sql"],
+      "expected_evidence": {
+        "sql": "demonstrated",
+        "machine learning": "mentioned_only",
+        "scikit-learn": "mentioned_only",
+        "docker": "mentioned_only",
+        "cloud platforms": "mentioned_only"
+      },
+      "prohibited_strength_keywords": [
+        "trained models",
+        "deployed microservices",
+        "docker container deployment",
+        "aws cloud"
+      ],
+      "required_suggestion_keywords": [
+        "hands-on",
+        "individual",
+        "personal",
+        "project",
+        "direct"
+      ]
+    },
+    {
+      "profile_id": "profile_4_missing_skills",
+      "file_base": "profile_4_missing_skills",
+      "candidate_name": "Casey Bennett",
+      "job_role": "Junior Machine Learning Engineer",
+      "description": "Non-technical marketing coordinator missing all role requirements.",
+      "expected_matched_skills": [],
+      "expected_evidence": {},
+      "prohibited_strength_keywords": [
+        "python",
+        "sql",
+        "machine learning",
+        "scikit-learn",
+        "docker"
+      ],
+      "required_suggestion_keywords": [
+        "python",
+        "machine learning",
+        "skills",
+        "technical"
+      ]
+    }
+  ]
+}

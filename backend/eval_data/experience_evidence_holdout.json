@@ -1,0 +1,175 @@
+
+{
+  "evaluation_id": "experience_evidence_holdout_v1",
+  "description": "Independent challenge cases for evaluating generalization of experience-evidence classification.",
+  "cases": [
+    {
+      "case_id": "H001",
+      "resume_text": "Python was used by my teammate; I wrote the project report.",
+      "skill": "python",
+      "expected_evidence": "mentioned_only",
+      "rationale": "Passive wording attributes Python use to a teammate."
+    },
+    {
+      "case_id": "H002",
+      "resume_text": "I have no practical experience with SQL.",
+      "skill": "sql",
+      "expected_evidence": "negated",
+      "rationale": "Practical experience is explicitly denied using unfamiliar wording."
+    },
+    {
+      "case_id": "H003",
+      "resume_text": "Completed a project where I used Python to parse server logs.",
+      "skill": "python",
+      "expected_evidence": "demonstrated",
+      "rationale": "Concrete project and implementation task."
+    },
+    {
+      "case_id": "H004",
+      "resume_text": "Python is a technology I hope to learn in the future.",
+      "skill": "python",
+      "expected_evidence": "planned_or_learning",
+      "rationale": "Future intention is not evidence of applied experience."
+    },
+    {
+      "case_id": "H005",
+      "resume_text": "I studied machine learning but have not applied it in practice.",
+      "skill": "machine learning",
+      "expected_evidence": "planned_or_learning",
+      "rationale": "Learning is described, but practical application is denied."
+    },
+    {
+      "case_id": "H006",
+      "resume_text": "Docker was not used in this project.",
+      "skill": "docker",
+      "expected_evidence": "negated",
+      "rationale": "Negation appears after the technology name."
+    },
+    {
+      "case_id": "H007",
+      "resume_text": "I handled SQL queries, while my teammate used Docker.",
+      "skill": "docker",
+      "expected_evidence": "mentioned_only",
+      "rationale": "Docker use belongs to another person."
+    },
+    {
+      "case_id": "H008",
+      "resume_text": "Currently taking a SQL course covering joins and aggregation.",
+      "skill": "sql",
+      "expected_evidence": "planned_or_learning",
+      "rationale": "Coursework is evidence of learning, not necessarily applied experience."
+    },
+    {
+      "case_id": "H009",
+      "resume_text": "Built a Python tool, but I have never used Docker.",
+      "skill": "docker",
+      "expected_evidence": "negated",
+      "rationale": "The positive Python statement must not override Docker negation."
+    },
+    {
+      "case_id": "H010",
+      "resume_text": "Python is listed among my interests; I have only theoretical knowledge.",
+      "skill": "python",
+      "expected_evidence": "mentioned_only",
+      "rationale": "The skill is mentioned, but no applied work is described."
+    },
+    {
+      "case_id": "H011",
+      "resume_text": "Deployed a containerized application with Docker during my internship.",
+      "skill": "docker",
+      "expected_evidence": "demonstrated",
+      "rationale": "Concrete deployment task."
+    },
+    {
+      "case_id": "H012",
+      "resume_text": "Docker will be explored during a future project.",
+      "skill": "docker",
+      "expected_evidence": "planned_or_learning",
+      "rationale": "Future planned activity."
+    },
+    {
+      "case_id": "H013",
+      "resume_text": "My previous employer used SQL; I reviewed the resulting reports.",
+      "skill": "sql",
+      "expected_evidence": "mentioned_only",
+      "rationale": "SQL use is attributed to the employer rather than the candidate."
+    },
+    {
+      "case_id": "H014",
+      "resume_text": "I haven't worked with pandas yet.",
+      "skill": "pandas",
+      "expected_evidence": "negated",
+      "rationale": "Lack of work experience is explicitly stated."
+    },
+    {
+      "case_id": "H015",
+      "resume_text": "Learned Python basics in class; I have not built any projects with it.",
+      "skill": "python",
+      "expected_evidence": "planned_or_learning",
+      "rationale": "Learning evidence exists, but project experience is absent."
+    },
+    {
+      "case_id": "H016",
+      "resume_text": "Created a sales report by joining customer tables with SQL and cleaning data using pandas.",
+      "skill": "pandas",
+      "expected_evidence": "demonstrated",
+      "rationale": "Concrete data-cleaning task."
+    },
+    {
+      "case_id": "H017",
+      "resume_text": "Docker: beginner level; no deployments completed.",
+      "skill": "docker",
+      "expected_evidence": "mentioned_only",
+      "rationale": "Technology and level are listed without an applied task."
+    },
+    {
+      "case_id": "H018",
+      "resume_text": "I never used Python professionally, but I built scripts for personal projects.",
+      "skill": "python",
+      "expected_evidence": "demonstrated",
+      "rationale": "Professional experience is denied, but personal applied work is demonstrated."
+    },
+    {
+      "case_id": "H019",
+      "resume_text": "No experience with scikit-learn; completed a course introducing its API.",
+      "skill": "scikit-learn",
+      "expected_evidence": "planned_or_learning",
+      "rationale": "Coursework is present, while applied experience is explicitly denied."
+    },
+    {
+      "case_id": "H020",
+      "resume_text": "Kubernetes appears in my team's technology stack, but I did not use it myself.",
+      "skill": "Kubernetes",
+      "expected_evidence": "negated",
+      "rationale": "Third-party or team context must not be mistaken for personal use."
+    },
+    {
+      "case_id": "H021",
+      "resume_text": "Although I haven't used Python at work, I built automation scripts for personal projects.",
+      "skill": "Python",
+      "expected_evidence": "demonstrated",
+      "rationale": "Personal project evidence overrides a denial limited to workplace use."
+    },
+    {
+      "case_id": "H022",
+      "resume_text": "I lack hands-on experience with pandas, but I completed coursework introducing DataFrames.",
+      "skill": "pandas",
+      "expected_evidence": "planned_or_learning",
+      "rationale": "Coursework indicates learning despite limited hands-on experience."
+    },
+    {
+      "case_id": "H023",
+      "resume_text": "I have never used Docker, although I completed a course explaining container images.",
+      "skill": "Docker",
+      "expected_evidence": "planned_or_learning",
+      "rationale": "Learning evidence coexists with a denial of practical use."
+    },
+    {
+      "case_id": "H024",
+      "resume_text": "My colleague deployed the Docker service; I wrote the deployment documentation.",
+      "skill": "Docker",
+      "expected_evidence": "mentioned_only",
+      "rationale": "The deployment is attributed to a colleague, not the candidate."
+    }
+  ]
+}

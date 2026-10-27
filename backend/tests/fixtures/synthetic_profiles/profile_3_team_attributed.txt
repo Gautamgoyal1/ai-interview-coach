@@ -1,0 +1,14 @@
+Jordan Lee.
+Software Engineer.
+
+Summary:
+Full-stack software engineer working on data services.
+
+Experience:
+Enterprise Solutions Corp.
+- Queried relational databases using SQL for report generation.
+- My teammate built and trained the machine learning models using Scikit-learn.
+- My manager deployed containerized microservices using Docker on AWS cloud platforms.
+
+Education:
+B.S. in Software Engineering.

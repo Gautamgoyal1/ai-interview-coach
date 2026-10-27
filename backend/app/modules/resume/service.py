@@ -1,4 +1,3 @@
-
 """Orchestrates resume parsing, skill matching, and AI feedback."""
 
 import json
@@ -8,6 +7,7 @@ from pydantic import ValidationError
 
 from app.integrations.llm.base import LLMError
 from app.integrations.llm.factory import get_llm_provider
+from app.modules.resume.evidence import classify_skills_evidence
 from app.modules.resume.feedback_evaluator import evaluate_feedback
 from app.modules.resume.parser import extract_resume_text
 from app.modules.resume.prompts import (
@@ -22,8 +22,8 @@ from app.modules.resume.scoring import (
     calculate_match,
     calculate_match_against_skills,
     load_role_skills,
+    load_skill_taxonomy,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +71,18 @@ class ResumeAnalysisService:
                 required_skills,
             )
 
+        # 2b. Classify evidence for matched canonical skills.
+        try:
+            taxonomy = load_skill_taxonomy()
+        except Exception:
+            taxonomy = None
+
+        skill_evidence = classify_skills_evidence(
+            text=resume_text,
+            skills=match["matched_skills"],
+            taxonomy=taxonomy,
+        )
+
         # 3. Build the prompt using deterministic skill analysis.
         prompt = build_resume_analysis_prompt(
             resume_text=resume_text,
@@ -79,6 +91,7 @@ class ResumeAnalysisService:
             matched_skills=match["matched_skills"],
             missing_skills=match["missing_skills"],
             match_score=match["match_score"],
+            skill_evidence=skill_evidence,
         )
 
         # 4. Request AI feedback.

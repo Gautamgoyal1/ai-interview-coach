@@ -1,4 +1,3 @@
-
 """Prompts for evidence-grounded resume analysis."""
 
 import json
@@ -74,6 +73,7 @@ def build_resume_analysis_prompt(
     matched_skills: list[str] | None = None,
     missing_skills: list[str] | None = None,
     match_score: float | None = None,
+    skill_evidence: dict[str, str] | None = None,
 ) -> str:
     """Build a resume feedback prompt with deterministic match context."""
 
@@ -83,11 +83,13 @@ def build_resume_analysis_prompt(
         else "No job description was provided."
     )
 
-    skill_analysis = {
+    skill_analysis: dict[str, object] = {
         "matched_skills": matched_skills or [],
         "missing_skills": missing_skills or [],
         "match_score": match_score,
     }
+    if skill_evidence is not None:
+        skill_analysis["skill_evidence"] = skill_evidence
 
     skill_analysis_json = json.dumps(
         skill_analysis,
@@ -132,6 +134,13 @@ improvement suggestions and understand the role's requirements.
 - A missing skill means the matching process did not find evidence
   for it. It does not prove that the candidate lacks the skill.
 - Do not contradict the deterministic matched/missing skill lists.
+- If skill_evidence is provided, treat each label (demonstrated,
+  mentioned_only, negated, planned_or_learning) as a heuristic indicator
+  of what the resume demonstrates, not verified ground truth.
+- Do not praise skills labeled 'negated', 'mentioned_only', or
+  'planned_or_learning' as applied practical strengths.
+- Do not claim that the candidate has never used a tool outside this
+  resume; say that the resume does not demonstrate practical use.
 - Use the supplied match score as context only. Do not recalculate
   or replace it.
 - Continue grounding strengths in the resume itself.

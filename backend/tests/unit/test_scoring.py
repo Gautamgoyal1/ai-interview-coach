@@ -9,6 +9,8 @@ from app.modules.resume.scoring import (
     extract_skills,
     load_role_skills,
     load_skill_taxonomy,
+    calculate_weighted_match,
+    adjust_skill_weights_from_job_description,
 )
 
 
@@ -184,3 +186,131 @@ def test_empty_explicit_required_skills_has_zero_score(taxonomy):
     assert result["match_score"] == 0.0
     assert result["matched_skills"] == []
     assert result["missing_skills"] == []
+
+def test_weighted_match_all_skills_match():
+    result = calculate_weighted_match(
+        matched_skills=["python", "sql"],
+        required_skills=["python", "sql"],
+        skill_weights={"python": 1.0, "sql": 0.5},
+    )
+
+    assert result["weighted_match_score"] == 100.0
+
+
+def test_weighted_match_high_priority_missing():
+    result = calculate_weighted_match(
+        matched_skills=["sql"],
+        required_skills=["python", "sql"],
+        skill_weights={"python": 1.0, "sql": 0.5},
+    )
+
+    assert result["weighted_match_score"] == 33.33
+
+
+def test_weighted_match_low_priority_missing():
+    result = calculate_weighted_match(
+        matched_skills=["python"],
+        required_skills=["python", "sql"],
+        skill_weights={"python": 1.0, "sql": 0.5},
+    )
+
+    assert result["weighted_match_score"] == 66.67
+
+
+def test_weighted_match_empty_requirements():
+    result = calculate_weighted_match(
+        matched_skills=[],
+        required_skills=[],
+        skill_weights={},
+    )
+
+    assert result["weighted_match_score"] == 0.0
+
+
+def test_weighted_match_rejects_missing_weight():
+    with pytest.raises(ValueError, match="Missing weights"):
+        calculate_weighted_match(
+            matched_skills=["python"],
+            required_skills=["python", "sql"],
+            skill_weights={"python": 1.0},
+        )
+
+
+def test_weighted_match_rejects_zero_weight():
+    with pytest.raises(ValueError, match="finite positive"):
+        calculate_weighted_match(
+            matched_skills=["python"],
+            required_skills=["python"],
+            skill_weights={"python": 0.0},
+        )
+
+def test_required_skill_gets_higher_weight():
+    result = adjust_skill_weights_from_job_description(
+        {"python": 1.0, "docker": 0.5},
+        "Python is required. Docker is preferred.",
+    )
+
+    assert result["python"] == 1.25
+    assert result["docker"] == 0.375
+
+
+def test_unspecified_skill_keeps_baseline_weight():
+    result = adjust_skill_weights_from_job_description(
+        {"python": 1.0, "docker": 0.5},
+        "We are looking for a developer with relevant experience.",
+    )
+
+    assert result == {"python": 1.0, "docker": 0.5}
+
+
+def test_repeated_mentions_do_not_increase_weight():
+    result = adjust_skill_weights_from_job_description(
+        {"python": 1.0},
+        "Python is required. Python is useful. Python experience is welcome.",
+    )
+
+    assert result["python"] == 1.25
+
+
+def test_invalid_weight_is_rejected():
+    with pytest.raises(ValueError, match="finite positive"):
+        adjust_skill_weights_from_job_description(
+            {"python": 0.0},
+            "Python is required.",
+        )
+
+def test_negated_requirement_keeps_baseline_weight():
+    result = adjust_skill_weights_from_job_description(
+        {"python": 1.0},
+        "Python is not required.",
+    )
+
+    assert result["python"] == 1.0
+
+
+def test_nice_to_have_reduces_weight():
+    result = adjust_skill_weights_from_job_description(
+        {"docker": 0.5},
+        "Docker is a nice-to-have.",
+    )
+
+    assert result["docker"] == 0.375
+
+
+def test_required_and_preferred_skills_are_adjusted_independently():
+    result = adjust_skill_weights_from_job_description(
+        {"python": 1.0, "docker": 0.5},
+        "Python is required. Docker is preferred.",
+    )
+
+    assert result["python"] == 1.25
+    assert result["docker"] == 0.375
+
+def test_negation_for_one_skill_does_not_suppress_another():
+    result = adjust_skill_weights_from_job_description(
+        {"python": 1.0, "docker": 0.5},
+        "Python is not required, but Docker is required.",
+    )
+
+    assert result["python"] == 1.0
+    assert result["docker"] == 0.625

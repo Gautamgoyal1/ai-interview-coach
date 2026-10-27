@@ -1,0 +1,18 @@
+Alex Morgan.
+Junior Developer.
+
+Summary:
+Software developer with foundational programming background.
+
+Skills:
+- Python.
+- SQL.
+
+Experience:
+- Built automation scripts using Python to format internal log files.
+- Queried relational databases using SQL for daily reporting.
+- Note: I have never used Kubernetes.
+- I have never used Docker.
+
+Education:
+B.S. in Information Systems.

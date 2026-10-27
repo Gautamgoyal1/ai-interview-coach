@@ -1,0 +1,16 @@
+Taylor Reed.
+Computer Science Student.
+
+Summary:
+Recent graduate focused on theoretical machine learning concepts.
+
+Education:
+B.S. in Computer Science.
+- Completed university coursework introducing machine learning algorithms.
+- Completed coursework introducing scikit-learn APIs and model evaluation.
+
+Technical Skills:
+Python, Machine Learning, Scikit-learn.
+
+Projects & Practical Experience:
+No applied project experience with scikit-learn or machine learning.
