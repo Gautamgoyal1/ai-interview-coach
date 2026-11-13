@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { AuthCredentials, User } from "../types/auth";
+import type { AuthCredentials, RegisterCredentials, User } from "../types/auth";
 import * as authService from "../services/auth.service";
 import { getAccessToken } from "../utils/storage";
 
@@ -15,7 +15,7 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   login: (credentials: AuthCredentials) => Promise<User>;
-  register: (credentials: AuthCredentials) => Promise<User>;
+  register: (credentials: RegisterCredentials) => Promise<User>;
   logout: () => void;
 }
 
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const register = useCallback(async (credentials: AuthCredentials) => {
+  const register = useCallback(async (credentials: RegisterCredentials) => {
     setLoading(true);
     try {
       return await authService.register(credentials);

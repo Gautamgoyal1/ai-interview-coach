@@ -133,13 +133,13 @@ export default function Layout() {
         <div className="sidebar-bottom">
           <div className="sidebar-user-card">
             <div className="profile-avatar">
-              {(user?.email?.[0] ?? "U").toUpperCase()}
+              {(user?.full_name?.trim()?.[0] || user?.email?.[0] || "U").toUpperCase()}
             </div>
             <div className="profile-details">
-              <strong title={user?.email ?? "User"}>
-                {user?.email ?? "User"}
+              <strong title={user?.full_name?.trim() || user?.email || "User"}>
+                {user?.full_name?.trim() || user?.email || "User"}
               </strong>
-              <span>Personal workspace</span>
+              <span>{user?.email || "Personal workspace"}</span>
             </div>
             <ThemeToggle className="sidebar-theme-toggle" />
           </div>

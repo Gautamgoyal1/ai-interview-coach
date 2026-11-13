@@ -2,6 +2,7 @@
 export interface User {
   id: number;
   email: string;
+  full_name?: string | null;
 }
 
 export interface TokenResponse {
@@ -12,4 +13,9 @@ export interface TokenResponse {
 export interface AuthCredentials {
   email: string;
   password: string;
+}
+
+export interface RegisterCredentials extends AuthCredentials {
+  name?: string;
+  full_name?: string;
 }

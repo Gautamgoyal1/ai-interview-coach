@@ -47,10 +47,13 @@ def register(
         )
 
     password = request.password.get_secret_value()
+    raw_name = request.full_name or request.name
+    resolved_name = raw_name.strip() if raw_name and raw_name.strip() else None
 
     user = User(
         email=request.email,
         password_hash=hash_password(password),
+        full_name=resolved_name,
     )
     db.add(user)
 

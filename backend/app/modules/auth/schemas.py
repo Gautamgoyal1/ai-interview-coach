@@ -10,6 +10,8 @@ from pydantic import (
 
 
 class RegisterRequest(BaseModel):
+    name: str | None = Field(default=None, max_length=120)
+    full_name: str | None = Field(default=None, max_length=120)
     email: str = Field(min_length=3, max_length=320)
     password: SecretStr = Field(min_length=8, max_length=72)
 
@@ -49,6 +51,7 @@ class UserResponse(BaseModel):
 
     id: int
     email: str
+    full_name: str | None = None
 
 
 class TokenResponse(BaseModel):

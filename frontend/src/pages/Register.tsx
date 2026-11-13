@@ -8,6 +8,7 @@ export default function Register() {
   const { register, loading } = useAuth();
   const navigate = useNavigate();
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -20,6 +21,11 @@ export default function Register() {
     setError("");
     setSuccess("");
 
+    if (!name.trim()) {
+      setError("Please enter your name.");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -31,7 +37,7 @@ export default function Register() {
     }
 
     try {
-      await register({ email: email.trim(), password });
+      await register({ name: name.trim(), email: email.trim(), password });
       setSuccess("Account created successfully. Redirecting to sign in...");
       window.setTimeout(() => navigate("/login"), 1000);
     } catch (err) {
@@ -58,6 +64,18 @@ export default function Register() {
         </p>
 
         <form onSubmit={handleSubmit} className="auth-form">
+          <label htmlFor="register-name">Full name</label>
+          <input
+            id="register-name"
+            type="text"
+            autoComplete="name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="e.g. Alex Morgan"
+            required
+            maxLength={120}
+          />
+
           <label htmlFor="register-email">Email address</label>
           <input
             id="register-email"
