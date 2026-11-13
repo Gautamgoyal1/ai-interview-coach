@@ -79,7 +79,7 @@ a {
 }
 
 .btn-secondary {
-  background: #ffffff;
+  background: var(--bg-surface);
   color: var(--text-primary);
   border-color: var(--border-strong);
   box-shadow: var(--shadow-xs);
@@ -398,7 +398,7 @@ a {
 }
 
 /* ============================================================
-   Authentication (Light, Clean, Centered Card)
+   Authentication (Light & Dark, Clean, Centered Card)
    ============================================================ */
 .auth-page {
   min-height: 100vh;
@@ -407,13 +407,20 @@ a {
   justify-content: center;
   padding: 24px;
   background: var(--bg-canvas);
+  position: relative;
+}
+
+.auth-theme-corner {
+  position: absolute;
+  top: 24px;
+  right: 28px;
 }
 
 .auth-card {
   width: 100%;
   max-width: 420px;
   padding: 36px 32px;
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md);
@@ -472,7 +479,7 @@ a {
   min-height: var(--control-height);
   padding: 0 14px;
   color: var(--text-primary);
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   font: inherit;

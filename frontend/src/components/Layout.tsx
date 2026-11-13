@@ -13,6 +13,7 @@ import {
   MessageSquareIcon,
   XIcon,
 } from "./Icons";
+import ThemeToggle from "./ThemeToggle";
 import "./Layout.css";
 
 const NAV_ITEMS = [
@@ -140,6 +141,7 @@ export default function Layout() {
               </strong>
               <span>Personal workspace</span>
             </div>
+            <ThemeToggle className="sidebar-theme-toggle" />
           </div>
 
           <button
@@ -174,6 +176,7 @@ export default function Layout() {
           </div>
 
           <div className="topbar-actions">
+            <ThemeToggle />
             {location.pathname !== "/analyze" && (
               <NavLink to="/analyze" className="btn btn-secondary topbar-cta">
                 <FileTextIcon size={14} />

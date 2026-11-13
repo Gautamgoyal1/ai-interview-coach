@@ -787,7 +787,7 @@
 /* Top Header Bar */
 .iv-header {
   width: 100%;
-  background: #ffffff;
+  background: var(--bg-surface);
   border-bottom: 1px solid var(--border);
 }
 

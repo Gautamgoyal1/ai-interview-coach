@@ -2,6 +2,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function Login() {
   const { login, loading } = useAuth();
@@ -26,6 +27,9 @@ export default function Login() {
 
   return (
     <main className="auth-page">
+      <div className="auth-theme-corner">
+        <ThemeToggle />
+      </div>
       <section className="auth-card">
         <Link to="/login" className="auth-brand">
           <span className="auth-brand-mark">P</span>

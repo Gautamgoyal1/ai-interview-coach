@@ -98,3 +98,74 @@
   --transition-fast:   0.12s ease;
   --transition-normal: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* ============================================================
+   Dark Mode Theme — Warm Editorial Dark
+   ============================================================ */
+[data-theme="dark"] {
+  /* ── Dark Warm Editorial Surfaces ── */
+  --bg-canvas:      #121519;   /* deep warm slate/charcoal canvas */
+  --bg-surface:     #1A1E24;   /* cards, workspace containers, inputs */
+  --bg-secondary:   #222832;   /* section bands, elevated elements */
+  --bg-warm:        #2B3340;   /* featured / highlighted areas */
+  --bg-hover:       #272E3A;   /* hover on dark surfaces */
+  --bg-sunken:      #15191E;   /* inset / subtle inputs */
+  --bg-subtle:      #222832;   /* alias */
+  --bg-card:        #1A1E24;   /* alias */
+  --bg-sidebar:     #16191F;   /* sidebar background */
+  --bg-overlay:     rgba(0, 0, 0, 0.72);
+
+  /* ── Dark Typography ── */
+  --text-primary:   #F0F3F6;   /* crisp readable off-white */
+  --text-secondary: #9DA8B6;   /* soft muted gray */
+  --text-muted:     #6E7A8A;   /* labels, meta */
+  --text-subtlest:  #4B5563;
+  --text-inverse:   #121519;
+
+  /* ── Borders & Dividers ── */
+  --border:         #2E3642;
+  --border-subtle:  #252C36;
+  --border-strong:  #3D4756;
+  --border-interactive: #546275;
+
+  /* ── Primary Accent: Terracotta (Calibrated contrast) ── */
+  --accent:         #DE7351;
+  --accent-hover:   #EA8464;
+  --accent-active:  #C65D3B;
+  --accent-light:   rgba(222, 115, 81, 0.16);
+  --accent-tint:    rgba(222, 115, 81, 0.16);
+  --accent-border:  rgba(222, 115, 81, 0.38);
+  --accent-glow:    rgba(222, 115, 81, 0.25);
+
+  /* ── Semantic — Success ── */
+  --success:        #34D399;
+  --success-hover:  #10B981;
+  --success-bg:     rgba(16, 185, 129, 0.14);
+  --success-border: rgba(16, 185, 129, 0.32);
+
+  /* ── Semantic — Warning ── */
+  --warning:        #FBBF24;
+  --warning-hover:  #F59E0B;
+  --warning-bg:     rgba(245, 158, 11, 0.14);
+  --warning-border: rgba(245, 158, 11, 0.32);
+
+  /* ── Semantic — Error / Danger ── */
+  --danger:         #F87171;
+  --danger-hover:   #EF4444;
+  --danger-bg:      rgba(239, 68, 68, 0.14);
+  --danger-border:  rgba(239, 68, 68, 0.32);
+
+  /* ── Semantic — Info ── */
+  --info:           #60A5FA;
+  --info-bg:        rgba(37, 99, 235, 0.16);
+  --info-border:    rgba(37, 99, 235, 0.32);
+
+  /* ── Ambient Dark Shadows ── */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+
+  --focus-ring: 0 0 0 3px rgba(222, 115, 81, 0.35);
+}
+

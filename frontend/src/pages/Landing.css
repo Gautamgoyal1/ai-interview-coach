@@ -38,6 +38,10 @@
   transition: all var(--transition-fast);
 }
 
+[data-theme="dark"] .landing-nav-header {
+  background-color: rgba(18, 21, 25, 0.94);
+}
+
 .landing-nav-inner {
   display: flex;
   align-items: center;
@@ -191,6 +195,15 @@
   flex-direction: column;
   gap: 10px;
   margin-top: 10px;
+}
+
+.landing-mobile-theme-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 4px;
 }
 
 @media (max-width: 860px) {
@@ -660,7 +673,7 @@
   transform: translateY(-4px);
   border-color: var(--accent-border);
   box-shadow: var(--shadow-md);
-  background: #ffffff;
+  background: var(--bg-surface);
 }
 
 .process-step-badge {

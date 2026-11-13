@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import ThemeToggle from "../components/ThemeToggle";
 import {
   ArrowRightIcon,
   BarChartIcon,
@@ -95,6 +96,7 @@ export default function Landing() {
           </nav>
 
           <div className="landing-nav-actions">
+            <ThemeToggle />
             {user ? (
               <Link to="/dashboard" className="btn btn-primary btn-sm btn-lift">
                 <span>Go to Dashboard</span>
@@ -155,6 +157,9 @@ export default function Landing() {
               Why PrepMate
             </a>
             <div className="landing-mobile-cta">
+              <div className="landing-mobile-theme-row">
+                <ThemeToggle showLabel />
+              </div>
               {user ? (
                 <Link
                   to="/dashboard"
