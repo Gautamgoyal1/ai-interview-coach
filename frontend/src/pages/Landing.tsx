@@ -449,53 +449,8 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* Feature 2: Adaptive Engine */}
-              <div className="bento-card bento-card-compact reveal-on-scroll" style={{ animationDelay: "150ms" }}>
-                <div className="bento-icon-box">
-                  <CompassIcon size={22} />
-                </div>
-                <h3 className="bento-title">Adaptive Difficulty Engine</h3>
-                <p className="bento-desc">
-                  Questions adjust dynamically based on your performance. Excel on fundamentals, and PrepMate introduces realistic production trade-offs.
-                </p>
-                <div className="bento-mini-meter">
-                  <span className="meter-label">Dynamic Calibration:</span>
-                  <div className="meter-bar"><div className="meter-fill" /></div>
-                </div>
-              </div>
-
-              {/* Feature 3: Dual Technical & HR */}
-              <div className="bento-card bento-card-compact reveal-on-scroll" style={{ animationDelay: "250ms" }}>
-                <div className="bento-icon-box">
-                  <UsersIcon size={22} />
-                </div>
-                <h3 className="bento-title">Technical & HR Behavioral Modes</h3>
-                <p className="bento-desc">
-                  Prepare for system design trade-offs or behavioral STAR scenarios covering conflict resolution, decision dilemmas, and prioritization.
-                </p>
-                <div className="bento-pill-group">
-                  <span className="bento-chip">System Design</span>
-                  <span className="bento-chip">STAR Method</span>
-                </div>
-              </div>
-
-              {/* Feature 4: Progressive Hints */}
-              <div className="bento-card bento-card-compact reveal-on-scroll" style={{ animationDelay: "150ms" }}>
-                <div className="bento-icon-box">
-                  <LightbulbIcon size={22} />
-                </div>
-                <h3 className="bento-title">Progressive 2-Level Hints</h3>
-                <p className="bento-desc">
-                  Stuck on a challenging scenario? Unlock gentle directional clues or structured frameworks without spoiling the solution.
-                </p>
-                <div className="bento-hint-preview">
-                  <span>Level 1: Directional Clue</span>
-                  <span>Level 2: Structured Blueprint</span>
-                </div>
-              </div>
-
-              {/* Feature 5: Hero Bento Card (Answer Coach & Diff) */}
-              <div className="bento-card bento-card-coach reveal-on-scroll" style={{ animationDelay: "250ms" }}>
+              {/* Feature 2: Hero Bento Card (Answer Coach & Diff) */}
+              <div className="bento-card bento-card-coach reveal-on-scroll" style={{ animationDelay: "150ms" }}>
                 <div className="bento-copy">
                   <div className="bento-header-tag">
                     <SparklesIcon size={16} />
@@ -521,6 +476,71 @@ export default function Landing() {
                       <LightbulbIcon size={13} />
                       <span><strong>Gap Solved:</strong> Split-brain prevention under network partitions</span>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Feature 3: Adaptive Engine */}
+              <div className="bento-card bento-card-compact reveal-on-scroll" style={{ animationDelay: "100ms" }}>
+                <div className="bento-icon-box">
+                  <CompassIcon size={22} />
+                </div>
+                <h3 className="bento-title">Adaptive Difficulty Engine</h3>
+                <p className="bento-desc">
+                  Questions adjust dynamically based on your performance. Excel on fundamentals, and PrepMate introduces realistic production trade-offs.
+                </p>
+                <div className="bento-mini-meter">
+                  <span className="meter-label">Dynamic Calibration:</span>
+                  <div className="meter-bar"><div className="meter-fill" /></div>
+                </div>
+              </div>
+
+              {/* Feature 4: Dual Technical & HR */}
+              <div className="bento-card bento-card-compact reveal-on-scroll" style={{ animationDelay: "180ms" }}>
+                <div className="bento-icon-box">
+                  <UsersIcon size={22} />
+                </div>
+                <h3 className="bento-title">Technical & HR Behavioral Modes</h3>
+                <p className="bento-desc">
+                  Prepare for system design trade-offs or behavioral STAR scenarios covering conflict resolution, decision dilemmas, and prioritization.
+                </p>
+                <div className="bento-pill-group">
+                  <span className="bento-chip">System Design</span>
+                  <span className="bento-chip">STAR Method</span>
+                </div>
+              </div>
+
+              {/* Feature 5: Progressive Hints */}
+              <div className="bento-card bento-card-compact reveal-on-scroll" style={{ animationDelay: "260ms" }}>
+                <div className="bento-icon-box">
+                  <LightbulbIcon size={22} />
+                </div>
+                <h3 className="bento-title">Progressive 2-Level Hints</h3>
+                <p className="bento-desc">
+                  Stuck on a challenging scenario? Unlock gentle directional clues or structured frameworks without spoiling the solution.
+                </p>
+                <div className="bento-hint-preview">
+                  <span>Level 1: Directional Clue</span>
+                  <span>Level 2: Structured Blueprint</span>
+                </div>
+              </div>
+
+              {/* Feature 6: Rubric Scoring & Performance Reports */}
+              <div className="bento-card bento-card-compact reveal-on-scroll" style={{ animationDelay: "340ms" }}>
+                <div className="bento-icon-box">
+                  <BarChartIcon size={22} />
+                </div>
+                <h3 className="bento-title">Rubric & Performance Reports</h3>
+                <p className="bento-desc">
+                  Granular multi-criteria evaluations across technical correctness, design trade-offs, and communication clarity.
+                </p>
+                <div className="bento-rubric-mini">
+                  <div className="rubric-mini-row">
+                    <span>Target Readiness:</span>
+                    <strong>84 / 100</strong>
+                  </div>
+                  <div className="rubric-mini-bar">
+                    <div className="rubric-mini-fill" style={{ width: "84%" }} />
                   </div>
                 </div>
               </div>

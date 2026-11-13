@@ -759,7 +759,7 @@
 
 .bento-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
 }
 
@@ -767,7 +767,7 @@
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  padding: 32px 28px;
+  padding: 30px 26px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -779,16 +779,20 @@
 .bento-card:hover {
   border-color: var(--border-interactive);
   transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 24px rgba(32, 44, 57, 0.08);
 }
 
 .bento-card-resume,
 .bento-card-coach {
   grid-column: span 2;
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 28px;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 24px;
   align-items: center;
+}
+
+.bento-card-compact {
+  grid-column: span 1;
 }
 
 .bento-header-tag {
@@ -805,7 +809,7 @@
 
 .bento-title {
   margin: 0;
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text-primary);
@@ -814,7 +818,7 @@
 
 .bento-desc {
   margin: 0;
-  font-size: 14px;
+  font-size: 13.5px;
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -863,7 +867,7 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 18px;
+  padding: 16px;
 }
 
 .sim-skill-tags {
@@ -873,9 +877,9 @@
 }
 
 .skill-tag {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
-  padding: 6px 12px;
+  padding: 6px 10px;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -928,12 +932,13 @@
   display: flex;
   gap: 8px;
   margin-top: 8px;
+  flex-wrap: wrap;
 }
 
 .bento-chip {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
-  padding: 4px 10px;
+  padding: 4px 9px;
   border-radius: var(--radius-full);
   background: var(--bg-secondary);
   border: 1px solid var(--border);
@@ -957,22 +962,59 @@
   font-weight: 600;
 }
 
+.bento-rubric-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  background: var(--bg-secondary);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.rubric-mini-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.rubric-mini-row strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.rubric-mini-bar {
+  height: 5px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.rubric-mini-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-full);
+}
+
 .bento-visual-coach {
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 18px;
+  padding: 16px;
 }
 
 .coach-diff-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .diff-tag {
-  font-size: 12.5px;
-  padding: 10px 12px;
+  font-size: 12px;
+  padding: 8px 10px;
   border-radius: var(--radius-sm);
   background: var(--bg-surface);
   border: 1px solid var(--border);
@@ -1000,14 +1042,34 @@
   flex-shrink: 0;
 }
 
+@media (max-width: 1200px) {
+  .bento-card-resume,
+  .bento-card-coach {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
 @media (max-width: 1024px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .bento-card-resume,
+  .bento-card-coach {
+    grid-column: span 2;
+  }
+  .bento-card-compact {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 640px) {
   .bento-grid {
     grid-template-columns: 1fr;
   }
   .bento-card-resume,
   .bento-card-coach {
     grid-column: span 1;
-    grid-template-columns: 1fr;
   }
 }
 
