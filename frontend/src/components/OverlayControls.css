@@ -1,3 +1,7 @@
+/* ============================================================
+   Overlay Controls & Confirmation Modals — PrepMate Light SaaS Design
+   ============================================================ */
+
 .pm-menu-wrap {
   position: relative;
   display: inline-flex;
@@ -13,19 +17,19 @@
   height: 34px;
   padding: 0 10px;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  background: #ffffff;
   color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: all var(--transition-fast);
 }
 
 .pm-menu-trigger:hover,
 .pm-menu-trigger:focus-visible {
-  background: var(--bg-subtle);
-  border-color: var(--border-strong);
+  background: var(--bg-hover);
+  border-color: var(--border-interactive);
   color: var(--text-primary);
 }
 
@@ -34,11 +38,11 @@
   top: calc(100% + 6px);
   right: 0;
   z-index: 60;
-  min-width: 184px;
+  min-width: 190px;
   padding: 6px;
   border-radius: var(--radius-md);
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
@@ -49,7 +53,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -59,11 +63,13 @@
   text-align: left;
   text-decoration: none;
   cursor: pointer;
+  transition: all var(--transition-fast);
 }
 
 .pm-menu-item:hover,
 .pm-menu-item:focus-visible {
-  background: var(--bg-subtle);
+  background: var(--bg-hover);
+  color: var(--text-primary);
   outline: none;
 }
 
@@ -74,6 +80,7 @@
 .pm-menu-item.danger:hover,
 .pm-menu-item.danger:focus-visible {
   background: var(--danger-bg);
+  color: var(--danger-hover);
 }
 
 /* Accessible Confirmation Modal */
@@ -81,7 +88,7 @@
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: rgba(15, 23, 42, 0.52);
+  background: var(--bg-overlay);
   display: grid;
   place-items: center;
   padding: 16px;
@@ -90,44 +97,46 @@
 .pm-dialog {
   width: 100%;
   max-width: 440px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  padding: 22px 24px;
+  box-shadow: var(--shadow-lg);
+  padding: 28px 30px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .pm-dialog-title {
   margin: 0;
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 700;
   color: var(--text-primary);
+  letter-spacing: -0.015em;
 }
 
 .pm-dialog-desc {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.55;
   color: var(--text-secondary);
 }
 
 .pm-dialog-note {
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-radius: var(--radius-md);
   background: var(--warning-bg);
   border: 1px solid var(--warning-border);
-  color: var(--text-primary);
-  font-size: 12.5px;
+  color: var(--warning);
+  font-size: 13px;
   line-height: 1.5;
+  font-weight: 500;
 }
 
 .pm-dialog-check {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 10px;
   font-size: 13px;
   color: var(--text-primary);
   cursor: pointer;
@@ -139,7 +148,7 @@
 
 .pm-dialog-error {
   margin: 0;
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--danger);
 }
 
@@ -147,7 +156,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .btn-danger-solid {
@@ -157,27 +166,27 @@
 }
 
 .btn-danger-solid:hover:not(:disabled) {
-  filter: brightness(0.92);
+  background: var(--danger-hover);
 }
 
 .btn-danger-solid:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
 .pm-toast {
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: var(--radius-md);
   background: var(--success-bg);
   border: 1px solid var(--success-border);
   color: var(--success);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 13.5px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 @media (prefers-reduced-motion: reduce) {

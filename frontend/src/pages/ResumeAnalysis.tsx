@@ -55,47 +55,53 @@ export default function ResumeAnalysis() {
           <span className="badge">PDF · Max 10 MB</span>
         </div>
 
-        <div className="form-field">
-          <span className="field-label">Resume PDF</span>
-          <FileUpload
-            file={file}
-            fileError={fileError}
-            onSelect={(nextFile, nextErr) => {
-              setFile(nextFile);
-              setFileError(nextErr);
-            }}
-          />
-        </div>
+        <div className="resume-form-grid">
+          <div className="resume-form-col">
+            <div className="form-field" style={{ height: "100%" }}>
+              <span className="field-label">Resume PDF</span>
+              <FileUpload
+                file={file}
+                fileError={fileError}
+                onSelect={(nextFile, nextErr) => {
+                  setFile(nextFile);
+                  setFileError(nextErr);
+                }}
+              />
+            </div>
+          </div>
 
-        <div className="form-field">
-          <label htmlFor="job-role" className="field-label">
-            Target job role
-          </label>
-          <input
-            id="job-role"
-            className="pm-input"
-            value={jobRole}
-            onChange={(event) => setJobRole(event.target.value)}
-            minLength={2}
-            maxLength={150}
-            required
-            placeholder="e.g. Machine Learning Engineer"
-          />
-        </div>
+          <div className="resume-form-col">
+            <div className="form-field">
+              <label htmlFor="job-role" className="field-label">
+                Target job role
+              </label>
+              <input
+                id="job-role"
+                className="pm-input"
+                value={jobRole}
+                onChange={(event) => setJobRole(event.target.value)}
+                minLength={2}
+                maxLength={150}
+                required
+                placeholder="e.g. Machine Learning Engineer"
+              />
+            </div>
 
-        <div className="form-field">
-          <label htmlFor="job-description" className="field-label">
-            Job description <span className="optional">(optional)</span>
-          </label>
-          <textarea
-            id="job-description"
-            className="pm-textarea"
-            value={jobDescription}
-            onChange={(event) => setJobDescription(event.target.value)}
-            maxLength={15000}
-            rows={4}
-            placeholder="Paste the job description or required skills for more targeted matching..."
-          />
+            <div className="form-field">
+              <label htmlFor="job-description" className="field-label">
+                Job description <span className="optional">(optional)</span>
+              </label>
+              <textarea
+                id="job-description"
+                className="pm-textarea"
+                value={jobDescription}
+                onChange={(event) => setJobDescription(event.target.value)}
+                maxLength={15000}
+                rows={5}
+                placeholder="Paste the job description or required skills for more targeted matching..."
+              />
+            </div>
+          </div>
         </div>
 
         {error && (

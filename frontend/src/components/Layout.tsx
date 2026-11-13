@@ -6,6 +6,7 @@ import {
   BookOpenIcon,
   DashboardIcon,
   FileTextIcon,
+  GraduationCapIcon,
   HistoryIcon,
   LogOutIcon,
   MenuIcon,
@@ -92,13 +93,15 @@ export default function Layout() {
         aria-label="Primary sidebar"
       >
         <div className="sidebar-header">
-          <div className="sidebar-brand">
-            <div className="brand-icon">P</div>
-            <div>
-              <h2>PrepMate</h2>
-              <p>Interview Prep</p>
+          <NavLink to="/" className="sidebar-brand">
+            <div className="brand-icon">
+              <GraduationCapIcon size={19} />
             </div>
-          </div>
+            <div className="brand-text">
+              <h2>PrepMate</h2>
+              <span className="brand-tag">Workspace</span>
+            </div>
+          </NavLink>
 
           <button
             type="button"
@@ -109,8 +112,6 @@ export default function Layout() {
             <XIcon size={18} />
           </button>
         </div>
-
-        <div className="sidebar-section-label">WORKSPACE</div>
 
         <nav className="sidebar-nav" aria-label="Main navigation">
           {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
@@ -145,6 +146,7 @@ export default function Layout() {
             type="button"
             className="logout-button"
             onClick={handleLogout}
+            title="Sign out of PrepMate"
           >
             <LogOutIcon size={16} />
             <span>Sign out</span>
@@ -174,7 +176,8 @@ export default function Layout() {
           <div className="topbar-actions">
             {location.pathname !== "/analyze" && (
               <NavLink to="/analyze" className="btn btn-secondary topbar-cta">
-                Analyze Resume
+                <FileTextIcon size={14} />
+                <span>Analyze Resume</span>
               </NavLink>
             )}
           </div>
