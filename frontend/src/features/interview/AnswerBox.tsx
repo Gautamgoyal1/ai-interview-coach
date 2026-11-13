@@ -52,7 +52,7 @@ export default function AnswerBox({
     <form className="iv-answer-panel" onSubmit={handleSubmit}>
       <div className="iv-answer-header">
         <label htmlFor="interview-answer" className="iv-answer-label">
-          Your Answer
+          Your response
         </label>
         <span className="iv-answer-shortcut">Ctrl/Cmd + Enter to submit</span>
       </div>
@@ -64,7 +64,7 @@ export default function AnswerBox({
         value={answer}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Write your answer here. Structure your explanation around core concepts, practical usage, and trade-offs..."
+        placeholder="Write your answer here..."
         disabled={disabled || submitting}
         maxLength={10000}
         aria-describedby="interview-answer-status"
@@ -77,10 +77,10 @@ export default function AnswerBox({
           aria-live="polite"
         >
           {submitting
-            ? "Evaluating response and preparing next step..."
+            ? "Evaluating response..."
             : wordCount > 0
               ? `${wordCount} ${wordCount === 1 ? "word" : "words"}`
-              : "Enter your response to continue"}
+              : ""}
         </span>
 
         <button
@@ -89,7 +89,7 @@ export default function AnswerBox({
           disabled={!canSubmit()}
         >
           {submitting && <span className="pm-spinner iv-btn-spinner" aria-hidden="true" />}
-          <span>{submitting ? "Submitting..." : "Submit Answer"}</span>
+          <span>{submitting ? "Submitting..." : "Submit answer"}</span>
           {!submitting && <ArrowRightIcon size={15} />}
         </button>
       </div>

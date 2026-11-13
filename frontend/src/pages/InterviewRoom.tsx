@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import {
   ArrowRightIcon,
   CheckCircleIcon,
+  GraduationCapIcon,
   XIcon,
 } from "../components/Icons";
 import AnswerBox from "../features/interview/AnswerBox";
@@ -19,7 +20,7 @@ import "./InterviewRoom.css";
 
 const EXPERIENCE_LABELS: Record<ExperienceLevel, string> = {
   internship: "Internship",
-  fresher: "Fresher / Entry Level",
+  fresher: "Fresher",
   intermediate: "Intermediate",
   experienced: "Experienced",
 };
@@ -134,7 +135,7 @@ export default function InterviewRoom() {
             <div>
               <strong>Preparing your interview workspace</strong>
               <p>
-                Loading your saved profile and calibrating the opening question...
+                Loading your profile and calibrating your questions...
               </p>
             </div>
           </div>
@@ -175,34 +176,24 @@ export default function InterviewRoom() {
     EXPERIENCE_LABELS[session.experience_level ?? "fresher"];
   const isInProgress =
     session.status === "in_progress" && session.current_question !== null;
+  const roundTypeLabel =
+    session.interview_type === "hr" ? "Behavioral round" : "Technical round";
 
   return (
     <div className="iv-shell">
+      {/* Top Header Bar matching conceptual preview */}
       <header className="iv-header">
         <div className="iv-header-inner">
           <div className="iv-header-left">
             <Link to="/" className="iv-brand" aria-label="PrepMate Dashboard">
-              <span className="iv-brand-mark">P</span>
+              <span className="iv-brand-mark">
+                <GraduationCapIcon size={18} />
+              </span>
               <span className="iv-brand-copy">
                 <strong>PrepMate</strong>
                 <span>Interview workspace</span>
               </span>
             </Link>
-          </div>
-
-          <div className="iv-header-context">
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-              <span className={`badge ${session.interview_type === "hr" ? "badge-success" : "badge-accent"}`}>
-                {session.interview_type === "hr" ? "HR / Behavioral" : "Technical Interview"}
-              </span>
-              <h1 className="iv-role-heading">{session.target_role}</h1>
-            </div>
-            <span className="iv-context-sub">
-              {experienceLabel} ·{" "}
-              <span className={isInProgress ? "iv-status-active" : "iv-status-done"}>
-                {isInProgress ? "In progress" : "Completed"}
-              </span>
-            </span>
           </div>
 
           <div className="iv-header-right">
@@ -212,7 +203,7 @@ export default function InterviewRoom() {
                 {session.max_questions}
               </span>
             )}
-            <Link to="/" className="btn btn-secondary iv-header-btn">
+            <Link to="/" className="btn btn-ghost iv-header-btn">
               Dashboard
             </Link>
             {isInProgress ? (
@@ -222,18 +213,19 @@ export default function InterviewRoom() {
                 onClick={() => void handleEndInterview()}
                 disabled={submitting}
               >
-                End Interview
+                End interview
               </button>
             ) : (
               <Link to="/interview" className="btn btn-primary iv-header-btn">
                 <span>New Interview</span>
-                <ArrowRightIcon size={15} />
+                <ArrowRightIcon size={14} />
               </Link>
             )}
           </div>
         </div>
       </header>
 
+      {/* Main Workspace */}
       <div className="iv-container">
         {error && (
           <div className="pm-alert-error iv-alert" role="alert">
@@ -251,6 +243,23 @@ export default function InterviewRoom() {
 
         {isInProgress && session.current_question ? (
           <div className="iv-workspace">
+            {/* Subheader bar */}
+            <div className="iv-subheader">
+              <div className="iv-subheader-info">
+                <h1 className="iv-role-title">
+                  {session.target_role} Interview
+                </h1>
+                <p className="iv-role-meta">
+                  {experienceLabel} level · {roundTypeLabel}
+                </p>
+              </div>
+
+              <div className="iv-status-pill">
+                In progress
+              </div>
+            </div>
+
+            {/* Full-width slim progress bar */}
             <ProgressBar
               questionIndex={session.question_index}
               maxQuestions={session.max_questions}
@@ -258,6 +267,7 @@ export default function InterviewRoom() {
               answeredCount={answeredTurns.length}
             />
 
+            {/* Split Grid: Left Question, Right Answer */}
             <div className="iv-split-grid">
               <QuestionCard
                 question={session.current_question}

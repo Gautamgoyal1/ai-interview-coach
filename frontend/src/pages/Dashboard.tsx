@@ -5,7 +5,6 @@ import {
   BarChartIcon,
   BookOpenIcon,
   FileTextIcon,
-  LightbulbIcon,
   MessageSquareIcon,
 } from "../components/Icons";
 import { useAuth } from "../hooks/useAuth";
@@ -64,9 +63,14 @@ export default function Dashboard() {
   const latestAnalysis = analyses[0] ?? null;
   const latestReport = reports[0] ?? null;
 
+  const rawHandle = user?.email ? user.email.split("@")[0] : "";
+  const cleanHandle = rawHandle.replace(/_\d{8,}$/, "");
+  const displayName = cleanHandle.length > 20 ? cleanHandle.slice(0, 18) + "…" : cleanHandle;
+
+  // ── Next recommended action ──
   let nextTitle = "Analyze your resume to begin";
   let nextDescription =
-    "Upload a PDF resume and target role to identify matched skills, gaps, and interview topics.";
+    "Upload a PDF resume and target role to identify matched skills, gaps, and tailored interview topics.";
   let nextTo = "/analyze";
   let nextLabel = "Upload Resume";
 
@@ -84,38 +88,50 @@ export default function Dashboard() {
     nextLabel = "View Latest Report";
   }
 
+  const latestScore =
+    latestReport?.overall_score != null
+      ? `${latestReport.overall_score.toFixed(0)} / 100`
+      : latestAnalysis
+      ? `${latestAnalysis.match_score.toFixed(0)}%`
+      : "—";
+
+  const latestScoreLabel =
+    latestReport?.overall_score != null
+      ? "Interview Score"
+      : latestAnalysis
+      ? "Resume Match"
+      : "No score yet";
+
+  const currentFocus =
+    latestReport?.target_role || latestAnalysis?.job_role || "General";
+
+  if (loading) {
+    return (
+      <div className="dash-page">
+        <div className="dash-editorial-header" aria-busy="true">
+          <div className="dash-welcome-col">
+            <div className="pm-skeleton" style={{ height: 14, width: "30%", marginBottom: 14 }} />
+            <div className="pm-skeleton" style={{ height: 36, width: "65%", marginBottom: 10 }} />
+            <div className="pm-skeleton" style={{ height: 16, width: "80%" }} />
+          </div>
+          <div className="dash-next-action-col">
+            <div className="pm-skeleton" style={{ height: 18, width: "50%", marginBottom: 10 }} />
+            <div className="pm-skeleton" style={{ height: 24, width: "80%", marginBottom: 8 }} />
+            <div className="pm-skeleton" style={{ height: 44, width: 160 }} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="dash-page">
-      <header className="pm-page-header">
-        <div>
-          <p className="pm-eyebrow">OVERVIEW</p>
-          <h1 className="pm-page-title">
-            Welcome back{user?.email ? `, ${user.email.split("@")[0]}` : ""}
-          </h1>
-          <p className="pm-page-subtitle">
-            Track your resume analyses, technical interview sessions, and
-            rubric-based performance reports.
-          </p>
-        </div>
-
-        <div className="dash-header-actions">
-          <Link to="/analyze" className="btn btn-secondary">
-            <FileTextIcon size={15} />
-            <span>Analyze Resume</span>
-          </Link>
-          <Link to="/interview" className="btn btn-primary">
-            <MessageSquareIcon size={15} />
-            <span>Start Interview</span>
-          </Link>
-        </div>
-      </header>
-
       {error && (
-        <div className="pm-alert-error" role="alert" style={{ marginBottom: 20 }}>
+        <div className="pm-alert-error" role="alert">
           <span>{error}</span>
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-secondary btn-sm"
             onClick={() => void loadOverview()}
           >
             Retry
@@ -123,217 +139,200 @@ export default function Dashboard() {
         </div>
       )}
 
-      {loading ? (
-        <div className="dash-metrics-grid" aria-busy="true">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="pm-card dash-metric-card">
-              <div className="pm-skeleton" style={{ height: 12, width: "60%" }} />
-              <div
-                className="pm-skeleton"
-                style={{ height: 28, width: "40%", marginTop: 10 }}
-              />
-            </div>
-          ))}
+      {/* ── 1. Editorial welcome band ── */}
+      <section className="dash-editorial-header" aria-label="Welcome and next action">
+        <div className="dash-welcome-col">
+          <p className="dash-eyebrow">Your Workspace</p>
+          <h1 className="dash-welcome-title">
+            {displayName ? `Welcome back, ${displayName}` : "Welcome back"}
+          </h1>
+          <p className="dash-welcome-sub">
+            Track your resume profile, technical interviews, and personalized practice roadmap.
+          </p>
+          <div className="dash-welcome-links">
+            <Link to="/analyze" className="btn btn-secondary btn-sm">
+              <FileTextIcon size={15} />
+              <span>Analyze Resume</span>
+            </Link>
+            <Link to="/interview" className="btn btn-secondary btn-sm">
+              <MessageSquareIcon size={15} />
+              <span>Start Interview</span>
+            </Link>
+          </div>
         </div>
-      ) : (
-        <>
-          <section className="dash-metrics-grid" aria-label="Preparation metrics">
-            <article className="pm-card dash-metric-card">
-              <span className="dash-metric-label">Resume Analyses</span>
-              <strong className="dash-metric-value tabular-nums">
-                {analyses.length}
-              </strong>
-              <span className="dash-metric-hint">Saved evaluations</span>
-            </article>
 
-            <article className="pm-card dash-metric-card">
-              <span className="dash-metric-label">Latest Resume Match</span>
-              <strong className="dash-metric-value tabular-nums">
-                {latestAnalysis
-                  ? `${latestAnalysis.match_score.toFixed(1)}%`
-                  : "—"}
-              </strong>
-              <span className="dash-metric-hint">
-                {latestAnalysis ? latestAnalysis.job_role : "No analysis yet"}
+        <div className="dash-next-action-col">
+          <p className="dash-next-label">Recommended Next Step</p>
+          <h2 className="dash-next-title">{nextTitle}</h2>
+          <p className="dash-next-desc">{nextDescription}</p>
+          <Link to={nextTo} className="btn btn-primary">
+            <span>{nextLabel}</span>
+            <ArrowRightIcon size={15} />
+          </Link>
+        </div>
+      </section>
+
+      {/* ── 2. Horizontal stats strip ── */}
+      <div className="dash-stats-strip" role="region" aria-label="Preparation snapshot">
+        <div className="dash-stat-item">
+          <strong className="dash-stat-num tabular-nums">{analyses.length}</strong>
+          <span className="dash-stat-label">Resume Profiles</span>
+        </div>
+        <div className="dash-stat-divider" />
+        <div className="dash-stat-item">
+          <strong className="dash-stat-num tabular-nums">{reports.length}</strong>
+          <span className="dash-stat-label">Interviews Done</span>
+        </div>
+        <div className="dash-stat-divider" />
+        <div className="dash-stat-item">
+          <strong className="dash-stat-num tabular-nums">{latestScore}</strong>
+          <span className="dash-stat-label">{latestScoreLabel}</span>
+        </div>
+        <div className="dash-stat-divider" />
+        <div className="dash-stat-item">
+          <strong className="dash-stat-num dash-stat-focus">{currentFocus}</strong>
+          <span className="dash-stat-label">Current Focus</span>
+        </div>
+      </div>
+
+      {/* ── 3. Learning section: featured + compact rows ── */}
+      {recommendations.length > 0 && (
+        <section className="dash-learning-section" aria-label="Targeted practice recommendations">
+          <div className="dash-learning-head">
+            <h2 className="dash-section-heading">Targeted Practice</h2>
+            <Link to="/practice" className="dash-view-all">
+              Open Practice Hub →
+            </Link>
+          </div>
+
+          {/* Featured recommendation */}
+          <article className="dash-featured-rec">
+            <div className="dash-featured-rec-meta">
+              <span className="badge badge-accent" style={{ textTransform: "capitalize" }}>
+                {recommendations[0].interview_type}
               </span>
-            </article>
-
-            <article className="pm-card dash-metric-card">
-              <span className="dash-metric-label">Interview Reports</span>
-              <strong className="dash-metric-value tabular-nums">
-                {reports.length}
-              </strong>
-              <span className="dash-metric-hint">Completed interviews</span>
-            </article>
-
-            <article className="pm-card dash-metric-card">
-              <span className="dash-metric-label">Latest Practice Score</span>
-              <strong className="dash-metric-value tabular-nums">
-                {latestReport && latestReport.overall_score !== null
-                  ? `${latestReport.overall_score.toFixed(1)} / 100`
-                  : "—"}
-              </strong>
-              <span className="dash-metric-hint">
-                {latestReport
-                  ? `Rubric ${latestReport.rubric_version}`
-                  : "No report yet"}
+              <span className="dash-featured-priority">
+                {recommendations[0].priority} priority
               </span>
-            </article>
-          </section>
-
-          <section className="pm-card dash-next-card">
-            <div className="dash-next-copy">
-              <span className="badge badge-accent">Recommended next step</span>
-              <h2>{nextTitle}</h2>
-              <p>{nextDescription}</p>
             </div>
-            <div className="dash-next-actions">
-              <Link to={nextTo} className="btn btn-primary">
-                <span>{nextLabel}</span>
-                <ArrowRightIcon size={15} />
-              </Link>
-            </div>
-          </section>
+            <h3 className="dash-featured-topic">{recommendations[0].topic}</h3>
+            <p className="dash-featured-gap">{recommendations[0].observed_gap}</p>
+            <Link
+              to={`/practice?topic=${encodeURIComponent(recommendations[0].topic)}&type=${encodeURIComponent(recommendations[0].interview_type)}&gap=${encodeURIComponent(recommendations[0].observed_gap)}&reportId=${recommendations[0].source_report_id || ""}`}
+              className="btn btn-primary"
+            >
+              <BookOpenIcon size={15} />
+              <span>Practice This Topic</span>
+            </Link>
+          </article>
 
-          {recommendations.length > 0 && (
-            <section className="pm-card" style={{ padding: "1.5rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <LightbulbIcon size={18} style={{ color: "#eab308" }} />
-                  <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700 }}>Continue Improving — Targeted Practice</h3>
-                </div>
-                <Link to="/practice" className="dash-view-all">
-                  Open Practice Hub →
-                </Link>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1rem" }}>
-                {recommendations.map((rec, idx) => (
-                  <article
-                    key={idx}
-                    style={{
-                      padding: "1rem 1.25rem",
-                      background: "#0d1017",
-                      border: "1px solid #1f242e",
-                      borderRadius: "8px",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      gap: "0.75rem",
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
-                        <strong style={{ fontSize: "0.95rem", color: "#f1f5f9" }}>{rec.topic}</strong>
-                        <span className="badge badge-neutral" style={{ textTransform: "capitalize", fontSize: "0.7rem" }}>
-                          {rec.interview_type}
-                        </span>
-                      </div>
-                      <p style={{ fontSize: "0.825rem", color: "#94a3b8", margin: 0, lineHeight: 1.4 }}>
-                        {rec.observed_gap}
-                      </p>
-                    </div>
+          {/* Additional recs as compact rows */}
+          {recommendations.length > 1 && (
+            <div className="dash-rec-rows">
+              {recommendations.slice(1).map((rec, idx) => (
+                <div key={idx + 1} className="dash-rec-row">
+                  <div className="dash-rec-row-info">
+                    <strong className="dash-rec-row-topic">{rec.topic}</strong>
+                    <span className="dash-rec-row-gap">{rec.observed_gap}</span>
+                  </div>
+                  <div className="dash-rec-row-right">
+                    <span className="badge" style={{ textTransform: "capitalize" }}>
+                      {rec.interview_type}
+                    </span>
                     <Link
                       to={`/practice?topic=${encodeURIComponent(rec.topic)}&type=${encodeURIComponent(rec.interview_type)}&gap=${encodeURIComponent(rec.observed_gap)}&reportId=${rec.source_report_id || ""}`}
-                      className="btn btn-secondary"
-                      style={{ fontSize: "0.8rem", padding: "0.35rem 0.65rem", alignSelf: "flex-start" }}
+                      className="dash-rec-row-cta"
                     >
-                      <BookOpenIcon size={13} />
-                      <span>Practice Topic</span>
+                      Practice →
                     </Link>
-                  </article>
-                ))}
-              </div>
-            </section>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
-
-          <div className="dash-recent-grid">
-            <section className="pm-card dash-recent-card">
-              <div className="dash-recent-head">
-                <div className="dash-recent-title">
-                  <FileTextIcon size={16} />
-                  <h3>Recent Resume Analyses</h3>
-                </div>
-                <Link to="/history" className="dash-view-all">
-                  View all
-                </Link>
-              </div>
-
-              {analyses.length === 0 ? (
-                <p className="dash-empty-inline">
-                  No resume analyses yet. Upload a PDF to get started.
-                </p>
-              ) : (
-                <ul className="dash-list">
-                  {analyses.slice(0, 4).map((item) => (
-                    <li key={item.id} className="dash-list-item">
-                      <div className="dash-list-main">
-                        <strong>{item.job_role}</strong>
-                        <span>
-                          {item.filename} · {formatDateTime(item.created_at)}
-                        </span>
-                      </div>
-                      <div className="dash-list-right">
-                        <span className="badge tabular-nums">
-                          {item.match_score.toFixed(0)}% match
-                        </span>
-                        <Link
-                          to={`/history/${item.id}`}
-                          className="dash-item-link"
-                        >
-                          Open
-                        </Link>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-
-            <section className="pm-card dash-recent-card">
-              <div className="dash-recent-head">
-                <div className="dash-recent-title">
-                  <BarChartIcon size={16} />
-                  <h3>Recent Interview Reports</h3>
-                </div>
-                <Link to="/reports" className="dash-view-all">
-                  View all
-                </Link>
-              </div>
-
-              {reports.length === 0 ? (
-                <p className="dash-empty-inline">
-                  No interview reports yet. Complete an AI interview to generate
-                  one.
-                </p>
-              ) : (
-                <ul className="dash-list">
-                  {reports.slice(0, 4).map((rep) => (
-                    <li key={rep.id} className="dash-list-item">
-                      <div className="dash-list-main">
-                        <strong>{rep.target_role}</strong>
-                        <span>{formatDateTime(rep.interview_date)}</span>
-                      </div>
-                      <div className="dash-list-right">
-                        <span className="badge badge-accent tabular-nums">
-                          {rep.overall_score !== null
-                            ? `${rep.overall_score.toFixed(0)} / 100`
-                            : rep.status}
-                        </span>
-                        <Link
-                          to={`/reports/${rep.session_id}`}
-                          className="dash-item-link"
-                        >
-                          Open
-                        </Link>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          </div>
-        </>
+        </section>
       )}
+
+      {/* ── 4. Recent activity: two plain lists side by side ── */}
+      <div className="dash-activity-cols">
+        <section className="dash-activity-col">
+          <div className="dash-activity-col-head">
+            <div className="dash-activity-col-title">
+              <FileTextIcon size={15} />
+              <h3>Resume Profiles</h3>
+            </div>
+            <Link to="/history" className="dash-view-all">View all →</Link>
+          </div>
+
+          {analyses.length === 0 ? (
+            <p className="dash-activity-empty">
+              No resume analyses yet. Upload a PDF to evaluate matched skills.
+            </p>
+          ) : (
+            <ul className="dash-activity-list">
+              {analyses.slice(0, 4).map((item) => (
+                <li key={item.id} className="dash-activity-row">
+                  <div className="dash-activity-main">
+                    <strong>{item.job_role}</strong>
+                    <span>{item.filename} · {formatDateTime(item.created_at)}</span>
+                  </div>
+                  <div className="dash-activity-right">
+                    <span className="badge tabular-nums">{item.match_score.toFixed(0)}%</span>
+                    <Link
+                      to={`/history/${item.id}`}
+                      className="dash-activity-link"
+                      aria-label={`Open analysis for ${item.job_role}`}
+                    >
+                      View
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className="dash-activity-col">
+          <div className="dash-activity-col-head">
+            <div className="dash-activity-col-title">
+              <BarChartIcon size={15} />
+              <h3>Interview Reports</h3>
+            </div>
+            <Link to="/reports" className="dash-view-all">View all →</Link>
+          </div>
+
+          {reports.length === 0 ? (
+            <p className="dash-activity-empty">
+              No interview reports yet. Complete an interview session to generate feedback.
+            </p>
+          ) : (
+            <ul className="dash-activity-list">
+              {reports.slice(0, 4).map((rep) => (
+                <li key={rep.id} className="dash-activity-row">
+                  <div className="dash-activity-main">
+                    <strong>{rep.target_role}</strong>
+                    <span>{formatDateTime(rep.interview_date)}</span>
+                  </div>
+                  <div className="dash-activity-right">
+                    <span className="badge badge-accent tabular-nums">
+                      {rep.overall_score !== null
+                        ? `${rep.overall_score.toFixed(0)} / 100`
+                        : rep.status}
+                    </span>
+                    <Link
+                      to={`/reports/${rep.session_id}`}
+                      className="dash-activity-link"
+                      aria-label={`Open report for ${rep.target_role}`}
+                    >
+                      Report
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

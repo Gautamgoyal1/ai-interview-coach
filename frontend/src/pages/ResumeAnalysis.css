@@ -1,12 +1,21 @@
+/* ============================================================
+   Resume Analyzer — PrepMate Light SaaS Design
+   ============================================================ */
+
 .resume-page {
   width: 100%;
-  max-width: 1080px;
+  max-width: var(--container-max);
+  margin: 0 auto;
 }
 
 .resume-form {
-  padding: 24px;
+  padding: 34px 36px;
   display: grid;
-  gap: 16px;
+  gap: 24px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .form-heading {
@@ -15,30 +24,52 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding-bottom: 14px;
+  padding-bottom: 20px;
   border-bottom: 1px solid var(--border-subtle);
 }
 
 .form-heading h2 {
-  margin: 0 0 4px;
-  font-size: 16px;
-  font-weight: 600;
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 700;
   color: var(--text-primary);
+  letter-spacing: -0.015em;
 }
 
 .form-heading p {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Two-column desktop grid for Upload & Configure */
+.resume-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: stretch;
+}
+
+@media (max-width: 860px) {
+  .resume-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.resume-form-col {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
 .form-field {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .field-label {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -48,55 +79,40 @@
   color: var(--text-muted);
 }
 
-.pm-input,
-.pm-textarea {
-  width: 100%;
-  min-width: 0;
-  padding: 10px 12px;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  font: inherit;
-  font-size: 14px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.pm-input:focus,
-.pm-textarea:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: var(--focus-ring);
-}
-
-.pm-textarea {
-  resize: vertical;
-  line-height: 1.55;
-}
-
 /* Upload Dropzone */
 .upload-wrapper {
   display: grid;
-  gap: 6px;
+  gap: 8px;
+  height: 100%;
 }
 
 .upload-dropzone {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   gap: 14px;
-  padding: 18px 16px;
-  border: 1.5px dashed var(--border-strong);
-  border-radius: var(--radius-md);
-  background: var(--bg-canvas);
+  padding: 36px 24px;
+  min-height: 240px;
+  height: 100%;
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg-subtle);
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: all var(--transition-fast);
 }
 
 .upload-dropzone:hover,
+.upload-dropzone:focus-within {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
 .upload-dropzone.is-dragging {
   border-color: var(--accent);
-  background: var(--accent-tint);
+  background: var(--accent-light);
 }
 
 .upload-dropzone.has-file {
@@ -119,31 +135,33 @@
 }
 
 .upload-icon-box {
-  width: 40px;
-  height: 40px;
+  width: 52px;
+  height: 52px;
   flex-shrink: 0;
   display: grid;
   place-items: center;
   border-radius: var(--radius-md);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
+  background: #ffffff;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  box-shadow: var(--shadow-xs);
 }
 
 .upload-dropzone.has-file .upload-icon-box {
   color: var(--success);
   border-color: var(--success-border);
+  background: #ffffff;
 }
 
 .upload-copy {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   min-width: 0;
 }
 
 .upload-copy strong {
-  font-size: 13px;
+  font-size: 14.5px;
   font-weight: 600;
   color: var(--text-primary);
   overflow: hidden;
@@ -152,13 +170,13 @@
 }
 
 .upload-copy span {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
 .field-error {
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--danger);
 }
 
@@ -167,24 +185,28 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding-top: 8px;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .form-footnote {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
+/* ============================================================
+   Results Section
+   ============================================================ */
 .resume-results-wrap {
-  margin-top: 24px;
+  margin-top: 32px;
   display: grid;
-  gap: 16px;
+  gap: 24px;
 }
 
 .results {
   display: grid;
-  gap: 16px;
+  gap: 24px;
 }
 
 .results-heading {
@@ -197,49 +219,55 @@
 
 .results-heading h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
   color: var(--text-primary);
+  letter-spacing: -0.02em;
 }
 
 .results-heading p {
   margin: 4px 0 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-secondary);
 }
 
 .score-card {
-  padding: 22px 24px;
+  padding: 32px 34px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 28px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .score-copy {
   flex: 1;
-  min-width: 240px;
+  min-width: 260px;
 }
 
 .score-copy h3 {
-  margin: 4px 0 6px;
-  font-size: 30px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
+  margin: 8px 0 8px;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--accent);
 }
 
 .score-copy p {
-  margin: 0 0 12px;
-  font-size: 13px;
+  margin: 0 0 16px;
+  font-size: 14.5px;
   color: var(--text-secondary);
+  line-height: 1.55;
 }
 
 .score-track {
   height: 8px;
   border-radius: 999px;
-  background: var(--bg-subtle);
+  background: var(--border-subtle);
   overflow: hidden;
 }
 
@@ -251,20 +279,21 @@
 }
 
 .score-ring {
-  width: 96px;
-  height: 96px;
+  width: 108px;
+  height: 108px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: conic-gradient(var(--accent) var(--score, 0deg), var(--bg-subtle) 0deg);
+  background: conic-gradient(var(--accent) var(--score, 0deg), var(--border-subtle) 0deg);
   flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .score-ring > div {
-  width: 76px;
-  height: 76px;
+  width: 86px;
+  height: 86px;
   border-radius: 50%;
-  background: var(--bg-surface);
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -272,28 +301,32 @@
 }
 
 .score-ring strong {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   line-height: 1.1;
   color: var(--text-primary);
 }
 
 .score-ring span {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-muted);
 }
 
 .result-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 24px;
 }
 
 .result-card {
-  padding: 20px;
+  padding: 26px 28px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
 }
 
 .result-card-heading {
@@ -304,33 +337,33 @@
 }
 
 .result-card-heading h3 {
-  margin: 0 0 2px;
-  font-size: 15px;
-  font-weight: 600;
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
 .result-card-heading p {
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
 .skill-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .skill-tag {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: var(--radius-sm);
   background: var(--bg-subtle);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border);
   color: var(--text-primary);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
 }
 
@@ -338,12 +371,14 @@
   background: var(--success-bg);
   border-color: var(--success-border);
   color: var(--success);
+  font-weight: 600;
 }
 
 .result-missing .skill-tag {
   background: var(--warning-bg);
   border-color: var(--warning-border);
   color: var(--warning);
+  font-weight: 600;
 }
 
 .insight-list {
@@ -351,15 +386,15 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .insight-list li {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  font-size: 13px;
-  line-height: 1.5;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.55;
   color: var(--text-secondary);
 }
 
@@ -368,31 +403,36 @@
   font-size: 11px;
   font-weight: 700;
   color: var(--accent);
-  background: var(--accent-tint);
-  padding: 2px 6px;
+  background: var(--accent-light);
+  border: 1px solid var(--accent-border);
+  padding: 2px 7px;
   border-radius: 4px;
 }
 
 .result-empty {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--text-muted);
 }
 
 .report-note {
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
 .history-callout {
-  padding: 16px 20px;
+  padding: 20px 24px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  font-size: 13px;
+  gap: 16px;
+  font-size: 14px;
   color: var(--text-secondary);
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
 }
 
 @media (max-width: 780px) {
@@ -402,13 +442,18 @@
 }
 
 .reuse-banner {
-  padding: 14px 18px;
+  padding: 18px 22px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  border-left: 3px solid var(--accent);
+  gap: 14px;
+  border-left: 4px solid var(--accent);
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  box-shadow: var(--shadow-xs);
 }
 
 .reuse-banner.fresh {
@@ -417,56 +462,64 @@
 
 .reuse-banner strong {
   display: block;
-  font-size: 13.5px;
+  font-size: 14.5px;
   color: var(--text-primary);
+  font-weight: 600;
 }
 
 .reuse-banner p {
-  margin: 2px 0 0;
-  font-size: 12.5px;
+  margin: 3px 0 0;
+  font-size: 13.5px;
   color: var(--text-secondary);
 }
 
 .overview-kpis {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 12px;
-  font-size: 12.5px;
+  gap: 16px;
+  margin-top: 14px;
+  font-size: 13.5px;
   color: var(--text-secondary);
 }
 
 .overview-kpi strong {
   color: var(--text-primary);
+  font-weight: 600;
 }
 
 .score-card-right {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .skill-filter-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .skill-filter-tab {
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 999px;
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.skill-filter-tab:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .skill-filter-tab.active {
-  background: var(--accent-tint);
-  border-color: var(--accent);
+  background: var(--accent-light);
+  border-color: var(--accent-border);
   color: var(--accent);
 }
 
@@ -474,26 +527,33 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 11px;
+  padding: 6px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border);
   background: var(--bg-subtle);
   color: var(--text-primary);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.skill-chip:hover {
+  border-color: var(--accent-border);
 }
 
 .skill-chip-demonstrated {
   background: var(--success-bg);
   border-color: var(--success-border);
   color: var(--success);
+  font-weight: 600;
 }
 
 .skill-chip-missing {
   background: var(--warning-bg);
   border-color: var(--warning-border);
   color: var(--warning);
+  font-weight: 600;
 }
 
 .skill-chip.selected {
@@ -502,26 +562,26 @@
 }
 
 .skill-inspector {
-  padding: 14px 16px;
+  padding: 18px 22px;
   border-radius: var(--radius-md);
   background: var(--bg-subtle);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .skill-inspector-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 }
 
 .skill-inspector p {
   margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.55;
   color: var(--text-secondary);
 }
 
@@ -531,15 +591,15 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .checklist-list label {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.55;
   color: var(--text-primary);
   cursor: pointer;
 }

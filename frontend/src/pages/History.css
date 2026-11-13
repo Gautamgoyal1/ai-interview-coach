@@ -1,7 +1,12 @@
+/* ============================================================
+   Resume Analysis History — PrepMate Light SaaS Design
+   ============================================================ */
+
 .history-page {
   width: 100%;
-  max-width: 1080px;
+  max-width: var(--container-max);
   min-width: 0;
+  margin: 0 auto;
 }
 
 .history-detail-bar {
@@ -9,22 +14,34 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  padding: 14px 18px;
-  margin-bottom: 20px;
+  gap: 16px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
 }
 
 .history-detail-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px 18px;
+  gap: 10px 20px;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .history-detail-meta strong {
   color: var(--text-primary);
+}
+
+.history-table-card {
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
 }
 
 .history-table-wrap {
@@ -38,21 +55,22 @@
 }
 
 .history-table th {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
   background: var(--bg-subtle);
   color: var(--text-muted);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .history-table td {
-  padding: 14px 16px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
-  font-size: 13px;
+  font-size: 14px;
+  color: var(--text-primary);
 }
 
 .history-table tbody tr:last-child td {
@@ -60,17 +78,18 @@
 }
 
 .history-table tbody tr:hover {
-  background: var(--bg-canvas);
+  background: var(--bg-hover);
 }
 
 .table-role {
   color: var(--text-primary);
   font-weight: 600;
+  font-size: 14.5px;
 }
 
 .table-filename {
   display: inline-block;
-  max-width: 240px;
+  max-width: 260px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -79,6 +98,7 @@
 
 .table-date {
   color: var(--text-muted);
+  font-size: 13px;
   white-space: nowrap;
 }
 
@@ -89,38 +109,43 @@
 .table-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 10px;
 }
 
 .history-mobile-list {
   display: none;
-  gap: 12px;
+  gap: 14px;
 }
 
 .history-mobile-card {
-  padding: 16px;
+  padding: 18px 20px;
   display: grid;
-  gap: 8px;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
 }
 
 .history-mobile-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
 }
 
 .history-mobile-meta {
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
 .history-mobile-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  padding-top: 6px;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
 }
 
 @media (max-width: 760px) {

@@ -35,21 +35,21 @@ export default function QuestionCard({
           <span className="iv-qnum-pill tabular-nums">
             {formatQuestionNumber(questionIndex, maxQuestions)}
           </span>
-          <span className="iv-meta-item">{question.topic}</span>
+          <span className="iv-meta-topic">{question.topic}</span>
           {difficultyLabel && (
             <>
               <span className="iv-meta-dot" aria-hidden="true">
                 ·
               </span>
-              <span className="iv-meta-item">{difficultyLabel}</span>
+              <span className="iv-meta-difficulty">{difficultyLabel}</span>
             </>
           )}
-          {typeLabel && (
+          {typeLabel && typeLabel !== difficultyLabel && (
             <>
               <span className="iv-meta-dot" aria-hidden="true">
                 ·
               </span>
-              <span className="iv-meta-item">{typeLabel}</span>
+              <span className="iv-meta-type">{typeLabel}</span>
             </>
           )}
         </div>
@@ -60,7 +60,7 @@ export default function QuestionCard({
       <p className="iv-question-guidance">
         {question.is_follow_up
           ? "Clarify or expand on your previous response in your own words."
-          : "Take your time. Explain your reasoning clearly with a concrete example where helpful."}
+          : "Take your time. Explain your understanding with an example."}
       </p>
     </section>
   );

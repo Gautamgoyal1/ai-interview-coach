@@ -322,83 +322,99 @@ export default function PracticeWorkspace() {
   }
 
   // =========================================================================
-  // VIEW A: PRACTICE HUB (when no sessionId)
+  // VIEW A: PRACTICE HUB (when no sessionId) — Editorial warm layout
   // =========================================================================
   if (!sessionId) {
+    const featuredRec = recommendations[0] ?? null;
+    const additionalRecs = recommendations.slice(1);
+
     return (
       <div className="practice-page">
-        <header className="practice-header">
+        {/* Open page header — no card border */}
+        <header className="practice-hub-header">
           <div>
-            <span className="pm-eyebrow">GUIDED LEARNING</span>
-            <h1 className="pm-page-title">Personalized Practice Hub</h1>
-            <p className="pm-page-subtitle">
-              Master interview answers in your own words through progressive hints, reference answers, and structured AI coaching.
+            <p className="practice-hub-eyebrow">Guided Learning</p>
+            <h1 className="practice-hub-title">Practice Studio</h1>
+            <p className="practice-hub-sub">
+              Master interview answers through progressive hints, AI coaching, and targeted gap practice.
             </p>
           </div>
         </header>
 
-        {/* Continue Improving from Recent Reports */}
-        {recommendations.length > 0 && (
-          <section className="pm-card" style={{ padding: "1.75rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.25rem" }}>
-              <LightbulbIcon size={20} style={{ color: "#eab308" }} />
-              <h2 style={{ fontSize: "1.15rem", margin: 0 }}>Continue Improving — Recommended for You</h2>
+        {/* Featured recommendation in warm editorial band */}
+        {featuredRec && (
+          <section className="practice-featured-section" aria-label="Recommended for you">
+            <p className="practice-featured-label">Recommended for You</p>
+            <div className="practice-featured-topic">
+              <div className="practice-featured-main">
+                <div className="practice-featured-badges">
+                  <span className="badge badge-accent" style={{ textTransform: "capitalize" }}>
+                    {featuredRec.interview_type}
+                  </span>
+                  <span className={`badge ${featuredRec.priority === "high" ? "badge-danger" : "badge-warning"}`}>
+                    {featuredRec.priority} priority
+                  </span>
+                </div>
+                <h2 className="practice-featured-topic-name">{featuredRec.topic}</h2>
+                <p className="practice-featured-gap">{featuredRec.observed_gap}</p>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => handleStartHubSession(featuredRec.topic, featuredRec.interview_type, "medium")}
+                >
+                  <span>Practice Now</span>
+                  <ArrowRightIcon size={14} />
+                </button>
+              </div>
             </div>
-            <div className="practice-hub-grid">
-              {recommendations.map((rec, idx) => (
-                <article key={idx} className="practice-rec-card">
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
-                      <span className="badge badge-neutral" style={{ textTransform: "capitalize" }}>
+
+            {/* Additional recommendations as compact rows */}
+            {additionalRecs.length > 0 && (
+              <div className="practice-additional-recs">
+                {additionalRecs.map((rec, idx) => (
+                  <div key={idx + 1} className="practice-compact-rec-row">
+                    <div className="practice-compact-rec-info">
+                      <strong className="practice-compact-rec-topic">{rec.topic}</strong>
+                      <span className="practice-compact-rec-gap">{rec.observed_gap}</span>
+                    </div>
+                    <div className="practice-compact-rec-actions">
+                      <span className="badge" style={{ textTransform: "capitalize" }}>
                         {rec.interview_type}
                       </span>
-                      <span className={`badge ${rec.priority === "high" ? "badge-danger" : "badge-warning"}`}>
-                        {rec.priority} priority
-                      </span>
+                      <button
+                        className="practice-compact-cta"
+                        onClick={() => handleStartHubSession(rec.topic, rec.interview_type, "medium")}
+                      >
+                        Practice →
+                      </button>
                     </div>
-                    <strong style={{ fontSize: "1.05rem", color: "#f1f5f9", display: "block", marginBottom: "0.35rem" }}>
-                      {rec.topic}
-                    </strong>
-                    <p style={{ fontSize: "0.85rem", color: "#94a3b8", margin: 0 }}>
-                      {rec.observed_gap}
-                    </p>
                   </div>
-                  <button
-                    className="btn btn-primary"
-                    style={{ marginTop: "1rem" }}
-                    onClick={() => handleStartHubSession(rec.topic, rec.interview_type, "medium")}
-                  >
-                    <span>Practice This Topic</span>
-                    <ArrowRightIcon size={14} />
-                  </button>
-                </article>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </section>
         )}
 
-        {/* Start Independent Practice */}
-        <section className="pm-card" style={{ padding: "1.75rem" }}>
-          <h2 style={{ fontSize: "1.15rem", marginBottom: "1rem" }}>Start Targeted Practice</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem", marginBottom: "1.5rem" }}>
-            <div>
-              <label style={{ display: "block", fontSize: "0.825rem", color: "#94a3b8", marginBottom: "0.4rem" }}>
-                Topic / Concept
-              </label>
+        {/* Start Practice — open form section, not inside a card */}
+        <section className="practice-start-section" aria-label="Start a new practice session">
+          <h2 className="practice-start-heading">Start Targeted Practice</h2>
+          <p className="practice-start-sub">
+            Choose any concept or topic to begin self-paced practice with instant AI coaching.
+          </p>
+          <div className="practice-start-form">
+            <div className="practice-start-field practice-start-field--wide">
+              <label className="field-label">Topic / Concept</label>
               <input
                 type="text"
-                className="input-field"
+                className="pm-input"
                 value={hubTopic}
                 onChange={(e) => setHubTopic(e.target.value)}
-                placeholder="e.g. SQL Joins, Overfitting, Conflict Resolution"
+                placeholder="e.g. SQL Joins, System Design, Conflict Resolution"
               />
             </div>
-            <div>
-              <label style={{ display: "block", fontSize: "0.825rem", color: "#94a3b8", marginBottom: "0.4rem" }}>
-                Interview Type
-              </label>
+            <div className="practice-start-field">
+              <label className="field-label">Interview Type</label>
               <select
-                className="input-field"
+                className="pm-select"
                 value={hubType}
                 onChange={(e) => setHubType(e.target.value as InterviewType)}
               >
@@ -406,12 +422,10 @@ export default function PracticeWorkspace() {
                 <option value="hr">HR / Behavioral</option>
               </select>
             </div>
-            <div>
-              <label style={{ display: "block", fontSize: "0.825rem", color: "#94a3b8", marginBottom: "0.4rem" }}>
-                Difficulty
-              </label>
+            <div className="practice-start-field">
+              <label className="field-label">Difficulty</label>
               <select
-                className="input-field"
+                className="pm-select"
                 value={hubDifficulty}
                 onChange={(e) => setHubDifficulty(e.target.value as PracticeDifficulty)}
               >
@@ -420,57 +434,48 @@ export default function PracticeWorkspace() {
                 <option value="hard">Hard</option>
               </select>
             </div>
+            <div className="practice-start-field practice-start-field--btn">
+              <label className="field-label" style={{ visibility: "hidden" }}>Launch</label>
+              <button
+                className="btn btn-primary"
+                onClick={() => handleStartHubSession(hubTopic, hubType, hubDifficulty)}
+                disabled={!hubTopic.trim()}
+              >
+                <BookOpenIcon size={16} />
+                <span>Launch Studio</span>
+              </button>
+            </div>
           </div>
-          <button
-            className="btn btn-primary"
-            onClick={() => handleStartHubSession(hubTopic, hubType, hubDifficulty)}
-            disabled={!hubTopic.trim()}
-          >
-            <BookOpenIcon size={16} />
-            <span>Launch Practice Studio</span>
-          </button>
         </section>
 
-        {/* Previous Practice Sessions */}
+        {/* History: plain list section, no card wrapper */}
         {summaries.length > 0 && (
-          <section className="pm-card" style={{ padding: "1.75rem" }}>
-            <h2 style={{ fontSize: "1.15rem", marginBottom: "1rem" }}>Your Practice Sessions</h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          <section className="practice-history-section" aria-label="Your practice sessions">
+            <div className="practice-history-head">
+              <h2 className="dash-section-heading">Your Sessions</h2>
+            </div>
+            <div className="practice-history-rows">
               {summaries.map((s) => (
-                <div
-                  key={s.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "1rem 1.25rem",
-                    background: "#0d1017",
-                    border: "1px solid #1f242e",
-                    borderRadius: "8px",
-                    flexWrap: "wrap",
-                    gap: "1rem",
-                  }}
-                >
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+                <div key={s.id} className="practice-history-row">
+                  <div className="practice-history-row-info">
+                    <div className="practice-history-row-title">
                       <strong>{s.topic}</strong>
                       <span className="badge badge-neutral" style={{ textTransform: "capitalize" }}>
                         {s.interview_type}
                       </span>
                     </div>
-                    <p style={{ fontSize: "0.825rem", color: "#64748b", margin: 0 }}>
+                    <p className="practice-history-row-meta">
                       {s.question_count} {s.question_count === 1 ? "question" : "questions"} ·{" "}
-                      {s.attempt_count} {s.attempt_count === 1 ? "attempt" : "attempts"} · Created{" "}
-                      {formatDateTime(s.created_at)}
+                      {s.attempt_count} {s.attempt_count === 1 ? "attempt" : "attempts"} · {formatDateTime(s.created_at)}
                     </p>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                    <Link to={`/practice/${s.id}`} className="btn btn-secondary">
+                  <div className="practice-history-row-actions">
+                    <Link to={`/practice/${s.id}`} className="btn btn-secondary btn-sm">
                       <span>Resume</span>
                       <ArrowRightIcon size={14} />
                     </Link>
                     <button
-                      className="btn btn-danger-outline"
+                      className="btn btn-danger-outline btn-sm"
                       onClick={() => setPendingDeleteSession(s.id)}
                     >
                       Delete
@@ -505,14 +510,14 @@ export default function PracticeWorkspace() {
       {/* Studio Header */}
       <header className="practice-header">
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.25rem" }}>
-            <Link to="/practice" style={{ fontSize: "0.825rem", color: "#94a3b8", textDecoration: "none" }}>
-              ← Practice Hub
+          <div className="practice-header-nav">
+            <Link to="/practice" className="practice-back-link">
+              ← Back to Practice Hub
             </Link>
             {session?.source_report_id && (
               <Link
                 to={`/reports/${session.source_report_id}`}
-                style={{ fontSize: "0.825rem", color: "#3b82f6", textDecoration: "none" }}
+                className="practice-report-link"
               >
                 · Return to Report
               </Link>
@@ -776,10 +781,10 @@ export default function PracticeWorkspace() {
             {/* Improved Example Answer */}
             {latestAttempt.feedback.improved_example_answer && (
               <div className="coach-example-card">
-                <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#818cf8", textTransform: "uppercase" }}>
-                  Polished Example Answer (AI-Generated Blueprint)
+                <span className="coach-example-label">
+                  Polished Example Answer (AI Benchmark)
                 </span>
-                <p style={{ fontSize: "0.925rem", color: "#f1f5f9", lineHeight: 1.6, margin: 0 }}>
+                <p className="coach-example-text">
                   {latestAttempt.feedback.improved_example_answer}
                 </p>
               </div>
@@ -789,10 +794,10 @@ export default function PracticeWorkspace() {
             {latestAttempt.feedback.next_action && (
               <div className="coach-next-action-card">
                 <div>
-                  <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#60a5fa", textTransform: "uppercase" }}>
+                  <span className="coach-next-action-label">
                     Recommended Next Step
                   </span>
-                  <p style={{ fontSize: "0.925rem", color: "#f1f5f9", margin: "0.25rem 0 0" }}>
+                  <p className="coach-next-action-text">
                     {latestAttempt.feedback.next_action}
                   </p>
                 </div>
