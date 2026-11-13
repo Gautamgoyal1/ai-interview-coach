@@ -151,7 +151,7 @@ export default function Landing() {
               <div className="landing-hero-copy">
                 <div className="landing-eyebrow-pill">
                   <span className="pulse-dot" />
-                  <span>Next-Generation Career Readiness</span>
+                  <span>Resume-grounded interview practice</span>
                 </div>
                 <h1 className="landing-hero-title">
                   Prepare Smarter.
@@ -166,10 +166,10 @@ export default function Landing() {
 
                 <div className="landing-hero-cta-group">
                   <Link to="/register" className="btn btn-primary landing-cta-primary">
-                    <span>Get Started</span>
+                    <span>Start Preparing Free</span>
                     <ArrowRightIcon size={16} />
                   </Link>
-                  <a href="#how-it-works" className="btn btn-secondary landing-cta-secondary">
+                  <a href="#showcase" className="btn btn-secondary landing-cta-secondary">
                     <span>Explore Features</span>
                   </a>
                 </div>
@@ -177,20 +177,20 @@ export default function Landing() {
                 <div className="landing-hero-trust-strip">
                   <div className="trust-pill">
                     <CheckCircleIcon size={14} />
-                    <span>Evidence-Aware Resume Matching</span>
+                    <span>Evidence-aware resume matching</span>
                   </div>
                   <div className="trust-pill">
                     <CheckCircleIcon size={14} />
-                    <span>Adaptive Dynamic Questions</span>
+                    <span>Adaptive interview difficulty</span>
                   </div>
                   <div className="trust-pill">
                     <CheckCircleIcon size={14} />
-                    <span>Instant AI Answer Coaching</span>
+                    <span>Structured AI answer feedback</span>
                   </div>
                 </div>
               </div>
 
-              {/* Realistic Hero Product Preview */}
+              {/* Realistic Hero Product Preview — Clean, layered, focused on AI Interview & Coaching */}
               <div className="landing-hero-preview-col">
                 <div className="landing-hero-browser-card">
                   <div className="browser-header">
@@ -200,64 +200,47 @@ export default function Landing() {
                       <span className="dot dot-green" />
                     </div>
                     <div className="browser-address-bar">
-                      <span>prepmate.ai/dashboard</span>
+                      <span>prepmate.ai/interview/live</span>
                     </div>
+                    <span className="badge badge-accent badge-pulse">Live Session</span>
                   </div>
 
                   <div className="hero-product-content">
-                    {/* Simulated Editorial Header */}
-                    <div className="hero-sim-header">
-                      <div>
-                        <span className="hero-sim-eyebrow">YOUR WORKSPACE</span>
-                        <h3 className="hero-sim-title">Welcome back, Alex</h3>
-                        <p className="hero-sim-sub">Track your resume profile and adaptive interview roadmap.</p>
+                    {/* Live Question Block */}
+                    <div className="hero-question-panel">
+                      <div className="hero-q-meta">
+                        <span className="badge badge-neutral">Question 3 of 8</span>
+                        <span className="hero-q-difficulty">Technical · Adaptive Medium</span>
                       </div>
-                      <div className="hero-sim-status-chip">
-                        <span className="pulse-dot" />
-                        <span>Ready for Mock Round</span>
-                      </div>
+                      <h3 className="hero-q-title">
+                        &ldquo;How would you handle a sudden 10x traffic spike on a payment webhook service to prevent database exhaustion?&rdquo;
+                      </h3>
                     </div>
 
-                    {/* Simulated Cockpit Stats */}
-                    <div className="hero-sim-stats-strip">
-                      <div className="hero-stat-block">
-                        <strong>84%</strong>
-                        <span>Resume Match</span>
-                      </div>
-                      <div className="hero-stat-divider" />
-                      <div className="hero-stat-block">
-                        <strong>3</strong>
-                        <span>Interviews Done</span>
-                      </div>
-                      <div className="hero-stat-divider" />
-                      <div className="hero-stat-block">
-                        <strong>82 / 100</strong>
-                        <span>Latest Score</span>
-                      </div>
-                      <div className="hero-stat-divider" />
-                      <div className="hero-stat-block">
-                        <strong className="text-truncate">Full-Stack SDE</strong>
-                        <span>Focus Role</span>
-                      </div>
-                    </div>
-
-                    {/* Simulated Featured Practice Card */}
-                    <div className="hero-sim-featured-card">
-                      <div className="sim-card-top">
-                        <span className="badge badge-accent">Technical Question #3</span>
-                        <span className="sim-card-tag">Adaptive Medium</span>
-                      </div>
-                      <p className="sim-card-question">
-                        &ldquo;How would you handle cache stampede in a distributed read-heavy system?&rdquo;
+                    {/* Candidate Answer Preview */}
+                    <div className="hero-answer-box">
+                      <div className="hero-answer-label">Candidate Answer</div>
+                      <p className="hero-answer-text">
+                        &ldquo;I would place a distributed message queue in front of the database to decouple write ingestion from persistence, and apply rate limiting with exponential backoff...&rdquo;
                       </p>
-                      <div className="sim-coach-bubble">
-                        <div className="coach-bubble-header">
-                          <SparklesIcon size={14} />
-                          <strong>AI Coach Suggestion:</strong>
+                    </div>
+
+                    {/* AI Coach Live Feedback Card */}
+                    <div className="hero-coach-feedback">
+                      <div className="hero-coach-header">
+                        <SparklesIcon size={15} />
+                        <strong>AI Answer Coach</strong>
+                        <span className="badge badge-success">Strong Answer · 88%</span>
+                      </div>
+                      <div className="hero-coach-points">
+                        <div className="hero-coach-point pos">
+                          <CheckCircleIcon size={13} />
+                          <span><strong>Key Strength:</strong> Effective decoupling pattern with queue-based buffer.</span>
                         </div>
-                        <p>
-                          Strong mention of Redis locks. Make sure to discuss mutexes vs. probabilistic early expiration.
-                        </p>
+                        <div className="hero-coach-point ref">
+                          <LightbulbIcon size={13} />
+                          <span><strong>Opportunity:</strong> Mention idempotency keys to safely process duplicate webhook retries.</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -271,10 +254,10 @@ export default function Landing() {
         <section id="how-it-works" className="landing-section landing-process-section">
           <div className="landing-container">
             <div className="landing-section-head">
-              <span className="landing-section-eyebrow">THE METHODOLOGY</span>
-              <h2 className="landing-section-title">How PrepMate Accelerates Your Growth</h2>
+              <span className="landing-section-eyebrow">HOW IT WORKS</span>
+              <h2 className="landing-section-title">A clear path from resume to offer</h2>
               <p className="landing-section-sub">
-                A structured, four-step feedback loop engineered to transform interview anxiety into calibrated mastery.
+                Four straightforward steps designed to build genuine interview confidence and technical clarity.
               </p>
             </div>
 
@@ -346,10 +329,10 @@ export default function Landing() {
         <section id="features" className="landing-section landing-features-section">
           <div className="landing-container">
             <div className="landing-section-head">
-              <span className="landing-section-eyebrow">CORE CAPABILITIES</span>
-              <h2 className="landing-section-title">Engineered for Every Stage of Preparation</h2>
+              <span className="landing-section-eyebrow">FEATURES</span>
+              <h2 className="landing-section-title">Built for serious interview preparation</h2>
               <p className="landing-section-sub">
-                No generic chatbot scripts. PrepMate is a purpose-built interview intelligence platform.
+                Targeted resume analysis, adaptive interview simulation, and actionable answer coaching.
               </p>
             </div>
 
@@ -619,10 +602,10 @@ export default function Landing() {
         <section id="why-prepmate" className="landing-section landing-why-section">
           <div className="landing-container">
             <div className="landing-section-head">
-              <span className="landing-section-eyebrow">THE PREPMATE DIFFERENCE</span>
-              <h2 className="landing-section-title">Why Generic Chatbots Fall Short</h2>
+              <span className="landing-section-eyebrow">WHY PREPMATE</span>
+              <h2 className="landing-section-title">Designed for interviews, not conversation</h2>
               <p className="landing-section-sub">
-                Standard LLMs quiz you with generic lists and praise bad answers. PrepMate is built around calibration, evidence, and growth.
+                Generic chatbots ask random questions and give surface-level feedback. PrepMate evaluates your real skills against specific job requirements.
               </p>
             </div>
 
