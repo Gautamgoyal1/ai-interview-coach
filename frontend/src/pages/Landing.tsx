@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import {
@@ -28,6 +28,49 @@ export default function Landing() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"resume" | "interview" | "practice" | "report">("resume");
 
+  // Subtle interactive 3D tilt on desktop product preview
+  const previewRef = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
+
+  function handleMouseMove(e: MouseEvent<HTMLDivElement>) {
+    if (!previewRef.current || window.innerWidth < 1024) return;
+    const rect = previewRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    // Ultra-gentle angle max ~3.5deg
+    setTilt({
+      rx: -(y / (rect.height / 2)) * 3.5,
+      ry: (x / (rect.width / 2)) * 3.5,
+    });
+  }
+
+  function handleMouseLeave() {
+    setTilt({ rx: 0, ry: 0 });
+  }
+
+  // Scroll reveal observer with stagger triggers
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: "0px 0px -60px 0px", threshold: 0.12 }
+    );
+
+    const elements = document.querySelectorAll(".reveal-on-scroll");
+    elements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="landing-root">
       {/* ─── A. Navigation Bar ─── */}
@@ -43,7 +86,7 @@ export default function Landing() {
             </div>
           </Link>
 
-          {/* Desktop Nav */}
+          {/* Desktop Nav with smooth hover indicator */}
           <nav className="landing-desktop-nav" aria-label="Landing navigation">
             <a href="#how-it-works" className="landing-nav-link">How It Works</a>
             <a href="#features" className="landing-nav-link">Features</a>
@@ -53,7 +96,7 @@ export default function Landing() {
 
           <div className="landing-nav-actions">
             {user ? (
-              <Link to="/dashboard" className="btn btn-primary btn-sm">
+              <Link to="/dashboard" className="btn btn-primary btn-sm btn-lift">
                 <span>Go to Dashboard</span>
                 <ArrowRightIcon size={14} />
               </Link>
@@ -62,7 +105,7 @@ export default function Landing() {
                 <Link to="/login" className="btn btn-ghost btn-sm">
                   Sign In
                 </Link>
-                <Link to="/register" className="btn btn-primary btn-sm">
+                <Link to="/register" className="btn btn-primary btn-sm btn-lift">
                   <span>Get Started</span>
                   <ArrowRightIcon size={14} />
                 </Link>
@@ -148,33 +191,33 @@ export default function Landing() {
         <section className="landing-hero-section">
           <div className="landing-container">
             <div className="landing-hero-inner">
-              <div className="landing-hero-copy">
-                <div className="landing-eyebrow-pill">
+              <div className="landing-hero-copy anim-hero-entry">
+                <div className="landing-eyebrow-pill anim-stagger-1">
                   <span className="pulse-dot" />
                   <span>Resume-grounded interview practice</span>
                 </div>
-                <h1 className="landing-hero-title">
+                <h1 className="landing-hero-title anim-stagger-2">
                   Prepare Smarter.
                   <br />
                   <span className="accent-text">Interview Better.</span>
                 </h1>
-                <p className="landing-hero-sub">
+                <p className="landing-hero-sub anim-stagger-3">
                   From resume analysis to personalized mock interviews and guided practice,
                   PrepMate helps you understand your strengths, improve your weaknesses,
                   and prepare with confidence.
                 </p>
 
-                <div className="landing-hero-cta-group">
-                  <Link to="/register" className="btn btn-primary landing-cta-primary">
+                <div className="landing-hero-cta-group anim-stagger-4">
+                  <Link to="/register" className="btn btn-primary landing-cta-primary btn-lift">
                     <span>Start Preparing Free</span>
                     <ArrowRightIcon size={16} />
                   </Link>
-                  <a href="#showcase" className="btn btn-secondary landing-cta-secondary">
+                  <a href="#showcase" className="btn btn-secondary landing-cta-secondary btn-lift">
                     <span>Explore Features</span>
                   </a>
                 </div>
 
-                <div className="landing-hero-trust-strip">
+                <div className="landing-hero-trust-strip anim-stagger-5">
                   <div className="trust-pill">
                     <CheckCircleIcon size={14} />
                     <span>Evidence-aware resume matching</span>
@@ -190,8 +233,16 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* Realistic Hero Product Preview — Clean, layered, focused on AI Interview & Coaching */}
-              <div className="landing-hero-preview-col">
+              {/* Realistic Hero Product Preview with gentle desktop mouse tilt */}
+              <div
+                className="landing-hero-preview-col anim-preview-entry"
+                ref={previewRef}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                style={{
+                  transform: `perspective(1000px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
+                }}
+              >
                 <div className="landing-hero-browser-card">
                   <div className="browser-header">
                     <div className="browser-dots">
@@ -250,85 +301,107 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ─── C. How PrepMate Works ─── */}
+        {/* ─── C. How PrepMate Works (Process Flow) ─── */}
         <section id="how-it-works" className="landing-section landing-process-section">
           <div className="landing-container">
-            <div className="landing-section-head">
+            <div className="landing-section-head reveal-on-scroll">
               <span className="landing-section-eyebrow">HOW IT WORKS</span>
               <h2 className="landing-section-title">A clear path from resume to offer</h2>
               <p className="landing-section-sub">
-                Four straightforward steps designed to build genuine interview confidence and technical clarity.
+                Four connected steps designed to build genuine interview confidence and technical clarity.
               </p>
             </div>
 
-            <div className="landing-process-grid">
-              <div className="process-step-card">
-                <div className="process-step-num">01</div>
-                <div className="process-icon-wrap">
-                  <FileTextIcon size={24} />
+            <div className="landing-process-flow">
+              <div className="process-step-item reveal-on-scroll" style={{ animationDelay: "100ms" }}>
+                <div className="process-step-badge">
+                  <span className="process-badge-num">01</span>
                 </div>
-                <h3 className="process-step-title">Upload Your Resume</h3>
-                <p className="process-step-desc">
-                  Upload your PDF resume and target role. PrepMate extracts validated technical experience, project context, and competencies.
-                </p>
-                <div className="process-tag-list">
-                  <span>PDF Parsing</span>
-                  <span>Role Calibration</span>
-                </div>
-              </div>
-
-              <div className="process-step-card">
-                <div className="process-step-num">02</div>
-                <div className="process-icon-wrap">
-                  <TargetIcon size={24} />
-                </div>
-                <h3 className="process-step-title">Understand Your Strengths</h3>
-                <p className="process-step-desc">
-                  Discover matched proficiencies and role-specific skill gaps with rubric-based alignment scores and evidence tracing.
-                </p>
-                <div className="process-tag-list">
-                  <span>Match Score</span>
-                  <span>Observed Gaps</span>
+                <div className="process-step-content">
+                  <div className="process-icon-wrap">
+                    <FileTextIcon size={22} />
+                  </div>
+                  <h3 className="process-step-title">Upload Your Resume</h3>
+                  <p className="process-step-desc">
+                    Upload your PDF and select a target role. PrepMate extracts validated technical experience, project context, and competencies.
+                  </p>
+                  <div className="process-tags">
+                    <span>PDF Extraction</span>
+                    <span>Role Alignment</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="process-step-card">
-                <div className="process-step-num">03</div>
-                <div className="process-icon-wrap">
-                  <MessageSquareIcon size={24} />
+              <div className="process-flow-connector" />
+
+              <div className="process-step-item reveal-on-scroll" style={{ animationDelay: "200ms" }}>
+                <div className="process-step-badge">
+                  <span className="process-badge-num">02</span>
                 </div>
-                <h3 className="process-step-title">Practice Real Interviews</h3>
-                <p className="process-step-desc">
-                  Take adaptive technical or HR interviews that dynamically calibrate difficulty in real time based on your demonstrated answers.
-                </p>
-                <div className="process-tag-list">
-                  <span>Dynamic Pacing</span>
-                  <span>HR & Technical</span>
+                <div className="process-step-content">
+                  <div className="process-icon-wrap">
+                    <TargetIcon size={22} />
+                  </div>
+                  <h3 className="process-step-title">Identify Strengths & Gaps</h3>
+                  <p className="process-step-desc">
+                    Discover matched proficiencies and exact skill gaps with rubric-based alignment scores and evidence tracing.
+                  </p>
+                  <div className="process-tags">
+                    <span>Match Score</span>
+                    <span>Observed Gaps</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="process-step-card">
-                <div className="process-step-num">04</div>
-                <div className="process-icon-wrap">
-                  <SparklesIcon size={24} />
+              <div className="process-flow-connector" />
+
+              <div className="process-step-item reveal-on-scroll" style={{ animationDelay: "300ms" }}>
+                <div className="process-step-badge">
+                  <span className="process-badge-num">03</span>
                 </div>
-                <h3 className="process-step-title">Learn and Improve</h3>
-                <p className="process-step-desc">
-                  Receive structured breakdown reports, practice weak areas with progressive hints, and retry answers with instant AI feedback.
-                </p>
-                <div className="process-tag-list">
-                  <span>Progressive Hints</span>
-                  <span>AI Coaching</span>
+                <div className="process-step-content">
+                  <div className="process-icon-wrap">
+                    <MessageSquareIcon size={22} />
+                  </div>
+                  <h3 className="process-step-title">Practice Real Interviews</h3>
+                  <p className="process-step-desc">
+                    Take adaptive technical or HR behavioral rounds that dynamically calibrate difficulty based on your answers.
+                  </p>
+                  <div className="process-tags">
+                    <span>Dynamic Difficulty</span>
+                    <span>Tech & HR</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="process-flow-connector" />
+
+              <div className="process-step-item reveal-on-scroll" style={{ animationDelay: "400ms" }}>
+                <div className="process-step-badge">
+                  <span className="process-badge-num">04</span>
+                </div>
+                <div className="process-step-content">
+                  <div className="process-icon-wrap">
+                    <SparklesIcon size={22} />
+                  </div>
+                  <h3 className="process-step-title">Learn and Improve</h3>
+                  <p className="process-step-desc">
+                    Receive structured dimension rubrics, practice weak areas with progressive hints, and retry with instant coaching.
+                  </p>
+                  <div className="process-tags">
+                    <span>Progressive Hints</span>
+                    <span>Answer Coach</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ─── D. Features Section (Bento Grid) ─── */}
+        {/* ─── D. Features Section (Dynamic Bento Grid) ─── */}
         <section id="features" className="landing-section landing-features-section">
           <div className="landing-container">
-            <div className="landing-section-head">
+            <div className="landing-section-head reveal-on-scroll">
               <span className="landing-section-eyebrow">FEATURES</span>
               <h2 className="landing-section-title">Built for serious interview preparation</h2>
               <p className="landing-section-sub">
@@ -337,84 +410,117 @@ export default function Landing() {
             </div>
 
             <div className="bento-grid">
-              {/* Feature 1: Large Bento Card */}
-              <div className="bento-card bento-wide">
+              {/* Feature 1: Hero Bento Card (Resume Intelligence) */}
+              <div className="bento-card bento-card-resume reveal-on-scroll">
                 <div className="bento-copy">
-                  <span className="bento-badge">Resume Intelligence</span>
+                  <div className="bento-header-tag">
+                    <FileTextIcon size={16} />
+                    <span>Evidence-Aware Parsing</span>
+                  </div>
                   <h3 className="bento-title">Smart Resume Analysis & Gap Identification</h3>
                   <p className="bento-desc">
-                    Evidence-aware parsing evaluates your concrete experience against your target job description. We highlight exact matched skills, missing prerequisites, and tailored practice priorities.
+                    Grounded evaluation checks your concrete experience against target job requirements. We highlight exact matched skills, missing prerequisites, and tailored practice priorities.
                   </p>
-                  <ul className="bento-bullets">
+                  <ul className="bento-checklist">
                     <li><CheckCircleIcon size={14} /> Deterministic skill taxonomy mapping</li>
-                    <li><CheckCircleIcon size={14} /> No duplicate uploads — smart hash deduplication</li>
-                    <li><CheckCircleIcon size={14} /> Contextual strengths vs. target role requirements</li>
+                    <li><CheckCircleIcon size={14} /> Instant hash deduplication (no duplicate uploads)</li>
+                    <li><CheckCircleIcon size={14} /> Concrete strength vs. gap breakdowns</li>
                   </ul>
                 </div>
                 <div className="bento-visual bento-visual-resume">
                   <div className="sim-skill-tags">
-                    <span className="skill-tag match">PostgreSQL 94%</span>
-                    <span className="skill-tag match">FastAPI 90%</span>
-                    <span className="skill-tag match">React & TS 88%</span>
-                    <span className="skill-tag gap">Distributed Systems — Gap</span>
-                    <span className="skill-tag match">Docker 82%</span>
+                    <div className="skill-tag match">
+                      <span>PostgreSQL & SQL</span>
+                      <strong>94% Match</strong>
+                    </div>
+                    <div className="skill-tag match">
+                      <span>FastAPI Backend</span>
+                      <strong>90% Match</strong>
+                    </div>
+                    <div className="skill-tag match">
+                      <span>React & TypeScript</span>
+                      <strong>88% Match</strong>
+                    </div>
+                    <div className="skill-tag gap">
+                      <span>Distributed Caching</span>
+                      <strong>Key Gap</strong>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Feature 2: Standard Bento Card */}
-              <div className="bento-card">
+              {/* Feature 2: Adaptive Engine */}
+              <div className="bento-card bento-card-compact reveal-on-scroll" style={{ animationDelay: "150ms" }}>
                 <div className="bento-icon-box">
                   <CompassIcon size={22} />
                 </div>
                 <h3 className="bento-title">Adaptive Difficulty Engine</h3>
                 <p className="bento-desc">
-                  Questions adjust dynamically based on your answer quality. Excel on foundational concepts, and PrepMate introduces realistic production constraints and trade-offs.
+                  Questions adjust dynamically based on your performance. Excel on fundamentals, and PrepMate introduces realistic production trade-offs.
                 </p>
+                <div className="bento-mini-meter">
+                  <span className="meter-label">Dynamic Calibration:</span>
+                  <div className="meter-bar"><div className="meter-fill" /></div>
+                </div>
               </div>
 
-              {/* Feature 3: Standard Bento Card */}
-              <div className="bento-card">
+              {/* Feature 3: Dual Technical & HR */}
+              <div className="bento-card bento-card-compact reveal-on-scroll" style={{ animationDelay: "250ms" }}>
                 <div className="bento-icon-box">
                   <UsersIcon size={22} />
                 </div>
-                <h3 className="bento-title">Dual Interview Modes: Tech & HR</h3>
+                <h3 className="bento-title">Technical & HR Behavioral Modes</h3>
                 <p className="bento-desc">
-                  Switch seamlessly between deep technical architecture rounds and behavioral STAR-method interviews covering conflict resolution, decision trade-offs, and leadership.
+                  Prepare for system design trade-offs or behavioral STAR scenarios covering conflict resolution, decision dilemmas, and prioritization.
                 </p>
+                <div className="bento-pill-group">
+                  <span className="bento-chip">System Design</span>
+                  <span className="bento-chip">STAR Method</span>
+                </div>
               </div>
 
-              {/* Feature 4: Standard Bento Card */}
-              <div className="bento-card">
+              {/* Feature 4: Progressive Hints */}
+              <div className="bento-card bento-card-compact reveal-on-scroll" style={{ animationDelay: "150ms" }}>
                 <div className="bento-icon-box">
                   <LightbulbIcon size={22} />
                 </div>
-                <h3 className="bento-title">Progressive Hints & References</h3>
+                <h3 className="bento-title">Progressive 2-Level Hints</h3>
                 <p className="bento-desc">
-                  Stuck on a tricky scenario? Unlock Level 1 gentle architectural clues or Level 2 structured frameworks without spoiling the final answer.
+                  Stuck on a challenging scenario? Unlock gentle directional clues or structured frameworks without spoiling the solution.
                 </p>
+                <div className="bento-hint-preview">
+                  <span>Level 1: Directional Clue</span>
+                  <span>Level 2: Structured Blueprint</span>
+                </div>
               </div>
 
-              {/* Feature 5: Wide Bento Card */}
-              <div className="bento-card bento-wide">
+              {/* Feature 5: Hero Bento Card (Answer Coach & Diff) */}
+              <div className="bento-card bento-card-coach reveal-on-scroll" style={{ animationDelay: "250ms" }}>
                 <div className="bento-copy">
-                  <span className="bento-badge">Answer Coaching</span>
-                  <h3 className="bento-title">Personalized Practice Studio & Instant Feedback</h3>
+                  <div className="bento-header-tag">
+                    <SparklesIcon size={16} />
+                    <span>Instant AI Feedback</span>
+                  </div>
+                  <h3 className="bento-title">Personalized Practice Studio & Answer Coaching</h3>
                   <p className="bento-desc">
-                    Unlike standard mock exams that grade you and leave, PrepMate's Practice Studio allows iterative answer improvement with side-by-side coaching on structure, missed concepts, and communication.
+                    Unlike standard mock exams that grade you and leave, PrepMate enables iterative answer refinement with side-by-side coaching on structure, missed concepts, and communication.
                   </p>
-                  <ul className="bento-bullets">
+                  <ul className="bento-checklist">
                     <li><CheckCircleIcon size={14} /> &ldquo;Improve My Answer&rdquo; comparative retry diffs</li>
-                    <li><CheckCircleIcon size={14} /> Rubric dimension breakdown across 5 core competencies</li>
-                    <li><CheckCircleIcon size={14} /> Similar concept transfers to build true intuition</li>
+                    <li><CheckCircleIcon size={14} /> Rubric dimension breakdown across 5 competencies</li>
+                    <li><CheckCircleIcon size={14} /> Similar concept transfer drills to build intuition</li>
                   </ul>
                 </div>
                 <div className="bento-visual bento-visual-coach">
-                  <div className="sim-coach-pill">
-                    <strong>Structure:</strong> Strong opening & trade-off clarity
-                  </div>
-                  <div className="sim-coach-pill warn">
-                    <strong>Missing Concept:</strong> Concurrency controls under lock contention
+                  <div className="coach-diff-card">
+                    <div className="diff-tag pos">
+                      <CheckCircleIcon size={13} />
+                      <span><strong>Strength:</strong> Thorough breakdown of TTL lease renewal</span>
+                    </div>
+                    <div className="diff-tag ref">
+                      <LightbulbIcon size={13} />
+                      <span><strong>Gap Solved:</strong> Split-brain prevention under network partitions</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -425,16 +531,16 @@ export default function Landing() {
         {/* ─── E. Interactive Product Showcase ─── */}
         <section id="showcase" className="landing-section landing-showcase-section">
           <div className="landing-container">
-            <div className="landing-section-head">
+            <div className="landing-section-head reveal-on-scroll">
               <span className="landing-section-eyebrow">PRODUCT TOUR</span>
               <h2 className="landing-section-title">See PrepMate in Action</h2>
               <p className="landing-section-sub">
-                Explore authentic views of the platform designed to elevate your interview readiness.
+                Explore interactive views of the platform designed to elevate your interview readiness.
               </p>
             </div>
 
-            {/* Tab Controls */}
-            <div className="showcase-tabs" role="tablist">
+            {/* Tab Controls with animated indicator */}
+            <div className="showcase-tabs reveal-on-scroll" role="tablist">
               <button
                 type="button"
                 className={`showcase-tab ${activeTab === "resume" ? "active" : ""}`}
@@ -469,131 +575,133 @@ export default function Landing() {
               </button>
             </div>
 
-            {/* Tab Display Window */}
-            <div className="showcase-display-window">
-              {activeTab === "resume" && (
-                <div className="showcase-view-panel">
-                  <div className="showcase-panel-header">
-                    <div>
-                      <span className="badge badge-accent">Resume Analysis</span>
-                      <h3>Machine Learning Engineer · 78% Match</h3>
+            {/* Tab Display Window with smooth cross-fade */}
+            <div className="showcase-display-window reveal-on-scroll">
+              <div key={activeTab} className="showcase-tab-fade">
+                {activeTab === "resume" && (
+                  <div className="showcase-view-panel">
+                    <div className="showcase-panel-header">
+                      <div>
+                        <span className="badge badge-accent">Resume Intelligence</span>
+                        <h3>Machine Learning Engineer · 78% Match</h3>
+                      </div>
+                      <span className="showcase-tag">Grounded in uploaded PDF</span>
                     </div>
-                    <span className="showcase-tag">Grounded in uploaded PDF</span>
+                    <div className="showcase-grid-2">
+                      <div className="showcase-card">
+                        <h4 className="card-subhead">Validated Technical Strengths</h4>
+                        <div className="skill-chip-group">
+                          <span className="chip chip-success">Python & PyTorch</span>
+                          <span className="chip chip-success">Transformers / HuggingFace</span>
+                          <span className="chip chip-success">Vector DBs & Embeddings</span>
+                          <span className="chip chip-success">PostgreSQL & SQL</span>
+                        </div>
+                      </div>
+                      <div className="showcase-card">
+                        <h4 className="card-subhead">Identified Improvement Priorities</h4>
+                        <div className="gap-alert-item">
+                          <strong>Model Quantization & TensorRT</strong>
+                          <p>Target role requires low-latency inference on edge clusters.</p>
+                        </div>
+                        <div className="gap-alert-item">
+                          <strong>MLOps Deployment Pipelines</strong>
+                          <p>Kubeflow or Triton serving experience recommended.</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="showcase-grid-2">
-                    <div className="showcase-card">
-                      <h4 className="card-subhead">Validated Technical Strengths</h4>
-                      <div className="skill-chip-group">
-                        <span className="chip chip-success">Python & PyTorch</span>
-                        <span className="chip chip-success">Transformers / HuggingFace</span>
-                        <span className="chip chip-success">Vector DBs & Embeddings</span>
-                        <span className="chip chip-success">PostgreSQL & SQL</span>
-                      </div>
-                    </div>
-                    <div className="showcase-card">
-                      <h4 className="card-subhead">Identified Improvement Priorities</h4>
-                      <div className="gap-alert-item">
-                        <strong>Model Quantization & TensorRT</strong>
-                        <p>Target role requires low-latency inference on edge clusters.</p>
-                      </div>
-                      <div className="gap-alert-item">
-                        <strong>MLOps Deployment Pipelines</strong>
-                        <p>Kubeflow or Triton serving experience recommended.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                )}
 
-              {activeTab === "interview" && (
-                <div className="showcase-view-panel">
-                  <div className="showcase-panel-header">
-                    <div>
-                      <span className="badge badge-accent">Live Mock Session</span>
-                      <h3>Question 2 of 8 — Adaptive Technical</h3>
+                {activeTab === "interview" && (
+                  <div className="showcase-view-panel">
+                    <div className="showcase-panel-header">
+                      <div>
+                        <span className="badge badge-accent">Live Mock Session</span>
+                        <h3>Question 2 of 8 — Adaptive Technical</h3>
+                      </div>
+                      <span className="badge badge-warning">Medium Difficulty</span>
                     </div>
-                    <span className="badge badge-warning">Medium Difficulty</span>
-                  </div>
-                  <div className="showcase-q-box">
-                    <p className="q-text">
-                      &ldquo;You are architecting a real-time notification service handling 100k writes/sec. How would you prevent message loss while keeping tail latency under 50ms?&rdquo;
-                    </p>
-                    <div className="sim-answer-preview">
-                      <div className="sim-editor-line">
-                        <em>Candidate Answer:</em> &ldquo;I would introduce an event bus like Kafka or RabbitMQ with partitioned queues...&rdquo;
+                    <div className="showcase-q-box">
+                      <p className="q-text">
+                        &ldquo;You are architecting a real-time notification service handling 100k writes/sec. How would you prevent message loss while keeping tail latency under 50ms?&rdquo;
+                      </p>
+                      <div className="sim-answer-preview">
+                        <div className="sim-editor-line">
+                          <em>Candidate Answer:</em> &ldquo;I would introduce an event bus like Kafka or RabbitMQ with partitioned queues to decouple write ingestion from disk persistence...&rdquo;
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {activeTab === "practice" && (
-                <div className="showcase-view-panel">
-                  <div className="showcase-panel-header">
-                    <div>
-                      <span className="badge badge-accent">Guided Practice Studio</span>
-                      <h3>Target Topic: Distributed Lock Managers</h3>
+                {activeTab === "practice" && (
+                  <div className="showcase-view-panel">
+                    <div className="showcase-panel-header">
+                      <div>
+                        <span className="badge badge-accent">Guided Practice Studio</span>
+                        <h3>Target Topic: Distributed Lock Managers</h3>
+                      </div>
+                      <span className="badge badge-success">Self-Paced</span>
                     </div>
-                    <span className="badge badge-success">Self-Paced</span>
+                    <div className="showcase-grid-2">
+                      <div className="showcase-card">
+                        <h4 className="card-subhead">Progressive Hint Clues</h4>
+                        <div className="hint-pill">
+                          <strong>Hint 1 (Directional):</strong>
+                          <p>Consider what happens if the lock-holding client crashes before releasing.</p>
+                        </div>
+                        <div className="hint-pill">
+                          <strong>Hint 2 (Blueprint):</strong>
+                          <p>Evaluate Redlock algorithm trade-offs vs. single Redis master with lease TTLs.</p>
+                        </div>
+                      </div>
+                      <div className="showcase-card">
+                        <h4 className="card-subhead">AI Coach Feedback</h4>
+                        <div className="coach-pill-item good">
+                          <strong>Strength:</strong> Thorough breakdown of TTL lease renewal.
+                        </div>
+                        <div className="coach-pill-item improve">
+                          <strong>Refinement:</strong> Address split-brain risks under network partitions.
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="showcase-grid-2">
-                    <div className="showcase-card">
-                      <h4 className="card-subhead">Progressive Hint Clues</h4>
-                      <div className="hint-pill">
-                        <strong>Hint 1 (Gentle Direction):</strong>
-                        <p>Consider what happens if the lock-holding client crashes before releasing.</p>
-                      </div>
-                      <div className="hint-pill">
-                        <strong>Hint 2 (Framework Clue):</strong>
-                        <p>Evaluate Redlock algorithm trade-offs vs. single Redis master with lease TTLs.</p>
-                      </div>
-                    </div>
-                    <div className="showcase-card">
-                      <h4 className="card-subhead">AI Coach Feedback</h4>
-                      <div className="coach-pill-item good">
-                        <strong>Strength:</strong> Thorough breakdown of TTL lease renewal.
-                      </div>
-                      <div className="coach-pill-item improve">
-                        <strong>Refinement:</strong> Address split-brain risks under network partitions.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                )}
 
-              {activeTab === "report" && (
-                <div className="showcase-view-panel">
-                  <div className="showcase-panel-header">
-                    <div>
-                      <span className="badge badge-accent">Comprehensive Evaluation Report</span>
-                      <h3>Overall Score: 85 / 100 · Senior SDE</h3>
+                {activeTab === "report" && (
+                  <div className="showcase-view-panel">
+                    <div className="showcase-panel-header">
+                      <div>
+                        <span className="badge badge-accent">Evaluation Report</span>
+                        <h3>Overall Score: 85 / 100 · Senior SDE</h3>
+                      </div>
+                      <span className="badge badge-success">Passed Benchmark</span>
                     </div>
-                    <span className="badge badge-success">Passed Benchmark</span>
+                    <div className="report-rubric-grid">
+                      <div className="rubric-stat">
+                        <span className="rubric-label">Technical Correctness</span>
+                        <strong className="rubric-num">90%</strong>
+                        <div className="rubric-bar"><div className="rubric-fill" style={{ width: "90%" }} /></div>
+                      </div>
+                      <div className="rubric-stat">
+                        <span className="rubric-label">System Architecture</span>
+                        <strong className="rubric-num">85%</strong>
+                        <div className="rubric-bar"><div className="rubric-fill" style={{ width: "85%" }} /></div>
+                      </div>
+                      <div className="rubric-stat">
+                        <span className="rubric-label">Trade-Off Analysis</span>
+                        <strong className="rubric-num">80%</strong>
+                        <div className="rubric-bar"><div className="rubric-fill" style={{ width: "80%" }} /></div>
+                      </div>
+                      <div className="rubric-stat">
+                        <span className="rubric-label">Communication & Clarity</span>
+                        <strong className="rubric-num">85%</strong>
+                        <div className="rubric-bar"><div className="rubric-fill" style={{ width: "85%" }} /></div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="report-rubric-grid">
-                    <div className="rubric-stat">
-                      <span className="rubric-label">Technical Correctness</span>
-                      <strong className="rubric-num">90%</strong>
-                      <div className="rubric-bar"><div className="rubric-fill" style={{ width: "90%" }} /></div>
-                    </div>
-                    <div className="rubric-stat">
-                      <span className="rubric-label">System Architecture</span>
-                      <strong className="rubric-num">85%</strong>
-                      <div className="rubric-bar"><div className="rubric-fill" style={{ width: "85%" }} /></div>
-                    </div>
-                    <div className="rubric-stat">
-                      <span className="rubric-label">Trade-Off Analysis</span>
-                      <strong className="rubric-num">80%</strong>
-                      <div className="rubric-bar"><div className="rubric-fill" style={{ width: "80%" }} /></div>
-                    </div>
-                    <div className="rubric-stat">
-                      <span className="rubric-label">Communication & Clarity</span>
-                      <strong className="rubric-num">85%</strong>
-                      <div className="rubric-bar"><div className="rubric-fill" style={{ width: "85%" }} /></div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </section>
@@ -601,7 +709,7 @@ export default function Landing() {
         {/* ─── F. Why PrepMate? ─── */}
         <section id="why-prepmate" className="landing-section landing-why-section">
           <div className="landing-container">
-            <div className="landing-section-head">
+            <div className="landing-section-head reveal-on-scroll">
               <span className="landing-section-eyebrow">WHY PREPMATE</span>
               <h2 className="landing-section-title">Designed for interviews, not conversation</h2>
               <p className="landing-section-sub">
@@ -609,12 +717,12 @@ export default function Landing() {
               </p>
             </div>
 
-            <div className="comparison-table-wrap">
+            <div className="comparison-table-wrap reveal-on-scroll">
               <table className="comparison-table">
                 <thead>
                   <tr>
                     <th>Capability</th>
-                    <th>Generic Interview Chatbot</th>
+                    <th>Generic Chatbot</th>
                     <th className="highlight-col">PrepMate Platform</th>
                   </tr>
                 </thead>
@@ -626,22 +734,22 @@ export default function Landing() {
                   </tr>
                   <tr>
                     <td><strong>Difficulty Progression</strong></td>
-                    <td>Static difficulty or random jumping between easy/hard</td>
+                    <td>Static difficulty or random jumping between levels</td>
                     <td className="highlight-col"><strong>Calibrated dynamic difficulty based on live answer evaluations</strong></td>
                   </tr>
                   <tr>
                     <td><strong>Interview Breadth</strong></td>
-                    <td>Only surface-level coding trivia or basic HR prompts</td>
+                    <td>Surface-level coding trivia or basic HR prompts</td>
                     <td className="highlight-col"><strong>Dedicated Technical & HR behavioral engines with tailored rubrics</strong></td>
                   </tr>
                   <tr>
                     <td><strong>Learning Support</strong></td>
-                    <td>Either gives the full answer away or offers vague feedback</td>
+                    <td>Gives the full answer away or provides vague feedback</td>
                     <td className="highlight-col"><strong>2-stage progressive hints, reference blueprints, and answer retries</strong></td>
                   </tr>
                   <tr>
                     <td><strong>Evaluation Quality</strong></td>
-                    <td>Single holistic score with sycophantic approval</td>
+                    <td>Single holistic score with sycophantic praise</td>
                     <td className="highlight-col"><strong>Multi-dimensional rubric scoring with explicit gap identification</strong></td>
                   </tr>
                 </tbody>
@@ -653,7 +761,7 @@ export default function Landing() {
         {/* ─── G. Final Call to Action ─── */}
         <section className="landing-cta-banner-section">
           <div className="landing-container">
-            <div className="landing-cta-banner">
+            <div className="landing-cta-banner reveal-on-scroll">
               <div className="cta-banner-copy">
                 <span className="landing-section-eyebrow" style={{ color: "var(--accent)" }}>START PREPARING TODAY</span>
                 <h2 className="cta-banner-title">Your next interview starts with better preparation.</h2>
@@ -662,7 +770,7 @@ export default function Landing() {
                 </p>
               </div>
               <div className="cta-banner-action">
-                <Link to="/register" className="btn btn-primary landing-cta-large">
+                <Link to="/register" className="btn btn-primary landing-cta-large btn-lift">
                   <span>Get Started</span>
                   <ArrowRightIcon size={16} />
                 </Link>
