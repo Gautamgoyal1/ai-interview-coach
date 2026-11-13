@@ -185,7 +185,7 @@ export default function InterviewRoom() {
       <header className="iv-header">
         <div className="iv-header-inner">
           <div className="iv-header-left">
-            <Link to="/" className="iv-brand" aria-label="PrepMate Dashboard">
+            <Link to="/dashboard" className="iv-brand" aria-label="PrepMate Dashboard">
               <span className="iv-brand-mark">
                 <GraduationCapIcon size={18} />
               </span>
@@ -203,7 +203,7 @@ export default function InterviewRoom() {
                 {session.max_questions}
               </span>
             )}
-            <Link to="/" className="btn btn-ghost iv-header-btn">
+            <Link to="/dashboard" className="btn btn-ghost iv-header-btn">
               Dashboard
             </Link>
             {isInProgress ? (
@@ -307,7 +307,7 @@ export default function InterviewRoom() {
                 <span>View Interview Report</span>
                 <ArrowRightIcon size={15} />
               </Link>
-              <Link to="/" className="btn btn-secondary">
+              <Link to="/dashboard" className="btn btn-secondary">
                 Return to Dashboard
               </Link>
               <Link to="/interview" className="btn btn-secondary">

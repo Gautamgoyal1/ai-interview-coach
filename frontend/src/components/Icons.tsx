@@ -201,3 +201,39 @@ export function GraduationCapIcon(props: IconProps) {
     </BaseIcon>
   );
 }
+
+export function TargetIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </BaseIcon>
+  );
+}
+
+export function ShieldCheckIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <polyline points="9 12 11 14 15 10" />
+    </BaseIcon>
+  );
+}
+
+export function CompassIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+    </BaseIcon>
+  );
+}
+
+export function ZapIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </BaseIcon>
+  );
+}

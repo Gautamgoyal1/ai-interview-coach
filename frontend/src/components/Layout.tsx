@@ -16,7 +16,7 @@ import {
 import "./Layout.css";
 
 const NAV_ITEMS = [
-  { to: "/", label: "Dashboard", icon: DashboardIcon, end: true },
+  { to: "/dashboard", label: "Dashboard", icon: DashboardIcon, end: true },
   { to: "/analyze", label: "Resume Analyzer", icon: FileTextIcon, end: false },
   { to: "/history", label: "Analysis History", icon: HistoryIcon, end: false },
   { to: "/interview", label: "AI Interview", icon: MessageSquareIcon, end: false },
@@ -65,7 +65,7 @@ export default function Layout() {
 
   function handleLogout() {
     logout();
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
   }
 
   if (isFocusedInterview) {
@@ -93,7 +93,7 @@ export default function Layout() {
         aria-label="Primary sidebar"
       >
         <div className="sidebar-header">
-          <NavLink to="/" className="sidebar-brand">
+          <NavLink to="/dashboard" className="sidebar-brand">
             <div className="brand-icon">
               <GraduationCapIcon size={19} />
             </div>
