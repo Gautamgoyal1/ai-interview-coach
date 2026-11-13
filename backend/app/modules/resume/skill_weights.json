@@ -1,0 +1,34 @@
+
+{
+  "python developer": {
+    "python": 1.0,
+    "sql": 0.8,
+    "docker": 0.5
+  },
+  "ai engineer": {
+    "python": 1.0,
+    "machine learning": 1.0,
+    "docker": 0.6,
+    "cloud platforms": 0.5
+  },
+  "data scientist": {
+    "python": 1.0,
+    "machine learning": 0.9,
+    "pandas": 0.8,
+    "numpy": 0.7,
+    "scikit-learn": 0.8,
+    "data preprocessing": 0.7,
+    "model evaluation": 0.8
+  },
+  "machine learning engineer": {
+    "python": 1.0,
+    "machine learning": 1.0,
+    "scikit-learn": 0.8,
+    "model evaluation": 0.8,
+    "data preprocessing": 0.7,
+    "numpy": 0.7,
+    "pandas": 0.7,
+    "docker": 0.6,
+    "cloud platforms": 0.5
+  }
+}

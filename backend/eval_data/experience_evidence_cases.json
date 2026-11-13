@@ -1,0 +1,91 @@
+
+{
+  "evaluation_id": "experience_evidence_v1",
+  "description": "Manually labeled examples for distinguishing demonstrated experience from mere mentions.",
+  "cases": [
+    {
+      "case_id": "EE001",
+      "resume_text": "Built a Python data-processing pipeline and wrote unit tests for its functions.",
+      "skill": "python",
+      "expected_evidence": "demonstrated",
+      "rationale": "Describes a concrete implementation task."
+    },
+    {
+      "case_id": "EE002",
+      "resume_text": "Familiar with Python.",
+      "skill": "python",
+      "expected_evidence": "mentioned_only",
+      "rationale": "No concrete task or project is described."
+    },
+    {
+      "case_id": "EE003",
+      "resume_text": "I have never used Docker.",
+      "skill": "docker",
+      "expected_evidence": "negated",
+      "rationale": "Explicitly denies using the technology."
+    },
+    {
+      "case_id": "EE004",
+      "resume_text": "Planning to learn SQL next semester.",
+      "skill": "sql",
+      "expected_evidence": "planned_or_learning",
+      "rationale": "Future intention, not demonstrated experience."
+    },
+    {
+      "case_id": "EE005",
+      "resume_text": "Completed an introductory Python course covering variables and functions.",
+      "skill": "python",
+      "expected_evidence": "planned_or_learning",
+      "rationale": "Evidence of coursework and learning, not necessarily applied experience."
+    },
+    {
+      "case_id": "EE006",
+      "resume_text": "Created a dashboard using pandas to clean and aggregate sales data.",
+      "skill": "pandas",
+      "expected_evidence": "demonstrated",
+      "rationale": "Describes a concrete use of the library."
+    },
+    {
+      "case_id": "EE007",
+      "resume_text": "My teammate used Docker; I prepared the project documentation.",
+      "skill": "docker",
+      "expected_evidence": "mentioned_only",
+      "rationale": "Docker use is attributed to another person."
+    },
+    {
+      "case_id": "EE008",
+      "resume_text": "Used SQL joins to combine customer and order tables in a reporting project.",
+      "skill": "sql",
+      "expected_evidence": "demonstrated",
+      "rationale": "Describes a concrete application of SQL."
+    },
+    {
+      "case_id": "EE009",
+      "resume_text": "No hands-on experience with machine learning yet.",
+      "skill": "machine learning",
+      "expected_evidence": "negated",
+      "rationale": "Explicitly denies hands-on experience."
+    },
+    {
+      "case_id": "EE010",
+      "resume_text": "Studied Docker concepts but have not used Docker in a project.",
+      "skill": "docker",
+      "expected_evidence": "planned_or_learning",
+      "rationale": "Learning is described, while project experience is explicitly denied."
+    },
+    {
+      "case_id": "EE011",
+      "resume_text": "Developed a classification model with scikit-learn and evaluated it using precision and recall.",
+      "skill": "scikit-learn",
+      "expected_evidence": "demonstrated",
+      "rationale": "Describes implementation and evaluation work."
+    },
+    {
+      "case_id": "EE012",
+      "resume_text": "Python, SQL, Docker.",
+      "skill": "python",
+      "expected_evidence": "mentioned_only",
+      "rationale": "A list of technologies without supporting detail."
+    }
+  ]
+}

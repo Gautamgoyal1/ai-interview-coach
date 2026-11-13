@@ -1,4 +1,3 @@
-
 """Orchestrates resume parsing, skill matching, and AI feedback."""
 
 import json
@@ -8,6 +7,7 @@ from pydantic import ValidationError
 
 from app.integrations.llm.base import LLMError
 from app.integrations.llm.factory import get_llm_provider
+from app.modules.resume.evidence import classify_skills_evidence
 from app.modules.resume.feedback_evaluator import evaluate_feedback
 from app.modules.resume.parser import extract_resume_text
 from app.modules.resume.prompts import (
@@ -22,8 +22,8 @@ from app.modules.resume.scoring import (
     calculate_match,
     calculate_match_against_skills,
     load_role_skills,
+    load_skill_taxonomy,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -40,12 +40,14 @@ class ResumeAnalysisService:
         self,
         pdf_bytes: bytes,
         request: ResumeAnalysisRequest,
+        resume_text: str | None = None,
     ) -> ResumeAnalysisResult:
-        # 1. Extract text from the uploaded PDF.
-        try:
-            resume_text = extract_resume_text(pdf_bytes)
-        except ValueError as exc:
-            raise ResumeAnalysisError(str(exc)) from exc
+        # 1. Extract text from the uploaded PDF if not already extracted.
+        if resume_text is None:
+            try:
+                resume_text = extract_resume_text(pdf_bytes)
+            except ValueError as exc:
+                raise ResumeAnalysisError(str(exc)) from exc
 
         # 2. Calculate deterministic skill coverage.
         if request.job_description and request.job_description.strip():
@@ -71,6 +73,18 @@ class ResumeAnalysisService:
                 required_skills,
             )
 
+        # 2b. Classify evidence for matched canonical skills.
+        try:
+            taxonomy = load_skill_taxonomy()
+        except Exception:
+            taxonomy = None
+
+        skill_evidence = classify_skills_evidence(
+            text=resume_text,
+            skills=match["matched_skills"],
+            taxonomy=taxonomy,
+        )
+
         # 3. Build the prompt using deterministic skill analysis.
         prompt = build_resume_analysis_prompt(
             resume_text=resume_text,
@@ -79,6 +93,7 @@ class ResumeAnalysisService:
             matched_skills=match["matched_skills"],
             missing_skills=match["missing_skills"],
             match_score=match["match_score"],
+            skill_evidence=skill_evidence,
         )
 
         # 4. Request AI feedback.

@@ -1,0 +1,55 @@
+
+{
+  "evaluation_id": "sample_resume_feedback_v1",
+  "description": "Human-defined expectations for evaluating feedback on the synthetic Junior Machine Learning Engineer resume.",
+  "resume_facts": [
+    "The candidate used Python and scikit-learn in a House Price Prediction project.",
+    "The candidate used Pandas for data preprocessing.",
+    "The candidate evaluated the model using a train-test split.",
+    "The candidate used SQL to query sales records.",
+    "The candidate used Pandas to analyze sales trends.",
+    "The candidate has a B.Tech in Computer Science Engineering."
+  ],
+  "not_established_by_resume": [
+    "Model accuracy or other numerical performance results",
+    "Model deployment or production experience",
+    "Docker experience",
+    "Cloud platform experience",
+    "Specific feature engineering techniques",
+    "Specific missing-value or outlier handling techniques"
+  ],
+  "section_expectations": {
+    "strengths": {
+      "must_be_nonempty": true,
+      "purpose": "Describe strengths directly supported by the resume.",
+      "review_questions": [
+        "Can each factual claim be traced to a resume fact?",
+        "Does the feedback exaggerate the candidate's experience?",
+        "Does it invent achievements, metrics, or implementation details?"
+      ]
+    },
+    "improvement_suggestions": {
+      "must_be_nonempty": true,
+      "purpose": "Give relevant and actionable improvements without inventing candidate experience.",
+      "review_questions": [
+        "Is each suggestion relevant to the candidate or target role?",
+        "Does it distinguish missing evidence from a confirmed skill gap?",
+        "Does it suggest adding metrics without pretending metrics already exist?"
+      ]
+    },
+    "likely_interview_questions": {
+      "must_be_nonempty": true,
+      "purpose": "Ask questions grounded in documented projects, skills, education, or role requirements.",
+      "review_questions": [
+        "Can the question be linked to a documented resume fact or role requirement?",
+        "Does it assume an undocumented implementation detail?",
+        "Does it ask about an invented result as if the candidate achieved it?"
+      ]
+    }
+  },
+  "evaluation_policy": {
+    "ground_truth": "The resume facts and expectations in this file are human-defined references.",
+    "automatic_checks_are_not_proof": "Automated checks can flag obvious problems but cannot establish semantic correctness by themselves.",
+    "judge_policy": "Any LLM judge result must be reviewed against the resume and must not be treated as unquestionable ground truth."
+  }
+}

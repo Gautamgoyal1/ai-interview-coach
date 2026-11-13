@@ -1,0 +1,599 @@
+{
+  "evaluation_id": "skill_matching_v3",
+  "description": "Offline benchmark for skill extraction and explicitly labeled required-skill matching. Keyword mentions do not prove proficiency.",
+  "cases": [
+    {
+      "case_id": "SM001",
+      "resume_text": "Built Python applications and used SQL for data analysis.",
+      "job_description": "Python is required. SQL is required.",
+      "required_skills": [
+        "python",
+        "sql"
+      ],
+      "expected_resume_skills": [
+        "python",
+        "sql"
+      ],
+      "expected_matched_skills": [
+        "python",
+        "sql"
+      ],
+      "expected_missing_skills": [],
+      "expected_required_skills": [
+        "python",
+        "sql"
+      ],
+      "notes": "Both required skills are present."
+    },
+    {
+      "case_id": "SM002",
+      "resume_text": "Built Python scripts for data processing.",
+      "job_description": "Python is required. SQL is required.",
+      "required_skills": [
+        "python",
+        "sql"
+      ],
+      "expected_resume_skills": [
+        "python"
+      ],
+      "expected_matched_skills": [
+        "python"
+      ],
+      "expected_missing_skills": [
+        "sql"
+      ],
+      "expected_required_skills": [
+        "python",
+        "sql"
+      ],
+      "notes": "SQL is missing from the resume."
+    },
+    {
+      "case_id": "SM003",
+      "resume_text": "Developed Python applications. No Docker experience.",
+      "job_description": "Python is required. Docker is preferred.",
+      "required_skills": [
+        "python"
+      ],
+      "expected_resume_skills": [
+        "python",
+        "docker"
+      ],
+      "expected_matched_skills": [
+        "python"
+      ],
+      "expected_missing_skills": [],
+      "expected_required_skills": [
+        "python"
+      ],
+      "notes": "The extractor detects the Docker mention, but it does not understand negation or experience level."
+    },
+    {
+      "case_id": "SM004",
+      "resume_text": "Used Python and Docker in a deployment project.",
+      "job_description": "Python is not required, but Docker is required.",
+      "required_skills": [
+        "docker"
+      ],
+      "expected_resume_skills": [
+        "python",
+        "docker"
+      ],
+      "expected_matched_skills": [
+        "docker"
+      ],
+      "expected_missing_skills": [],
+      "expected_required_skills": [
+        "docker"
+      ],
+      "notes": "Python is present in the resume but is not a required job skill."
+    },
+    {
+      "case_id": "SM005",
+      "resume_text": "Trained ML models and evaluated model performance.",
+      "job_description": "Machine learning is required. Model evaluation is required.",
+      "required_skills": [
+        "machine learning",
+        "model evaluation"
+      ],
+      "expected_resume_skills": [
+        "machine learning",
+        "model evaluation"
+      ],
+      "expected_matched_skills": [
+        "machine learning",
+        "model evaluation"
+      ],
+      "expected_missing_skills": [],
+      "expected_required_skills": [
+        "machine learning",
+        "model evaluation"
+      ],
+      "notes": "Tests known taxonomy aliases."
+    },
+    {
+      "case_id": "SM006",
+      "resume_text": "Used Python and pandas for data analysis.",
+      "job_description": "Python is required. Pandas is a nice-to-have.",
+      "required_skills": [
+        "python"
+      ],
+      "expected_resume_skills": [
+        "python",
+        "pandas"
+      ],
+      "expected_matched_skills": [
+        "python"
+      ],
+      "expected_missing_skills": [],
+      "expected_required_skills": [
+        "python"
+      ],
+      "notes": "Pandas is detected in the resume but excluded from required-skill matching."
+    },
+    {
+      "case_id": "SM007",
+      "resume_text": "Interested in learning Docker and Kubernetes.",
+      "job_description": "Docker is required.",
+      "required_skills": [
+        "docker"
+      ],
+      "expected_resume_skills": [
+        "docker"
+      ],
+      "expected_matched_skills": [
+        "docker"
+      ],
+      "expected_missing_skills": [],
+      "expected_required_skills": [
+        "docker"
+      ],
+      "notes": "Keyword matching may overestimate practical experience."
+    },
+    {
+      "case_id": "SM008",
+      "resume_text": "Built a data pipeline using Python.",
+      "job_description": "Python experience is useful. Docker is not mandatory.",
+      "required_skills": [],
+      "expected_resume_skills": [
+        "python"
+      ],
+      "expected_matched_skills": [],
+      "expected_missing_skills": [],
+      "expected_required_skills": [],
+      "notes": "No mandatory skills; Python should still be detected in the resume."
+    },
+    {
+      "case_id": "SM009",
+      "resume_text": "I have never used Docker, but I write Python scripts.",
+      "job_description": "Docker is required. Python is required.",
+      "required_skills": [
+        "docker",
+        "python"
+      ],
+      "expected_resume_skills": [
+        "docker",
+        "python"
+      ],
+      "notes": "Negation: keyword extraction detects Docker despite lack of experience.",
+      "expected_required_skills": [
+        "docker",
+        "python"
+      ],
+      "expected_matched_skills": [
+        "docker",
+        "python"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM010",
+      "resume_text": "No Python experience. Familiar with SQL.",
+      "job_description": "Python and SQL are required.",
+      "required_skills": [
+        "python",
+        "sql"
+      ],
+      "expected_resume_skills": [
+        "python",
+        "sql"
+      ],
+      "notes": "Negated Python mention; tests lexical detection, not proficiency.",
+      "expected_required_skills": [
+        "python",
+        "sql"
+      ],
+      "expected_matched_skills": [
+        "python",
+        "sql"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM011",
+      "resume_text": "Used Python3 to automate a report.",
+      "job_description": "Python is required.",
+      "required_skills": [
+        "python"
+      ],
+      "expected_resume_skills": [
+        "python"
+      ],
+      "notes": "Python3 alias.",
+      "expected_required_skills": [
+        "python"
+      ],
+      "expected_matched_skills": [
+        "python"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM012",
+      "resume_text": "Created queries using structured query language.",
+      "job_description": "SQL is required.",
+      "required_skills": [
+        "sql"
+      ],
+      "expected_resume_skills": [
+        "sql"
+      ],
+      "notes": "SQL long-form alias.",
+      "expected_required_skills": [
+        "sql"
+      ],
+      "expected_matched_skills": [
+        "sql"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM013",
+      "resume_text": "Trained ML models for classification.",
+      "job_description": "Machine learning is required.",
+      "required_skills": [
+        "machine learning"
+      ],
+      "expected_resume_skills": [
+        "machine learning"
+      ],
+      "notes": "ML alias.",
+      "expected_required_skills": [
+        "machine learning"
+      ],
+      "expected_matched_skills": [
+        "machine learning"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM014",
+      "resume_text": "Built a model using sklearn.",
+      "job_description": "Scikit-learn is required.",
+      "required_skills": [
+        "scikit-learn"
+      ],
+      "expected_resume_skills": [
+        "scikit-learn"
+      ],
+      "notes": "scikit-learn alias.",
+      "expected_required_skills": [
+        "scikit-learn"
+      ],
+      "expected_matched_skills": [
+        "scikit-learn"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM015",
+      "resume_text": "Cleaned raw records during preprocessing.",
+      "job_description": "Data preprocessing is required.",
+      "required_skills": [
+        "data preprocessing"
+      ],
+      "expected_resume_skills": [
+        "data preprocessing"
+      ],
+      "notes": "Preprocessing alias.",
+      "expected_required_skills": [
+        "data preprocessing"
+      ],
+      "expected_matched_skills": [
+        "data preprocessing"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM016",
+      "resume_text": "Evaluated the model on a held-out dataset.",
+      "job_description": "Model evaluation is required.",
+      "required_skills": [
+        "model evaluation"
+      ],
+      "expected_resume_skills": [
+        "model evaluation"
+      ],
+      "notes": "Model-evaluation alias.",
+      "expected_required_skills": [
+        "model evaluation"
+      ],
+      "expected_matched_skills": [
+        "model evaluation"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM017",
+      "resume_text": "Used containers to package an application.",
+      "job_description": "Docker is required.",
+      "required_skills": [
+        "docker"
+      ],
+      "expected_resume_skills": [
+        "docker"
+      ],
+      "notes": "Container alias.",
+      "expected_required_skills": [
+        "docker"
+      ],
+      "expected_matched_skills": [
+        "docker"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM018",
+      "resume_text": "Worked with a cloud platform for deployment.",
+      "job_description": "Cloud platforms are required.",
+      "required_skills": [
+        "cloud platforms"
+      ],
+      "expected_resume_skills": [
+        "cloud platforms"
+      ],
+      "notes": "Cloud-platform alias.",
+      "expected_required_skills": [
+        "cloud platforms"
+      ],
+      "expected_matched_skills": [
+        "cloud platforms"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM019",
+      "resume_text": "Python, Python3 and Python were used in multiple projects.",
+      "job_description": "Python is required.",
+      "required_skills": [
+        "python"
+      ],
+      "expected_resume_skills": [
+        "python"
+      ],
+      "notes": "Repeated mentions should produce one canonical skill.",
+      "expected_required_skills": [
+        "python"
+      ],
+      "expected_matched_skills": [
+        "python"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM020",
+      "resume_text": "",
+      "job_description": "Python and SQL are required.",
+      "required_skills": [
+        "python",
+        "sql"
+      ],
+      "expected_resume_skills": [],
+      "notes": "Empty resume.",
+      "expected_required_skills": [
+        "python",
+        "sql"
+      ],
+      "expected_matched_skills": [],
+      "expected_missing_skills": [
+        "python",
+        "sql"
+      ]
+    },
+    {
+      "case_id": "SM021",
+      "resume_text": "Built a Java application and learned Kubernetes.",
+      "job_description": "Python and Docker are required.",
+      "required_skills": [
+        "docker",
+        "python"
+      ],
+      "expected_resume_skills": [],
+      "notes": "Technologies absent from the current canonical taxonomy.",
+      "expected_required_skills": [
+        "docker",
+        "python"
+      ],
+      "expected_matched_skills": [],
+      "expected_missing_skills": [
+        "docker",
+        "python"
+      ]
+    },
+    {
+      "case_id": "SM022",
+      "resume_text": "I want to learn Python and Docker next year.",
+      "job_description": "Python and Docker are required.",
+      "required_skills": [
+        "docker",
+        "python"
+      ],
+      "expected_resume_skills": [
+        "docker",
+        "python"
+      ],
+      "notes": "Learning goals are detected like experience by keyword matching.",
+      "expected_required_skills": [
+        "docker",
+        "python"
+      ],
+      "expected_matched_skills": [
+        "docker",
+        "python"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM023",
+      "resume_text": "Read about pandas but have not used it in a project.",
+      "job_description": "Pandas is required.",
+      "required_skills": [
+        "pandas"
+      ],
+      "expected_resume_skills": [
+        "pandas"
+      ],
+      "notes": "Mention does not establish hands-on proficiency.",
+      "expected_required_skills": [
+        "pandas"
+      ],
+      "expected_matched_skills": [
+        "pandas"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM024",
+      "resume_text": "Used NumPy arrays for numerical operations.",
+      "job_description": "NumPy is required.",
+      "required_skills": [
+        "numpy"
+      ],
+      "expected_resume_skills": [
+        "numpy"
+      ],
+      "notes": "NumPy extraction.",
+      "expected_required_skills": [
+        "numpy"
+      ],
+      "expected_matched_skills": [
+        "numpy"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM025",
+      "resume_text": "Worked with pandas and NumPy.",
+      "job_description": "Pandas is required. NumPy is preferred.",
+      "required_skills": [
+        "pandas"
+      ],
+      "expected_resume_skills": [
+        "numpy",
+        "pandas"
+      ],
+      "notes": "Only pandas is mandatory; both skills appear in the resume.",
+      "expected_required_skills": [
+        "pandas"
+      ],
+      "expected_matched_skills": [
+        "pandas"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM026",
+      "resume_text": "Built a small Docker deployment.",
+      "job_description": "Docker is preferred but Python is required.",
+      "required_skills": [
+        "python"
+      ],
+      "expected_resume_skills": [
+        "docker"
+      ],
+      "notes": "Preferred Docker is present; required Python is missing.",
+      "expected_required_skills": [
+        "python"
+      ],
+      "expected_matched_skills": [],
+      "expected_missing_skills": [
+        "python"
+      ]
+    },
+    {
+      "case_id": "SM027",
+      "resume_text": "Python is listed in a course I plan to take.",
+      "job_description": "Python is required.",
+      "required_skills": [
+        "python"
+      ],
+      "expected_resume_skills": [
+        "python"
+      ],
+      "notes": "Course mention does not prove practical experience.",
+      "expected_required_skills": [
+        "python"
+      ],
+      "expected_matched_skills": [
+        "python"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM028",
+      "resume_text": "My teammate used Docker; I worked on the documentation.",
+      "job_description": "Docker is required.",
+      "required_skills": [
+        "docker"
+      ],
+      "expected_resume_skills": [
+        "docker"
+      ],
+      "notes": "Third-party mention can cause a false proficiency inference.",
+      "expected_required_skills": [
+        "docker"
+      ],
+      "expected_matched_skills": [
+        "docker"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM029",
+      "resume_text": "Used scikit learn and machine-learning techniques.",
+      "job_description": "Scikit-learn and machine learning are required.",
+      "required_skills": [
+        "machine learning",
+        "scikit-learn"
+      ],
+      "expected_resume_skills": [
+        "machine learning",
+        "scikit-learn"
+      ],
+      "notes": "Alternate spellings and aliases.",
+      "expected_required_skills": [
+        "machine learning",
+        "scikit-learn"
+      ],
+      "expected_matched_skills": [
+        "machine learning",
+        "scikit-learn"
+      ],
+      "expected_missing_skills": []
+    },
+    {
+      "case_id": "SM030",
+      "resume_text": "Used Python and SQL.",
+      "job_description": "No mandatory technical skills.",
+      "required_skills": [],
+      "expected_resume_skills": [
+        "python",
+        "sql"
+      ],
+      "notes": "Empty required-skill set.",
+      "expected_required_skills": [],
+      "expected_matched_skills": [],
+      "expected_missing_skills": []
+    }
+  ]
+}

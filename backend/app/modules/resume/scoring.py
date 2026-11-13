@@ -2,6 +2,7 @@
 """Skill extraction and deterministic resume-to-job matching."""
 
 import json
+import math
 import re
 from pathlib import Path
 
@@ -122,3 +123,140 @@ def calculate_match_against_skills(
         "missing_skills": missing,
         "match_score": score,
     }
+
+
+def calculate_weighted_match(
+    matched_skills: list[str],
+    required_skills: list[str],
+    skill_weights: dict[str, float],
+) -> dict:
+    """Calculate an experimental weighted score without changing match_score."""
+    required = {skill.strip().lower() for skill in required_skills}
+    matched = {skill.strip().lower() for skill in matched_skills}
+
+    unknown_matches = matched - required
+    if unknown_matches:
+        raise ValueError(
+            "Matched skills must be required skills: "
+            f"{sorted(unknown_matches)}"
+        )
+
+    normalized_weights = {
+        skill.strip().lower(): weight
+        for skill, weight in skill_weights.items()
+    }
+
+    missing_weights = required - set(normalized_weights)
+    if missing_weights:
+        raise ValueError(
+            f"Missing weights for required skills: {sorted(missing_weights)}"
+        )
+
+    for skill in required:
+        weight = normalized_weights[skill]
+
+        if (
+            isinstance(weight, bool)
+            or not isinstance(weight, (int, float))
+            or not math.isfinite(weight)
+            or weight <= 0
+        ):
+            raise ValueError(
+                f"Weight for '{skill}' must be a finite positive number."
+            )
+
+    total_weight = sum(normalized_weights[skill] for skill in required)
+    matched_weight = sum(
+        normalized_weights[skill] for skill in matched
+    )
+
+    score = (
+        round(matched_weight / total_weight * 100, 2)
+        if total_weight
+        else 0.0
+    )
+
+    return {
+        "weighted_match_score": score,
+        "matched_weight": round(matched_weight, 4),
+        "total_weight": round(total_weight, 4),
+    }
+
+
+
+def adjust_skill_weights_from_job_description(
+    skill_weights: dict[str, float],
+    job_description: str,
+) -> dict[str, float]:
+    """Adjust baseline weights using explicit requirement labels.
+
+    This is a conservative heuristic, not a complete natural-language parser.
+    """
+    required_pattern = re.compile(
+        r"\b(?:required|must[- ]have|must|required skill)\b",
+        re.IGNORECASE,
+    )
+    preferred_pattern = re.compile(
+        r"\b(?:preferred|nice[- ]to[- ]have|bonus|desirable)\b",
+        re.IGNORECASE,
+    )
+    negated_required_pattern = re.compile(
+        r"\b(?:not|never)\s+(?:(?:strictly|necessarily)\s+)?required\b"
+        r"|\bnot\s+(?:a\s+)?requirement\b"
+        r"|\bnot\s+mandatory\b"
+        r"|\bno\s+requirement\s+for\b",
+        re.IGNORECASE,
+    )
+
+    # Split sentences and contrasting clauses so a negation for one
+    # skill does not suppress a requirement signal for another.
+    clauses = re.split(
+        r"(?<=[.!?])\s+|\n+|;\s*|,\s*(?=(?:but|however|whereas|while)\b)",
+        job_description,
+        flags=re.IGNORECASE,
+    )
+
+    adjusted: dict[str, float] = {}
+
+    for skill, weight in skill_weights.items():
+        canonical = skill.strip().lower()
+
+        if (
+            isinstance(weight, bool)
+            or not isinstance(weight, (int, float))
+            or not math.isfinite(weight)
+            or weight <= 0
+        ):
+            raise ValueError(
+                f"Weight for '{canonical}' must be a finite positive number."
+            )
+
+        skill_pattern = re.compile(
+            rf"(?<!\w){re.escape(canonical)}(?!\w)",
+            re.IGNORECASE,
+        )
+
+        required_signal = False
+        preferred_signal = False
+
+        for clause in clauses:
+            if not skill_pattern.search(clause):
+                continue
+
+            # Ignore requirement signals in a negated clause.
+            if negated_required_pattern.search(clause):
+                continue
+
+            if required_pattern.search(clause):
+                required_signal = True
+            elif preferred_pattern.search(clause):
+                preferred_signal = True
+
+        if required_signal:
+            adjusted[canonical] = round(weight * 1.25, 4)
+        elif preferred_signal:
+            adjusted[canonical] = round(weight * 0.75, 4)
+        else:
+            adjusted[canonical] = float(weight)
+
+    return adjusted

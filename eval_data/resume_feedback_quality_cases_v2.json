@@ -1,0 +1,660 @@
+{
+  "evaluation_id": "resume_feedback_quality_v2",
+  "label_definitions": {
+    "grounded": "The item does not present unsupported candidate-specific facts as true.",
+    "relevant": "The item meaningfully relates to the target role, supplied resume, or goal of improving the resume for that role.",
+    "actionable": "The item provides a concrete question or practical next step, where applicable."
+  },
+  "cases": [
+    {
+      "case_id": "grounded_python_strength",
+      "section": "strengths",
+      "resume_text": "Skills: Python, SQL, Pandas. Built a house price prediction project using Python and Scikit-learn.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "The candidate lists Python and has applied it in a house price prediction project.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "The claim is supported; a strength need not be an action."
+    },
+    {
+      "case_id": "fabricated_model_accuracy",
+      "section": "strengths",
+      "resume_text": "Built a house price prediction model using Python. No evaluation results are provided.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "The candidate achieved 99% model accuracy.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "The topic is relevant, but the numerical result is invented."
+    },
+    {
+      "case_id": "safe_metrics_recommendation",
+      "section": "improvement_suggestions",
+      "resume_text": "Built a house price prediction model using Python. No evaluation results are provided.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "If you evaluated the model, add the actual evaluation metric and result to the project description.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "This recommends adding evidence without claiming a result already exists."
+    },
+    {
+      "case_id": "unsupported_deployment_claim",
+      "section": "strengths",
+      "resume_text": "Built a classification model using Scikit-learn.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "The candidate has production deployment experience.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "Deployment experience is not established by the resume."
+    },
+    {
+      "case_id": "conditional_docker_recommendation",
+      "section": "improvement_suggestions",
+      "resume_text": "Skills: Python, SQL. No Docker experience is documented.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "If you have used Docker, describe how you used it; otherwise, consider learning the basics if they are relevant to your target roles.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "The conditional wording avoids assuming prior experience."
+    },
+    {
+      "case_id": "mixed_conditional_and_fabricated_claim",
+      "section": "improvement_suggestions",
+      "resume_text": "Skills: Python, SQL. No deployment experience is documented.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "You successfully deployed the model to Azure; if applicable, add more deployment details.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "The recommendation does not neutralize the unsupported claim in the first clause."
+    },
+    {
+      "case_id": "grounded_interview_question",
+      "section": "likely_interview_questions",
+      "resume_text": "Used Pandas to preprocess data for a house price prediction project.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "How did you use Pandas to preprocess the dataset?",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "The question asks about a documented activity."
+    },
+    {
+      "case_id": "question_assumes_undocumented_method",
+      "section": "likely_interview_questions",
+      "resume_text": "Built a house price prediction model using Python. Preprocessing details are not specified.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Why did you use median imputation to handle missing values?",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "The question presupposes a method the resume does not document."
+    },
+    {
+      "case_id": "irrelevant_career_advice",
+      "section": "improvement_suggestions",
+      "resume_text": "Skills: Python, SQL, Pandas. Built a machine learning project.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Add more information about your experience designing fashion collections.",
+      "expected": {
+        "grounded": true,
+        "relevant": false,
+        "actionable": true
+      },
+      "notes": "The advice is specific but unrelated to the target role."
+    },
+    {
+      "case_id": "vague_resume_advice",
+      "section": "improvement_suggestions",
+      "resume_text": "Built a house price prediction project using Python and Scikit-learn.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Improve your resume.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "The advice is relevant but does not explain what to change."
+    },
+    {
+      "case_id": "unsupported_skill_claim",
+      "section": "strengths",
+      "resume_text": "Skills: Python, SQL, Pandas.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "The candidate is proficient in TensorFlow and PyTorch.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "Neither skill nor proficiency is established."
+    },
+    {
+      "case_id": "role_relevant_interview_question",
+      "section": "likely_interview_questions",
+      "resume_text": "Built a classification model using Scikit-learn.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "How would you select an appropriate evaluation metric for a classification problem?",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "This is a role-relevant knowledge question, not a claim about the candidate's past work."
+    },
+    {
+      "case_id": "conditional_but_fabricated_metric",
+      "section": "improvement_suggestions",
+      "resume_text": "Built a house price prediction model using Python. No evaluation metrics are documented.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "If applicable, add the RMSE of 12.5 that your model achieved.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "Conditional wording does not make an explicitly asserted unsupported past result acceptable."
+    },
+    {
+      "case_id": "unsupported_missing_value_method",
+      "section": "strengths",
+      "resume_text": "Built a house price prediction model using Python and Pandas. Preprocessing details are not provided.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Demonstrates experience handling missing values with median imputation.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "The resume documents preprocessing tools but not this specific method."
+    },
+    {
+      "case_id": "question_assumes_xgboost",
+      "section": "likely_interview_questions",
+      "resume_text": "Built a house price prediction model using Python. The algorithm is not specified.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Why did you choose XGBoost over Random Forest for your house price prediction model?",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "The question presupposes both a specific algorithm choice and a comparison not established by the resume."
+    },
+    {
+      "case_id": "exaggerated_python_expertise",
+      "section": "strengths",
+      "resume_text": "Skills: Python, SQL. Built one introductory Python project.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Demonstrates expert-level Python proficiency.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "Listing Python and completing an introductory project do not establish expert-level proficiency."
+    },
+    {
+      "case_id": "irrelevant_design_recommendation",
+      "section": "improvement_suggestions",
+      "resume_text": "Built a house price prediction model using Python and Scikit-learn.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Add a decorative color palette and custom typography to your resume.",
+      "expected": {
+        "grounded": true,
+        "relevant": false,
+        "actionable": true
+      },
+      "notes": "The advice gives a concrete action but is not meaningfully relevant to the target role or the supplied technical resume context."
+    },
+    {
+      "case_id": "vague_resume_improvement",
+      "section": "improvement_suggestions",
+      "resume_text": "Skills: Python, SQL. Built a house price prediction project.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Make your resume better.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "The general goal is relevant, but the feedback provides no concrete next step."
+    },
+    {
+      "case_id": "safe_metric_calculation_recommendation",
+      "section": "improvement_suggestions",
+      "resume_text": "Built a house price prediction model using Python. Evaluation results are not documented.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "If you evaluated the model, report the actual RMSE or MAE; otherwise, evaluate it on held-out data before reporting a result.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "The recommendation distinguishes existing evidence from a future evaluation and does not invent a result."
+    },
+    {
+      "case_id": "general_metric_knowledge_question",
+      "section": "likely_interview_questions",
+      "resume_text": "Built a house price prediction model using Python. No evaluation metric is documented.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "How would you choose an appropriate evaluation metric for a house price prediction model?",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "This is clearly framed as a general knowledge question and does not assume the candidate previously used a particular metric."
+    },
+    {
+      "case_id": "conditional_cloud_recommendation",
+      "section": "improvement_suggestions",
+      "resume_text": "Skills: Python, SQL. No cloud deployment is documented.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "If you have deployed a model, describe the cloud service and your contribution; otherwise, consider a small deployment project.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "Conditional advice does not claim deployment experience."
+    },
+    {
+      "case_id": "fabricated_cloud_deployment",
+      "section": "strengths",
+      "resume_text": "Skills: Python, SQL. No deployment experience is documented.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Your Azure deployment experience demonstrates production readiness.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "The feedback asserts undocumented Azure deployment experience."
+    },
+    {
+      "case_id": "unsupported_team_leadership",
+      "section": "strengths",
+      "resume_text": "Built a classification model independently using Python.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "You successfully led a team of five engineers.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "Team leadership and team size are unsupported."
+    },
+    {
+      "case_id": "safe_teamwork_question",
+      "section": "likely_interview_questions",
+      "resume_text": "Built a classification model independently using Python.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "How would you collaborate with a team when developing a model?",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "This is a general knowledge question, not a claim about past teamwork."
+    },
+    {
+      "case_id": "fabricated_dataset_size",
+      "section": "strengths",
+      "resume_text": "Trained a model on a customer dataset; dataset size is not stated.",
+      "job_role": "Data Scientist",
+      "feedback_item": "You processed over one million customer records.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "The record count is invented."
+    },
+    {
+      "case_id": "recommend_document_dataset_size",
+      "section": "improvement_suggestions",
+      "resume_text": "Trained a model on a customer dataset; dataset size is not stated.",
+      "job_role": "Data Scientist",
+      "feedback_item": "If available, document the dataset size and how you validated it.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "This requests verifiable information without inventing a number."
+    },
+    {
+      "case_id": "unsupported_accuracy_improvement",
+      "section": "strengths",
+      "resume_text": "Built a model. No baseline or comparison is documented.",
+      "job_role": "Machine Learning Engineer",
+      "feedback_item": "You improved prediction accuracy by 25 percent over the baseline.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "Both the percentage and comparison are unsupported."
+    },
+    {
+      "case_id": "safe_comparison_recommendation",
+      "section": "improvement_suggestions",
+      "resume_text": "Built a model. No baseline or comparison is documented.",
+      "job_role": "Machine Learning Engineer",
+      "feedback_item": "If you compared against a baseline, report the measured improvement and explain how the comparison was performed.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "Conditional request for evidence is grounded and actionable."
+    },
+    {
+      "case_id": "irrelevant_cooking_advice",
+      "section": "improvement_suggestions",
+      "resume_text": "Python, SQL, Pandas; built a churn prediction project.",
+      "job_role": "Junior Data Analyst",
+      "feedback_item": "Add a section describing your favorite cooking recipes.",
+      "expected": {
+        "grounded": true,
+        "relevant": false,
+        "actionable": true
+      },
+      "notes": "The instruction is concrete but unrelated to the resume goal."
+    },
+    {
+      "case_id": "irrelevant_travel_advice",
+      "section": "improvement_suggestions",
+      "resume_text": "Python, SQL, Pandas; built a churn prediction project.",
+      "job_role": "Junior Data Analyst",
+      "feedback_item": "Describe your ideal international holiday destination.",
+      "expected": {
+        "grounded": true,
+        "relevant": false,
+        "actionable": true
+      },
+      "notes": "Travel preferences have no stated connection to this role."
+    },
+    {
+      "case_id": "irrelevant_graphic_design_claim",
+      "section": "strengths",
+      "resume_text": "Python, SQL, Pandas; built a churn prediction project.",
+      "job_role": "Junior Data Analyst",
+      "feedback_item": "Your advanced graphic design portfolio is a major strength.",
+      "expected": {
+        "grounded": false,
+        "relevant": false,
+        "actionable": false
+      },
+      "notes": "The portfolio is invented and unrelated to the target role."
+    },
+    {
+      "case_id": "irrelevant_music_recommendation",
+      "section": "improvement_suggestions",
+      "resume_text": "Python, SQL, Pandas; built a churn prediction project.",
+      "job_role": "Junior Data Analyst",
+      "feedback_item": "Add a list of your favorite musicians to make the resume stronger.",
+      "expected": {
+        "grounded": true,
+        "relevant": false,
+        "actionable": true
+      },
+      "notes": "The suggestion is actionable but irrelevant."
+    },
+    {
+      "case_id": "vague_interview_preparation",
+      "section": "improvement_suggestions",
+      "resume_text": "Python, SQL, and a basic regression project.",
+      "job_role": "Junior Data Scientist",
+      "feedback_item": "Prepare better for interviews.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "Relevant to the job search but gives no concrete step."
+    },
+    {
+      "case_id": "specific_sql_next_step",
+      "section": "improvement_suggestions",
+      "resume_text": "SQL is listed; no SQL project is described.",
+      "job_role": "Junior Data Analyst",
+      "feedback_item": "Add one SQL project showing joins, aggregation, and the question your analysis answered.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "Provides a concrete and role-relevant next step."
+    },
+    {
+      "case_id": "unsupported_sql_expertise",
+      "section": "strengths",
+      "resume_text": "SQL is listed; no query examples are provided.",
+      "job_role": "Junior Data Analyst",
+      "feedback_item": "Your expert-level SQL optimization skills set you apart.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "Expertise and optimization experience are not established."
+    },
+    {
+      "case_id": "safe_sql_skill_question",
+      "section": "likely_interview_questions",
+      "resume_text": "SQL is listed; no query examples are provided.",
+      "job_role": "Junior Data Analyst",
+      "feedback_item": "How would you investigate a slow SQL query?",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "A general technical question does not assert prior experience."
+    },
+    {
+      "case_id": "unsupported_deep_learning_project",
+      "section": "strengths",
+      "resume_text": "Built a house price model using scikit-learn.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Your deep learning project demonstrates CNN expertise.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "Neither a deep learning project nor CNN expertise is documented."
+    },
+    {
+      "case_id": "safe_deep_learning_learning_plan",
+      "section": "improvement_suggestions",
+      "resume_text": "Built a house price model using scikit-learn.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "If deep learning is relevant to your target roles, build a small CNN project and document your evaluation results.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "A future learning recommendation does not claim existing experience."
+    },
+    {
+      "case_id": "unsupported_certification",
+      "section": "strengths",
+      "resume_text": "Python and SQL skills are listed. No certifications are mentioned.",
+      "job_role": "Junior Data Analyst",
+      "feedback_item": "Your Azure Data Scientist certification validates your cloud skills.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "The certification is not supported by the supplied resume."
+    },
+    {
+      "case_id": "safe_certification_suggestion",
+      "section": "improvement_suggestions",
+      "resume_text": "Python and SQL skills are listed. No certifications are mentioned.",
+      "job_role": "Junior Data Analyst",
+      "feedback_item": "If you hold relevant certifications, list their exact names; otherwise, leave this section out.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "Conditional advice does not assert certification ownership."
+    },
+    {
+      "case_id": "irrelevant_medical_advice",
+      "section": "improvement_suggestions",
+      "resume_text": "Python, SQL, and a sales dashboard project.",
+      "job_role": "Business Data Analyst",
+      "feedback_item": "Add a detailed account of your personal medical history.",
+      "expected": {
+        "grounded": true,
+        "relevant": false,
+        "actionable": true
+      },
+      "notes": "The advice is actionable but unrelated and unnecessarily personal."
+    },
+    {
+      "case_id": "unsupported_revenue_impact",
+      "section": "strengths",
+      "resume_text": "Created a sales dashboard. No business impact is quantified.",
+      "job_role": "Business Data Analyst",
+      "feedback_item": "Your dashboard increased company revenue by 18 percent.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "The business outcome and percentage are unsupported."
+    },
+    {
+      "case_id": "safe_impact_measurement",
+      "section": "improvement_suggestions",
+      "resume_text": "Created a sales dashboard. No business impact is quantified.",
+      "job_role": "Business Data Analyst",
+      "feedback_item": "If you measured business impact, report the verified result and how it was calculated; otherwise, describe the dashboard's purpose.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "Requests evidence without inventing an impact figure."
+    },
+    {
+      "case_id": "unsupported_model_ownership",
+      "section": "strengths",
+      "resume_text": "Contributed data cleaning to a group classification project.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "You designed and owned the complete model architecture.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "The resume only establishes a data-cleaning contribution."
+    },
+    {
+      "case_id": "safe_contribution_clarification",
+      "section": "improvement_suggestions",
+      "resume_text": "Contributed data cleaning to a group classification project.",
+      "job_role": "Junior Machine Learning Engineer",
+      "feedback_item": "Clarify which components you personally implemented and which were completed by other team members.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "Requests an accurate description of personal contribution."
+    },
+    {
+      "case_id": "irrelevant_finance_advice",
+      "section": "improvement_suggestions",
+      "resume_text": "Python, Pandas, and a data visualization project.",
+      "job_role": "Junior Data Analyst",
+      "feedback_item": "Include your personal stock portfolio and investment returns.",
+      "expected": {
+        "grounded": true,
+        "relevant": false,
+        "actionable": true
+      },
+      "notes": "Personal investment returns are not relevant to the stated application."
+    },
+    {
+      "case_id": "vague_project_description",
+      "section": "improvement_suggestions",
+      "resume_text": "Built a Python project; purpose and results are not described.",
+      "job_role": "Junior Data Analyst",
+      "feedback_item": "Make your project description stronger.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "The feedback is relevant but lacks a specific next step."
+    },
+    {
+      "case_id": "concrete_project_documentation",
+      "section": "improvement_suggestions",
+      "resume_text": "Built a Python project; purpose and results are not described.",
+      "job_role": "Junior Data Analyst",
+      "feedback_item": "Add the project's objective, data source, your contribution, and one verified result.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "Specifies the information to document without inventing results."
+    },
+    {
+      "case_id": "unsupported_production_scale",
+      "section": "strengths",
+      "resume_text": "Built a REST API for a class project. No traffic data is stated.",
+      "job_role": "Backend Engineer",
+      "feedback_item": "Your API reliably handles 100,000 requests per second.",
+      "expected": {
+        "grounded": false,
+        "relevant": true,
+        "actionable": false
+      },
+      "notes": "The throughput and reliability claim are unsupported."
+    },
+    {
+      "case_id": "safe_load_testing_recommendation",
+      "section": "improvement_suggestions",
+      "resume_text": "Built a REST API for a class project. No traffic data is stated.",
+      "job_role": "Backend Engineer",
+      "feedback_item": "Run a load test, record the setup and observed throughput, and report the measured result without extrapolating beyond the test.",
+      "expected": {
+        "grounded": true,
+        "relevant": true,
+        "actionable": true
+      },
+      "notes": "Concrete recommendation that does not assert a measured result."
+    }
+  ]
+}

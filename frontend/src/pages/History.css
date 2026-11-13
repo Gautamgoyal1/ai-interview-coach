@@ -1,0 +1,139 @@
+.history-page {
+  width: 100%;
+  max-width: 1080px;
+  min-width: 0;
+}
+
+.history-detail-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+}
+
+.history-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.history-detail-meta strong {
+  color: var(--text-primary);
+}
+
+.history-table-wrap {
+  overflow-x: auto;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.history-table th {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.history-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+  font-size: 13px;
+}
+
+.history-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.history-table tbody tr:hover {
+  background: var(--bg-canvas);
+}
+
+.table-role {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.table-filename {
+  display: inline-block;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.table-date {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.th-actions {
+  text-align: right;
+}
+
+.table-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.history-mobile-list {
+  display: none;
+  gap: 12px;
+}
+
+.history-mobile-card {
+  padding: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.history-mobile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.history-mobile-meta {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.history-mobile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 6px;
+}
+
+@media (max-width: 760px) {
+  .history-detail-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .history-table-wrap {
+    display: none;
+  }
+
+  .history-mobile-list {
+    display: grid;
+  }
+}

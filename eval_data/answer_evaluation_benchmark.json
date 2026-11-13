@@ -1,0 +1,98 @@
+[
+  {
+    "id": "case_01_fully_correct",
+    "category": "fully_correct",
+    "target_role": "Backend Developer",
+    "topic": "FastAPI",
+    "difficulty": "medium",
+    "question_text": "Explain how dependency injection works in FastAPI and why it is useful.",
+    "answer_text": "FastAPI uses Depends() to declare dependencies on path operations or other dependencies. FastAPI resolves the dependency graph per request, caches results within the same request by default, supports yield-based dependencies for setup/teardown like DB sessions, and makes testing easy via app.dependency_overrides.",
+    "retrieved_context": "FastAPI dependency injection uses Depends() to share logic, database connections, and auth checks, with support for yield cleanup and dependency_overrides in tests.",
+    "expected_min_score": 80.0,
+    "expected_max_score": 100.0
+  },
+  {
+    "id": "case_02_partially_correct",
+    "category": "partially_correct",
+    "target_role": "Backend Developer",
+    "topic": "PostgreSQL",
+    "difficulty": "medium",
+    "question_text": "How would you diagnose and optimize a slow PostgreSQL query?",
+    "answer_text": "I would add an index on the table column so the database searches faster instead of scanning everything.",
+    "retrieved_context": "Use EXPLAIN ANALYZE to inspect query plans, sequential vs index scans, join strategies, and appropriate B-tree or composite indexes.",
+    "expected_min_score": 30.0,
+    "expected_max_score": 65.0
+  },
+  {
+    "id": "case_03_incorrect",
+    "category": "incorrect",
+    "target_role": "Machine Learning Engineer",
+    "topic": "Model Evaluation",
+    "difficulty": "easy",
+    "question_text": "Why is accuracy alone misleading on imbalanced classification datasets?",
+    "answer_text": "Accuracy is only bad because neural networks cannot compute percentages on binary labels.",
+    "retrieved_context": "On imbalanced datasets, predicting the majority class yields high accuracy while failing on the minority class; precision, recall, F1, and PR-AUC are more informative.",
+    "expected_min_score": 0.0,
+    "expected_max_score": 30.0
+  },
+  {
+    "id": "case_04_irrelevant",
+    "category": "irrelevant",
+    "target_role": "Backend Developer",
+    "topic": "Docker",
+    "difficulty": "easy",
+    "question_text": "What is the purpose of a multi-stage Dockerfile?",
+    "answer_text": "I prefer using VS Code with dark mode and Python type hints for all my web projects.",
+    "retrieved_context": "Multi-stage Docker builds separate build-time dependencies from the final runtime image to reduce image size and attack surface.",
+    "expected_min_score": 0.0,
+    "expected_max_score": 20.0
+  },
+  {
+    "id": "case_05_empty",
+    "category": "empty",
+    "target_role": "Backend Developer",
+    "topic": "Redis",
+    "difficulty": "medium",
+    "question_text": "When would you use Redis as a cache-aside layer?",
+    "answer_text": "   ",
+    "retrieved_context": "",
+    "expected_min_score": 0.0,
+    "expected_max_score": 0.0
+  },
+  {
+    "id": "case_06_confident_but_wrong",
+    "category": "confident_but_wrong",
+    "target_role": "AI Engineer",
+    "topic": "RAG",
+    "difficulty": "medium",
+    "question_text": "What does pgvector's cosine distance operator do during RAG retrieval?",
+    "answer_text": "pgvector's cosine distance operator encrypts the user's prompt with AES-256 and automatically retrains the LLM weights on every SQL SELECT query to guarantee zero hallucinations.",
+    "retrieved_context": "Cosine distance measures angular dissimilarity between normalized embedding vectors to rank semantically similar text chunks.",
+    "expected_min_score": 0.0,
+    "expected_max_score": 30.0
+  },
+  {
+    "id": "case_07_equivalent_wording",
+    "category": "equivalent_wording",
+    "target_role": "Machine Learning Engineer",
+    "topic": "Overfitting",
+    "difficulty": "easy",
+    "question_text": "How can you detect overfitting during model training?",
+    "answer_text": "You can spot it when the model keeps getting better on the training split while its error on a held-out validation set levels off or starts getting worse.",
+    "retrieved_context": "Overfitting occurs when training loss decreases while validation loss increases.",
+    "expected_min_score": 70.0,
+    "expected_max_score": 100.0
+  },
+  {
+    "id": "case_08_correct_lacking_depth",
+    "category": "correct_lacking_depth",
+    "target_role": "Backend Developer",
+    "topic": "Authentication",
+    "difficulty": "hard",
+    "question_text": "Compare stateful server sessions and stateless JWTs for API authentication, including revocation trade-offs.",
+    "answer_text": "Sessions store state on the server and JWTs store claims in a signed token sent by the client.",
+    "retrieved_context": "JWTs avoid server-side session lookups but are harder to revoke before expiration without a denylist or short TTL + refresh token rotation.",
+    "expected_min_score": 30.0,
+    "expected_max_score": 65.0
+  }
+]
