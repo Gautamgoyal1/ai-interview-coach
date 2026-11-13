@@ -14,15 +14,7 @@ async def _embed_query(query: str) -> list[float]:
     return embeddings[0]
 
 
-def retrieve_chunks(
-    db: Session,
-    query: str,
-    top_k: int = 5,
-    topic: str | None = None,
-    role: str | None = None,
-) -> list[Chunk]:
-    """Retrieve the top-k chunks most similar to a question."""
-
+def _validate_retrieval_params(query: str, top_k: int) -> str:
     query = query.strip()
 
     if not query:
@@ -30,11 +22,16 @@ def retrieve_chunks(
     if top_k < 1:
         raise ValueError("top_k must be at least 1")
 
-    # Run the async embedding function from this synchronous function.
-    import asyncio
+    return query
 
-    query_embedding = asyncio.run(_embed_query(query))
 
+def _query_chunks_by_embedding(
+    db: Session,
+    query_embedding: list[float],
+    top_k: int,
+    topic: str | None = None,
+    role: str | None = None,
+) -> list[Chunk]:
     stmt = select(Chunk)
 
     if topic:
@@ -50,3 +47,45 @@ def retrieve_chunks(
     )
 
     return list(db.scalars(stmt).all())
+
+
+async def retrieve_chunks_async(
+    db: Session,
+    query: str,
+    top_k: int = 5,
+    topic: str | None = None,
+    role: str | None = None,
+) -> list[Chunk]:
+    """Asynchronously retrieve the top-k chunks most similar to a query."""
+    cleaned_query = _validate_retrieval_params(query, top_k)
+    query_embedding = await _embed_query(cleaned_query)
+    return _query_chunks_by_embedding(
+        db=db,
+        query_embedding=query_embedding,
+        top_k=top_k,
+        topic=topic,
+        role=role,
+    )
+
+
+def retrieve_chunks(
+    db: Session,
+    query: str,
+    top_k: int = 5,
+    topic: str | None = None,
+    role: str | None = None,
+) -> list[Chunk]:
+    """Retrieve the top-k chunks most similar to a question."""
+    cleaned_query = _validate_retrieval_params(query, top_k)
+
+    # Run the async embedding function from this synchronous function.
+    import asyncio
+
+    query_embedding = asyncio.run(_embed_query(cleaned_query))
+    return _query_chunks_by_embedding(
+        db=db,
+        query_embedding=query_embedding,
+        top_k=top_k,
+        topic=topic,
+        role=role,
+    )

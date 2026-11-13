@@ -40,12 +40,14 @@ class ResumeAnalysisService:
         self,
         pdf_bytes: bytes,
         request: ResumeAnalysisRequest,
+        resume_text: str | None = None,
     ) -> ResumeAnalysisResult:
-        # 1. Extract text from the uploaded PDF.
-        try:
-            resume_text = extract_resume_text(pdf_bytes)
-        except ValueError as exc:
-            raise ResumeAnalysisError(str(exc)) from exc
+        # 1. Extract text from the uploaded PDF if not already extracted.
+        if resume_text is None:
+            try:
+                resume_text = extract_resume_text(pdf_bytes)
+            except ValueError as exc:
+                raise ResumeAnalysisError(str(exc)) from exc
 
         # 2. Calculate deterministic skill coverage.
         if request.job_description and request.job_description.strip():

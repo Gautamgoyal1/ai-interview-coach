@@ -28,9 +28,13 @@ FACTUAL GROUNDING:
 
 OUTPUT REQUIREMENTS:
 Return only a valid JSON object with exactly these keys:
-- strengths: array of concise strings
-- improvement_suggestions: array of actionable strings
-- likely_interview_questions: array of strings
+- strengths: array of concise, direct second-person strings (1-2 sentences each, e.g. "You demonstrated Python and FastAPI in your backend API project.")
+- improvement_suggestions: array of actionable, direct second-person coaching strings (1-2 sentences each, e.g. "Add measurable latency or throughput metrics to your API project.")
+- likely_interview_questions: array of realistic interview question strings
+
+STYLE:
+- Write directly to the candidate ("You demonstrated...", "Add...", "Practice...").
+- Keep each bullet crisp, specific, and scannable — avoid long textbook paragraphs.
 
 STRENGTHS:
 - Every strength must be directly supported by the resume.

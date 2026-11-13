@@ -5,6 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.security import validate_jwt_configuration
 from app.modules.auth.router import router as auth_router
+from app.modules.interview.router import router as interview_router
+from app.modules.practice.router import router as practice_router
+from app.modules.reports.router import router as reports_router
 from app.modules.resume.router import router as resume_router
 
 
@@ -32,6 +35,9 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(resume_router)
+app.include_router(interview_router)
+app.include_router(reports_router)
+app.include_router(practice_router)
 
 
 @app.get("/health")

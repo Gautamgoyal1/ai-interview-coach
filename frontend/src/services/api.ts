@@ -1,8 +1,19 @@
-
 import { getAccessToken } from "../utils/storage";
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  "http://127.0.0.1:8000";
+
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
 
 export async function apiRequest<T>(
   path: string,
@@ -40,8 +51,9 @@ export async function apiRequest<T>(
       // Keep the default error message if the response isn't JSON.
     }
 
-    throw new Error(
+    throw new ApiError(
       typeof message === "string" ? message : JSON.stringify(message),
+      response.status,
     );
   }
 

@@ -28,7 +28,8 @@ export default function Login() {
     <main className="auth-page">
       <section className="auth-card">
         <Link to="/login" className="auth-brand">
-          PrepMate
+          <span className="auth-brand-mark">P</span>
+          <span>PrepMate</span>
         </Link>
 
         <h1>Welcome back</h1>
