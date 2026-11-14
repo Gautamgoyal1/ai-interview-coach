@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import {
@@ -16,6 +16,7 @@ import {
 } from "./Icons";
 import ThemeToggle from "./ThemeToggle";
 import "./Layout.css";
+import { useModalFocus } from "../hooks/useModalFocus";
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: DashboardIcon, end: true },
@@ -59,14 +60,16 @@ export default function Layout() {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+  const sidebarRef = useRef<HTMLElement | null>(null);
+  const [mobile, setMobile] = useState(() => window.matchMedia("(max-width: 960px)").matches);
+  useModalFocus(mobile && mobileMenuOpen, sidebarRef, () => setMobileMenuOpen(false));
   useEffect(() => {
-    if (!mobileMenuOpen) return;
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setMobileMenuOpen(false);
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [mobileMenuOpen]);
+    const query = window.matchMedia("(max-width: 960px)");
+    const update = () => { setMobile(query.matches); if (!query.matches) setMobileMenuOpen(false); };
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  useEffect(() => { if (sidebarRef.current) sidebarRef.current.inert = mobile && !mobileMenuOpen; }, [mobile, mobileMenuOpen]);
 
   function handleLogout() {
     logout();
@@ -88,12 +91,17 @@ export default function Layout() {
       {mobileMenuOpen && (
         <div
           className="sidebar-backdrop"
+          data-modal-backdrop
           onClick={() => setMobileMenuOpen(false)}
           aria-hidden="true"
         />
       )}
 
       <aside
+        ref={sidebarRef}
+        role={mobile && mobileMenuOpen ? "dialog" : undefined}
+        aria-modal={mobile && mobileMenuOpen ? true : undefined}
+        tabIndex={-1}
         className={`sidebar ${mobileMenuOpen ? "sidebar-open" : ""}`}
         aria-label="Primary sidebar"
       >
@@ -135,13 +143,8 @@ export default function Layout() {
         </nav>
 
         <div className="sidebar-bottom">
-          <NavLink
-            to="/profile"
-            className={({ isActive }) =>
-              `sidebar-user-card ${isActive ? "active" : ""}`
-            }
-            title="View and edit profile"
-          >
+          <div className={`sidebar-user-card ${location.pathname === "/profile" ? "active" : ""}`}>
+          <NavLink to="/profile" className="sidebar-profile-link" title="View and edit profile">
             <div className="profile-avatar">
               {(user?.full_name?.trim()?.[0] || user?.email?.[0] || "U").toUpperCase()}
             </div>
@@ -151,13 +154,9 @@ export default function Layout() {
               </strong>
               <span>{user?.target_role || user?.email || "Personal workspace"}</span>
             </div>
-            <div
-              className="sidebar-user-action"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ThemeToggle className="sidebar-theme-toggle" />
-            </div>
           </NavLink>
+          <div className="sidebar-user-action"><ThemeToggle className="sidebar-theme-toggle" /></div>
+          </div>
 
           <button
             type="button"

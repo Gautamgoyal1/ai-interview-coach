@@ -74,6 +74,7 @@ export default function ActionMenu({ label, items }: ActionMenuProps) {
                 role="menuitem"
                 className={`pm-menu-item${item.tone === "danger" ? " danger" : ""}`}
                 onClick={() => {
+                  wrapRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
                   setOpen(false);
                   item.onClick?.();
                 }}

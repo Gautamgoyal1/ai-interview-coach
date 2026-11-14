@@ -1,638 +1,503 @@
-import { useEffect, useState } from "react";
+﻿import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import { Link } from "react-router-dom";
-import {
-  ArrowRightIcon,
-  CheckCircleIcon,
-  CodeIcon,
-  FileTextIcon,
-  UsersIcon,
-} from "../../components/Icons";
+import { ArrowRightIcon, FileTextIcon } from "../../components/Icons";
 import { getResumeAnalyses } from "../../services/resume.service";
+import { useAuth } from "../../hooks/useAuth";
 import type {
   ExperienceLevel,
   InterviewType,
   ProgressionMode,
   StartingDifficulty,
 } from "../../types/interview";
+import type { InterviewInputMode } from "../../types/speech";
 import type { ResumeAnalysisHistoryItem } from "../../types/resume";
-import { formatDateTime } from "../../utils/formatters";
 import type { StartInterviewOptions } from "./useInterview";
-import { useAuth } from "../../hooks/useAuth";
+import { formatDateTime } from "../../utils/formatters";
+import "./InterviewSetup.css";
 
 interface InterviewSetupProps {
-  onStart: (analysisId: number, options: StartInterviewOptions) => void;
+  onStart: (
+    analysisId: number,
+    options: StartInterviewOptions,
+  ) => void | Promise<void>;
   onUnauthorized: () => void;
   starting: boolean;
+  initialAnalysisId?: number;
 }
-
-interface ExperienceOption {
-  value: ExperienceLevel;
-  label: string;
-  badge: string;
-  hint: string;
-}
-
-const EXPERIENCE_LEVEL_OPTIONS: ExperienceOption[] = [
-  {
-    value: "internship",
-    label: "Student / Internship",
-    badge: "Foundation",
-    hint: "Foundational concepts, coursework & campus projects",
-  },
-  {
-    value: "fresher",
-    label: "Fresher / Entry Level",
-    badge: "Entry",
-    hint: "Core role fundamentals, projects & practical application",
-  },
-  {
-    value: "intermediate",
-    label: "Experienced: 1–3 years",
-    badge: "Mid",
-    hint: "Applied trade-offs, real-world debugging & collaboration",
-  },
-  {
-    value: "experienced",
-    label: "Experienced: 3+ years",
-    badge: "Senior",
-    hint: "Deep architectural trade-offs, leadership & production dilemmas",
-  },
+const levels: Array<{ value: ExperienceLevel; label: string }> = [
+  { value: "internship", label: "Student / Internship" },
+  { value: "fresher", label: "Fresher / Entry Level" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "experienced", label: "Experienced / Senior" },
 ];
-
-interface DifficultyOption {
-  value: StartingDifficulty;
-  label: string;
-  pill: string;
-  hint: string;
-}
-
-const DIFFICULTY_OPTIONS: DifficultyOption[] = [
-  {
-    value: "easy",
-    label: "Easy",
-    pill: "Gentle",
-    hint: "Approachable fundamentals & straightforward scenarios",
-  },
-  {
-    value: "medium",
-    label: "Medium",
-    pill: "Standard",
-    hint: "Realistic trade-offs, standard depth & balanced challenge",
-  },
-  {
-    value: "hard",
-    label: "Hard",
-    pill: "Advanced",
-    hint: "Complex constraints, conflicting requirements & high-stakes dilemmas",
-  },
-];
-
-interface ProgressionOption {
-  value: ProgressionMode;
-  label: string;
-  tag: string;
-  hint: string;
-}
-
-const PROGRESSION_OPTIONS: ProgressionOption[] = [
-  {
-    value: "adaptive",
-    label: "Adaptive Practice",
-    tag: "Dynamic AI",
-    hint: "Difficulty recalibrates dynamically based on your answer quality",
-  },
-  {
-    value: "mock",
-    label: "Mock Assessment",
-    tag: "Benchmark",
-    hint: "Follows a consistent, planned difficulty curve for benchmarking",
-  },
-];
-
-interface LengthOption {
-  count: number;
-  label: string;
-  duration: string;
-  recommended?: boolean;
-}
-
-const QUESTION_LENGTH_OPTIONS: LengthOption[] = [
-  {
-    count: 5,
-    label: "5 Questions",
-    duration: "~15 min drill",
-  },
-  {
-    count: 8,
-    label: "8 Questions",
-    duration: "~25 min session",
-    recommended: true,
-  },
-  {
-    count: 10,
-    label: "10 Questions",
-    duration: "~35 min deep-dive",
-  },
-];
+const recommendedDifficulty = (level: ExperienceLevel): StartingDifficulty =>
+  level === "internship" ? "easy" : "medium";
 
 export default function InterviewSetup({
   onStart,
   onUnauthorized,
   starting,
+  initialAnalysisId,
 }: InterviewSetupProps) {
   const { user } = useAuth();
+  const profileLevel = levels.some(
+    (level) => level.value === user?.experience_level,
+  )
+    ? (user!.experience_level as ExperienceLevel)
+    : "fresher";
   const [analyses, setAnalyses] = useState<ResumeAnalysisHistoryItem[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-
-  // Configuration options
-  const [interviewType, setInterviewType] = useState<InterviewType>("technical");
-  const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel>(
-    (user?.experience_level as ExperienceLevel) || "fresher"
-  );
+  const [interviewType, setInterviewType] =
+    useState<InterviewType>("technical");
+  const [inputMode, setInputMode] = useState<InterviewInputMode>("text");
+  const [experienceLevel, setExperienceLevel] =
+    useState<ExperienceLevel>(profileLevel);
   const [startingDifficulty, setStartingDifficulty] =
-    useState<StartingDifficulty>("medium");
+    useState<StartingDifficulty>(recommendedDifficulty(profileLevel));
   const [progressionMode, setProgressionMode] =
     useState<ProgressionMode>("adaptive");
-  const [maxQuestions, setMaxQuestions] = useState<number>(8);
-
+  const [maxQuestions, setMaxQuestions] = useState(8);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (user?.experience_level && experienceLevel === "fresher") {
-      setExperienceLevel(user.experience_level as ExperienceLevel);
-    }
-  }, [user?.experience_level]);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const list = await getResumeAnalyses(20);
-        if (!cancelled) {
-          setAnalyses(list);
-          if (list.length > 0) {
-            setSelectedId(list[0].id);
-          }
-        }
-      } catch (err) {
+  const [launching, setLaunching] = useState(false);
+  const launchLock = useRef(false);
+  const customDifficulty = useRef(false);
+  const generation = useRef(0);
+  const load = useCallback(async () => {
+    const run = ++generation.current;
+    setLoading(true);
+    setError(null);
+    try {
+      const list = await getResumeAnalyses(20);
+      if (run !== generation.current) return;
+      setAnalyses(list);
+      setSelectedId((previous) => {
         if (
-          err &&
-          typeof err === "object" &&
-          "status" in err &&
-          (err as { status: number }).status === 401
-        ) {
-          onUnauthorized();
-          return;
-        }
-        if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Could not load your saved resume analyses.",
-          );
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
+          initialAnalysisId &&
+          list.some((item) => item.id === initialAnalysisId)
+        )
+          return initialAnalysisId;
+        if (previous && list.some((item) => item.id === previous))
+          return previous;
+        return (
+          list.find(
+            (item) =>
+              item.job_role.toLowerCase() === user?.target_role?.toLowerCase(),
+          )?.id ||
+          list[0]?.id ||
+          null
+        );
+      });
+    } catch (failure) {
+      if (run !== generation.current) return;
+      if (
+        failure &&
+        typeof failure === "object" &&
+        "status" in failure &&
+        failure.status === 401
+      ) {
+        onUnauthorized();
+        return;
       }
+      setError(
+        "Your saved resumes could not be loaded. Retry to choose a profile; your saved work has not been removed.",
+      );
+    } finally {
+      if (run === generation.current) setLoading(false);
     }
-
+  }, [initialAnalysisId, onUnauthorized, user?.target_role]);
+  useEffect(() => {
     void load();
     return () => {
-      cancelled = true;
+      generation.current++;
     };
-  }, [onUnauthorized]);
-
-  const selectedResume = analyses.find((a) => a.id === selectedId);
+  }, [load]);
+  const selected = analyses.find((item) => item.id === selectedId);
+  const busy = starting || launching;
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selected || loading || error || busy || launchLock.current) return;
+    launchLock.current = true;
+    setLaunching(true);
+    try {
+      await onStart(selected.id, {
+        interviewType,
+        inputMode,
+        experienceLevel,
+        startingDifficulty,
+        progressionMode,
+        maxQuestions,
+      });
+    } finally {
+      launchLock.current = false;
+      setLaunching(false);
+    }
+  }
 
   return (
-    <section className="interview-setup-wrap">
-      <header className="pm-page-header">
-        <div>
-          <p className="pm-eyebrow">Personalized AI Interview Configuration</p>
-          <h1 className="pm-page-title">Configure Your Interview Session</h1>
-          <p className="pm-page-subtitle">
-            Customize interview track, candidate background level, starting difficulty,
-            and progression pacing for a realistic, calibrated practice experience.
-          </p>
-        </div>
+    <section className="setup-workbench">
+      <header className="setup-intro">
+        <p className="pm-eyebrow">Interview preparation</p>
+        <h1>Set up your interview</h1>
+        <p>
+          A focused round, built around your experience. Choose how you want to
+          practice.
+        </p>
       </header>
-
-      <div className="pm-card interview-setup-card">
-        {loading && (
-          <div className="pm-status-banner" role="status">
-            <span className="pm-spinner" aria-hidden="true" />
-            <div>
-              <strong>Loading your saved analyses</strong>
-              <p>Fetching resume profiles...</p>
-            </div>
+      {loading && (
+        <div className="pm-status-banner" role="status">
+          <span className="pm-spinner" aria-hidden="true" />
+          <div>
+            <strong>Loading your saved analyses</strong>
+            <p>Your preferences are kept while we load your resumes.</p>
           </div>
-        )}
-
-        {!loading && error && (
-          <div className="pm-alert-error" role="alert">
-            <span>{error}</span>
-          </div>
-        )}
-
-        {!loading && !error && analyses.length === 0 && (
-          <div className="pm-empty-state">
-            <div className="pm-empty-icon">
-              <FileTextIcon size={24} />
-            </div>
-            <h2>Analyze a resume first</h2>
-            <p>
-              You need at least one saved resume analysis to calibrate your
-              interview questions against your actual background.
-            </p>
-            <div className="pm-empty-actions">
-              <Link to="/analyze" className="btn btn-primary">
-                <span>Go to Resume Analyzer</span>
-                <ArrowRightIcon size={15} />
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {!loading && !error && analyses.length > 0 && (
-          <div className="setup-list">
-            {/* Step 1: Interview Type Selection */}
-            <div className="setup-section">
-              <div className="setup-section-heading">
-                <span className="setup-step-num">01</span>
-                <div>
-                  <h2 className="setup-label">Choose Interview Track</h2>
-                  <p className="setup-hint">
-                    Select whether to focus on core technical mastery or behavioral leadership competencies.
-                  </p>
-                </div>
+        </div>
+      )}
+      {error && (
+        <div className="pm-alert-error" role="alert">
+          <span>{error}</span>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => void load()}
+            disabled={loading}
+          >
+            Retry
+          </button>
+        </div>
+      )}
+      {!loading && !error && !analyses.length ? (
+        <div className="setup-first-step">
+          <FileTextIcon size={28} />
+          <p className="pm-eyebrow">A little context first</p>
+          <h2>Start with your resume</h2>
+          <p>
+            Analyze a PDF for your target role. Your saved analysis gives the
+            interview relevant skills and gaps to explore.
+          </p>
+          <Link to="/analyze" className="btn btn-primary">
+            Analyze Resume
+            <ArrowRightIcon size={15} />
+          </Link>
+          <Link to="/practice" className="setup-secondary-link">
+            Prefer a quick topic drill? Open Practice Hub
+          </Link>
+        </div>
+      ) : (
+        <form
+          className="setup-layout"
+          onSubmit={(event) => void submit(event)}
+          aria-label="Interview configuration"
+          aria-busy={loading || busy}
+        >
+          <div className="setup-configuration">
+            <section className="setup-profile-section">
+              <div className="setup-field-heading">
+                <span>01</span>
+                <h2>Your starting point</h2>
               </div>
-
-              <div className="setup-type-grid">
-                <button
-                  type="button"
-                  className={`setup-type-card ${
-                    interviewType === "technical" ? "selected" : ""
-                  }`}
-                  onClick={() => setInterviewType("technical")}
-                >
-                  <div className="setup-type-header">
-                    <span className="setup-type-icon">
-                      <CodeIcon size={22} />
+              <label htmlFor="setup-resume">Resume profile</label>
+              <select
+                id="setup-resume"
+                className="pm-select"
+                value={selectedId || ""}
+                onChange={(event) => setSelectedId(Number(event.target.value))}
+                disabled={loading || busy || !!error}
+                required
+              >
+                <option value="" disabled>
+                  Choose a saved resume
+                </option>
+                {analyses.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.job_role} - {item.filename}
+                  </option>
+                ))}
+              </select>
+              {selected && (
+                <div className="setup-profile-context">
+                  <FileTextIcon size={18} />
+                  <div>
+                    <strong>{selected.job_role}</strong>
+                    <p>{selected.filename}</p>
+                    <span>
+                      Analyzed {formatDateTime(selected.created_at)} &middot;{" "}
+                      {selected.match_score.toFixed(0)}% resume match
                     </span>
-                    <div className="setup-type-title-wrap">
-                      <strong>Technical Interview</strong>
-                      <span className="badge badge-accent">Role Fundamentals</span>
-                    </div>
                   </div>
-                  <p className="setup-type-desc">
-                    Evaluates core data structures, system architecture, role
-                    technologies, and practical debugging grounded in your resume
-                    and target role.
-                  </p>
-                  <ul className="setup-type-tags">
-                    <li>Technical Correctness</li>
-                    <li>Technical Depth</li>
-                    <li>Implementation Trade-offs</li>
-                  </ul>
-                  {interviewType === "technical" && (
-                    <span className="setup-selected-badge">
-                      <CheckCircleIcon size={14} /> Selected Track
-                    </span>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  className={`setup-type-card ${
-                    interviewType === "hr" ? "selected" : ""
-                  }`}
-                  onClick={() => setInterviewType("hr")}
-                >
-                  <div className="setup-type-header">
-                    <span className="setup-type-icon">
-                      <UsersIcon size={22} />
-                    </span>
-                    <div className="setup-type-title-wrap">
-                      <strong>HR & Behavioral Interview</strong>
-                      <span className="badge badge-success">Competency & Judgment</span>
-                    </div>
-                  </div>
-                  <p className="setup-type-desc">
-                    Evaluates situational judgment, critical reasoning, teamwork,
-                    prioritization, and communication under realistic workplace
-                    dilemmas.
-                  </p>
-                  <ul className="setup-type-tags">
-                    <li>Critical Thinking (30%)</li>
-                    <li>Decision Trade-offs (25%)</li>
-                    <li>Communication & Clarity (20%)</li>
-                  </ul>
-                  {interviewType === "hr" && (
-                    <span className="setup-selected-badge">
-                      <CheckCircleIcon size={14} /> Selected Track
-                    </span>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Step 2: Candidate Background & Challenge Level */}
-            <div className="setup-section">
-              <div className="setup-section-heading">
-                <span className="setup-step-num">02</span>
-                <div>
-                  <h2 className="setup-label">Candidate Background & Challenge Level</h2>
-                  <p className="setup-hint">
-                    Calibrate the depth of questions and starting expectations for this practice round.
-                  </p>
-                </div>
-              </div>
-
-              <div className="setup-block-group">
-                {/* Experience Level Cards */}
-                <div className="setup-subgroup">
-                  <label className="setup-sublabel">Experience Stage</label>
-                  <div className="setup-experience-grid">
-                    {EXPERIENCE_LEVEL_OPTIONS.map((opt) => {
-                      const isSelected = experienceLevel === opt.value;
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          className={`setup-choice-card ${
-                            isSelected ? "selected" : ""
-                          }`}
-                          onClick={() => setExperienceLevel(opt.value)}
-                        >
-                          <div className="setup-choice-head">
-                            <span className="setup-choice-radio" aria-hidden="true">
-                              {isSelected && <span className="setup-choice-radio-dot" />}
-                            </span>
-                            <strong>{opt.label}</strong>
-                            <span className="setup-choice-badge">{opt.badge}</span>
-                          </div>
-                          <p className="setup-choice-hint">{opt.hint}</p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Starting Difficulty Buttons */}
-                <div className="setup-subgroup">
-                  <label className="setup-sublabel">Preferred Starting Difficulty</label>
-                  <div className="setup-difficulty-grid">
-                    {DIFFICULTY_OPTIONS.map((opt) => {
-                      const isSelected = startingDifficulty === opt.value;
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          className={`setup-difficulty-card difficulty-${opt.value} ${
-                            isSelected ? "selected" : ""
-                          }`}
-                          onClick={() => setStartingDifficulty(opt.value)}
-                        >
-                          <div className="setup-difficulty-head">
-                            <span className="difficulty-indicator-dot" />
-                            <strong>{opt.label}</strong>
-                            <span className="difficulty-pill">{opt.pill}</span>
-                          </div>
-                          <p className="setup-difficulty-hint">{opt.hint}</p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Step 3: Progression Mode & Question Length */}
-            <div className="setup-section">
-              <div className="setup-section-heading">
-                <span className="setup-step-num">03</span>
-                <div>
-                  <h2 className="setup-label">Progression Mode & Session Length</h2>
-                  <p className="setup-hint">
-                    Choose whether the interview adapts question difficulty in real time and set your target pacing.
-                  </p>
-                </div>
-              </div>
-
-              <div className="setup-progression-row">
-                {/* Progression Mode Cards */}
-                <div className="setup-progression-group">
-                  <label className="setup-sublabel">Interview Progression Engine</label>
-                  <div className="setup-progression-grid">
-                    {PROGRESSION_OPTIONS.map((opt) => {
-                      const isSelected = progressionMode === opt.value;
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          className={`setup-choice-card ${
-                            isSelected ? "selected" : ""
-                          }`}
-                          onClick={() => setProgressionMode(opt.value)}
-                        >
-                          <div className="setup-choice-head">
-                            <span className="setup-choice-radio" aria-hidden="true">
-                              {isSelected && <span className="setup-choice-radio-dot" />}
-                            </span>
-                            <strong>{opt.label}</strong>
-                            <span className="setup-choice-badge">{opt.tag}</span>
-                          </div>
-                          <p className="setup-choice-hint">{opt.hint}</p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Question Count Options */}
-                <div className="setup-length-group">
-                  <label className="setup-sublabel">Session Length</label>
-                  <div className="setup-length-grid">
-                    {QUESTION_LENGTH_OPTIONS.map((opt) => {
-                      const isSelected = maxQuestions === opt.count;
-                      return (
-                        <button
-                          key={opt.count}
-                          type="button"
-                          className={`setup-length-card ${
-                            isSelected ? "selected" : ""
-                          }`}
-                          onClick={() => setMaxQuestions(opt.count)}
-                        >
-                          <div className="setup-length-header">
-                            <strong className="setup-length-count">{opt.label}</strong>
-                            {opt.recommended && (
-                              <span className="setup-rec-badge">Recommended</span>
-                            )}
-                          </div>
-                          <span className="setup-length-duration">{opt.duration}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Step 4: Resume Profile Grounding */}
-            <div className="setup-section">
-              <div className="setup-section-heading">
-                <span className="setup-step-num">04</span>
-                <div>
-                  <h2 className="setup-label">Select Resume Profile</h2>
-                  <p className="setup-hint">
-                    The AI calibrator grounds technical questions, project dilemmas, and architecture trade-offs in this saved profile.
-                  </p>
-                </div>
-              </div>
-
-              <div className="setup-profiles-container">
-                <div className="setup-profiles-grid">
-                  {analyses.map((item) => {
-                    const active = selectedId === item.id;
-                    return (
-                      <div
-                        key={item.id}
-                        role="button"
-                        tabIndex={0}
-                        className={`setup-profile-card ${active ? "selected" : ""}`}
-                        onClick={() => setSelectedId(item.id)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            setSelectedId(item.id);
-                          }
-                        }}
-                      >
-                        <div className="setup-profile-left">
-                          <span
-                            className={`setup-profile-radio ${active ? "active" : ""}`}
-                            aria-hidden="true"
-                          >
-                            {active && <span className="setup-profile-radio-dot" />}
-                          </span>
-                          <div className="setup-profile-info">
-                            <strong className="setup-profile-role">{item.job_role}</strong>
-                            <div className="setup-profile-meta">
-                              <span className="setup-profile-filename">{item.filename}</span>
-                              <span className="setup-profile-dot">·</span>
-                              <span className="setup-profile-date">
-                                {formatDateTime(item.created_at)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="setup-profile-right">
-                          <span className="badge badge-accent tabular-nums">
-                            {Math.round(item.match_score)}% match
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Step 5: Pre-Flight Configuration Summary & Launch Action */}
-            <div className="setup-summary-card">
-              <div className="setup-summary-header">
-                <span className="setup-summary-eyebrow">Session Summary</span>
-                <span className="setup-summary-status">Ready to initialize</span>
-              </div>
-
-              <div className="summary-pillars-grid">
-                <div className="summary-pillar">
-                  <span className="summary-label">Interview Track</span>
-                  <strong className="summary-val">
-                    {interviewType === "hr"
-                      ? "HR & Behavioral"
-                      : "Technical Interview"}
-                  </strong>
-                </div>
-                <div className="summary-pillar">
-                  <span className="summary-label">Experience Stage</span>
-                  <strong className="summary-val">
-                    {EXPERIENCE_LEVEL_OPTIONS.find(
-                      (o) => o.value === experienceLevel,
-                    )?.label ?? experienceLevel}
-                  </strong>
-                </div>
-                <div className="summary-pillar">
-                  <span className="summary-label">Starting Difficulty</span>
-                  <strong className="summary-val">
-                    {startingDifficulty.charAt(0).toUpperCase() +
-                      startingDifficulty.slice(1)}
-                  </strong>
-                </div>
-                <div className="summary-pillar">
-                  <span className="summary-label">Progression Mode</span>
-                  <strong className="summary-val">
-                    {progressionMode === "adaptive"
-                      ? "Adaptive Practice"
-                      : "Mock Assessment"}
-                  </strong>
-                </div>
-                <div className="summary-pillar">
-                  <span className="summary-label">Length</span>
-                  <strong className="summary-val">
-                    {maxQuestions} Questions
-                  </strong>
-                </div>
-              </div>
-
-              {selectedResume && (
-                <div className="summary-target-banner">
-                  <FileTextIcon size={16} />
-                  <span>
-                    Grounded in: <strong>{selectedResume.job_role}</strong> (
-                    {selectedResume.filename})
-                  </span>
+                  <Link to={`/history/${selected.id}`}>View analysis</Link>
                 </div>
               )}
-
-              <div className="setup-launch-footer">
-                <div className="setup-launch-tip">
-                  💡 Questions adapt as you answer. You can ask for progressive hints anytime during the session.
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-primary setup-launch-btn"
-                  disabled={!selectedId || starting}
-                  onClick={() =>
-                    selectedId &&
-                    onStart(selectedId, {
-                      interviewType,
-                      experienceLevel,
-                      startingDifficulty,
-                      progressionMode,
-                      maxQuestions,
-                    })
-                  }
-                >
-                  <span>
-                    {starting
-                      ? "Initializing Session..."
-                      : `Start ${
-                          interviewType === "hr" ? "HR" : "Technical"
-                        } Interview`}
-                  </span>
-                  {!starting && <ArrowRightIcon size={16} />}
-                </button>
+            </section>
+            <section>
+              <div className="setup-field-heading">
+                <span>02</span>
+                <h2>Choose your round</h2>
               </div>
-            </div>
+              <fieldset className="setup-radio-field" disabled={busy}>
+                <legend>Interview track</legend>
+                <div className="setup-choice-pair">
+                  {(
+                    [
+                      [
+                        "technical",
+                        "Technical",
+                        "Skills, problem solving and practical trade-offs.",
+                      ],
+                      [
+                        "hr",
+                        "HR / Behavioral",
+                        "Decisions, teamwork and your experience.",
+                      ],
+                    ] as const
+                  ).map(([value, label, hint]) => (
+                    <label className="setup-choice" key={value}>
+                      <input
+                        type="radio"
+                        name="interview-track"
+                        value={value}
+                        checked={interviewType === value}
+                        onChange={() => setInterviewType(value)}
+                      />
+                      <span>
+                        <strong>{label}</strong>
+                        <small>{hint}</small>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+              <fieldset className="setup-radio-field" disabled={busy}>
+                <legend>Answer format</legend>
+                <div className="setup-choice-pair">
+                  {(
+                    [
+                      ["text", "Text", "Type and edit your answers."],
+                      [
+                        "voice",
+                        "Voice",
+                        "Speak, review your transcript, then submit.",
+                      ],
+                    ] as const
+                  ).map(([value, label, hint]) => (
+                    <label className="setup-choice" key={value}>
+                      <input
+                        type="radio"
+                        name="answer-format"
+                        value={value}
+                        checked={inputMode === value}
+                        onChange={() => setInputMode(value)}
+                      />
+                      <span>
+                        <strong>{label}</strong>
+                        <small>{hint}</small>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                <p className="setup-field-help">
+                  {inputMode === "voice"
+                    ? "Questions are spoken after you start. Recording only begins when you choose Start Speaking."
+                    : "No microphone needed. You can switch formats inside the interview."}
+                </p>
+              </fieldset>
+            </section>
+            <section>
+              <div className="setup-field-heading">
+                <span>03</span>
+                <h2>Set the pace</h2>
+              </div>
+              <div className="setup-settings-row">
+                <div>
+                  <label htmlFor="setup-experience">Experience level</label>
+                  <select
+                    id="setup-experience"
+                    className="pm-select"
+                    value={experienceLevel}
+                    disabled={busy}
+                    onChange={(event) => {
+                      const level = event.target.value as ExperienceLevel;
+                      setExperienceLevel(level);
+                      if (!customDifficulty.current)
+                        setStartingDifficulty(recommendedDifficulty(level));
+                    }}
+                  >
+                    {levels.map((level) => (
+                      <option value={level.value} key={level.value}>
+                        {level.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="setup-difficulty">Starting difficulty</label>
+                  <select
+                    id="setup-difficulty"
+                    className="pm-select"
+                    value={startingDifficulty}
+                    disabled={busy}
+                    onChange={(event) => {
+                      customDifficulty.current = true;
+                      setStartingDifficulty(
+                        event.target.value as StartingDifficulty,
+                      );
+                    }}
+                  >
+                    {["easy", "medium", "hard"].map((value) => (
+                      <option key={value} value={value}>
+                        {value[0].toUpperCase() + value.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <p className="setup-field-help">
+                {customDifficulty.current
+                  ? "Custom starting difficulty."
+                  : `Recommended for ${levels.find((level) => level.value === experienceLevel)?.label.toLowerCase()}.`}
+                {user?.experience_level === experienceLevel
+                  ? " Experience from your profile."
+                  : ""}
+              </p>
+              <fieldset
+                className="setup-radio-field setup-length"
+                disabled={busy}
+              >
+                <legend>Interview length</legend>
+                <div>
+                  {[5, 8, 10].map((count) => (
+                    <label className="setup-choice" key={count}>
+                      <input
+                        type="radio"
+                        name="question-count"
+                        value={count}
+                        checked={maxQuestions === count}
+                        onChange={() => setMaxQuestions(count)}
+                      />
+                      <span>
+                        <strong>{count} questions</strong>
+                        <small>
+                          {count === 8
+                            ? "Recommended"
+                            : count === 5
+                              ? "Short round"
+                              : "More depth"}
+                        </small>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                <p className="setup-field-help">
+                  Follow-up questions may extend the round. Take the time you
+                  need.
+                </p>
+              </fieldset>
+              <details className="setup-advanced">
+                <summary>
+                  Advanced settings
+                  <span>
+                    {progressionMode === "adaptive"
+                      ? "Adaptive practice"
+                      : "Mock assessment"}
+                  </span>
+                </summary>
+                <fieldset className="setup-radio-field" disabled={busy}>
+                  <legend>Question progression</legend>
+                  {(
+                    [
+                      [
+                        "adaptive",
+                        "Adaptive Practice",
+                        "Difficulty responds to your answers.",
+                      ],
+                      [
+                        "mock",
+                        "Mock Assessment",
+                        "A planned difficulty curve for a consistent round.",
+                      ],
+                    ] as const
+                  ).map(([value, label, hint]) => (
+                    <label className="setup-choice" key={value}>
+                      <input
+                        type="radio"
+                        name="progression-mode"
+                        value={value}
+                        checked={progressionMode === value}
+                        onChange={() => setProgressionMode(value)}
+                      />
+                      <span>
+                        <strong>{label}</strong>
+                        <small>{hint}</small>
+                      </span>
+                    </label>
+                  ))}
+                </fieldset>
+              </details>
+            </section>
           </div>
-        )}
-      </div>
+          <aside className="setup-launch" aria-label="Interview summary">
+            <p className="pm-eyebrow">Ready when you are</p>
+            <h2>
+              {interviewType === "hr"
+                ? "Your behavioral round"
+                : "Your technical round"}
+            </h2>
+            <p>{selected?.job_role || "Choose a resume to continue."}</p>
+            <dl>
+              <div>
+                <dt>Format</dt>
+                <dd>
+                  {inputMode === "voice"
+                    ? "Voice + editable transcript"
+                    : "Text answers"}
+                </dd>
+              </div>
+              <div>
+                <dt>Starting point</dt>
+                <dd>
+                  {startingDifficulty[0].toUpperCase() +
+                    startingDifficulty.slice(1)}{" "}
+                  &middot;{" "}
+                  {
+                    levels.find((level) => level.value === experienceLevel)
+                      ?.label
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>Round</dt>
+                <dd>
+                  {maxQuestions} questions &middot;{" "}
+                  {progressionMode === "adaptive" ? "Adaptive" : "Mock"}
+                </dd>
+              </div>
+            </dl>
+            <button
+              className="btn btn-primary setup-start"
+              type="submit"
+              disabled={!selected || loading || !!error || busy}
+            >
+              {busy
+                ? "Preparing interview..."
+                : `Start ${interviewType === "hr" ? "HR" : "Technical"} Interview`}
+              {!busy && <ArrowRightIcon size={16} />}
+            </button>
+            <p className="setup-launch-note">
+              Review your choices, then start. Hints and answer coaching are
+              available separately in Practice Mode.
+            </p>
+            <Link className="setup-secondary-link" to="/history">
+              Manage saved resumes
+            </Link>
+          </aside>
+        </form>
+      )}
     </section>
   );
 }

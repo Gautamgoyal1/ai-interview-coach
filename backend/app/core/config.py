@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     jwt_secret_key: str = ""
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 15
+    azure_speech_key: str = ""
+    azure_speech_region: str = "eastasia"
+    azure_speech_endpoint: str = ""
 
     @model_validator(mode="after")
     def _sync_postgres_password(self) -> "Settings":

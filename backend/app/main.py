@@ -9,6 +9,7 @@ from app.modules.interview.router import router as interview_router
 from app.modules.practice.router import router as practice_router
 from app.modules.reports.router import router as reports_router
 from app.modules.resume.router import router as resume_router
+from app.modules.speech.router import router as speech_router
 
 
 @asynccontextmanager
@@ -38,6 +39,7 @@ app.include_router(resume_router)
 app.include_router(interview_router)
 app.include_router(reports_router)
 app.include_router(practice_router)
+app.include_router(speech_router)
 
 
 @app.get("/health")

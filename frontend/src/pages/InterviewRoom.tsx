@@ -1,5 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import {
   ArrowRightIcon,
   CheckCircleIcon,
@@ -15,9 +20,16 @@ import {
   type StartInterviewOptions,
   useInterview,
 } from "../features/interview/useInterview";
+import { useVoiceInterview } from "../features/interview/useVoiceInterview";
 import { useAuth } from "../hooks/useAuth";
 import type { ExperienceLevel } from "../types/interview";
+import type { InterviewInputMode } from "../types/speech";
+import {
+  confirmDiscardAnswer,
+  useUnsentAnswerWarning,
+} from "../hooks/useUnsentAnswerWarning";
 import "./InterviewRoom.css";
+import "./InterviewWorkspace.css";
 
 const EXPERIENCE_LABELS: Record<ExperienceLevel, string> = {
   internship: "Internship",
@@ -47,7 +59,44 @@ export default function InterviewRoom() {
   } = useInterview();
 
   const [answerText, setAnswerText] = useState("");
-  const startedAnalysisRef = useRef<string | null>(null);
+
+  const modeParam = searchParams.get("mode") as InterviewInputMode | null;
+  const initialMode: InterviewInputMode =
+    modeParam === "text" ? "text" : "voice";
+
+  const {
+    inputMode,
+    switchInputMode,
+    voiceState,
+    interimText,
+    isMuted,
+    toggleMute,
+    voiceError,
+    setVoiceError,
+    isAudioLoading,
+    replayQuestionAudio,
+    stopQuestionAudio,
+    startRecording,
+    stopRecording,
+    prepareSubmission,
+  } = useVoiceInterview({
+    questionText: session?.current_question?.question_text,
+    questionId: session?.current_question?.question_id,
+    interviewType: session?.interview_type,
+    initialMode,
+    answerText,
+    onAnswerChange: setAnswerText,
+    submitting,
+  });
+
+  const hasUnsentAnswer = Boolean(
+    answerText.trim() ||
+    interimText.trim() ||
+    ["starting", "listening", "stopping"].includes(voiceState),
+  );
+  useUnsentAnswerWarning(
+    !unauthorized && session?.status === "in_progress" && hasUnsentAnswer,
+  );
 
   const handleUnauthorized = useCallback(() => {
     logout();
@@ -65,22 +114,6 @@ export default function InterviewRoom() {
       void loadSession(sessionId);
       return;
     }
-
-    if (analysisIdParam) {
-      const numericId = Number(analysisIdParam);
-      if (
-        Number.isInteger(numericId) &&
-        numericId > 0 &&
-        startedAnalysisRef.current !== analysisIdParam
-      ) {
-        startedAnalysisRef.current = analysisIdParam;
-        void beginSession(numericId).then((created) => {
-          if (created) {
-            navigate(`/interview/${created.session_id}`, { replace: true });
-          }
-        });
-      }
-    }
   }, [sessionId, analysisIdParam, loadSession, beginSession, navigate]);
 
   async function handleStartFromSetup(
@@ -89,16 +122,21 @@ export default function InterviewRoom() {
   ) {
     const created = await beginSession(analysisId, options);
     if (created) {
-      navigate(`/interview/${created.session_id}`, { replace: true });
+      navigate(
+        `/interview/${created.session_id}?mode=${options.inputMode || "voice"}`,
+        { replace: true },
+      );
     }
   }
 
   async function handleSubmitAnswer() {
     if (!session || !session.current_question) return;
+    const finalAnswer = await prepareSubmission();
+    if (finalAnswer === null) return;
     const updated = await submitAnswer(
       session.session_id,
       session.current_question.question_id,
-      answerText,
+      finalAnswer,
     );
     if (updated) {
       setAnswerText("");
@@ -106,11 +144,15 @@ export default function InterviewRoom() {
   }
 
   async function handleEndInterview() {
-    if (!session || submitting) return;
-    await finishSession(session.session_id);
+    if (!session || submitting || !confirmDiscardAnswer(hasUnsentAnswer))
+      return;
+    await stopRecording();
+    stopQuestionAudio();
+    const ended = await finishSession(session.session_id);
+    if (ended) setAnswerText("");
   }
 
-  if (!sessionId && !analysisIdParam && !session) {
+  if (!sessionId && !session) {
     return (
       <div className="interview-setup-page">
         {error && (
@@ -119,6 +161,7 @@ export default function InterviewRoom() {
           </div>
         )}
         <InterviewSetup
+          initialAnalysisId={Number(analysisIdParam) || undefined}
           onStart={handleStartFromSetup}
           onUnauthorized={handleUnauthorized}
           starting={loading}
@@ -129,15 +172,13 @@ export default function InterviewRoom() {
 
   if (loading && !session) {
     return (
-      <div className="iv-shell">
+      <div className="iv-shell iv-focused">
         <div className="iv-container iv-loading-wrap">
           <div className="pm-status-banner" role="status">
             <span className="pm-spinner" aria-hidden="true" />
             <div>
               <strong>Preparing your interview workspace</strong>
-              <p>
-                Loading your profile and calibrating your questions...
-              </p>
+              <p>Loading your profile and calibrating your questions...</p>
             </div>
           </div>
         </div>
@@ -147,13 +188,20 @@ export default function InterviewRoom() {
 
   if (!session && error) {
     return (
-      <div className="iv-shell">
+      <div className="iv-shell iv-focused">
         <div className="iv-container iv-loading-wrap">
           <section className="pm-card interview-error-card" role="alert">
             <h2>Unable to open interview</h2>
             <p>{error}</p>
             <div className="interview-error-actions">
-              <Link to="/interview" className="btn btn-primary">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => void loadSession(sessionId!)}
+              >
+                Retry
+              </button>
+              <Link to="/interview" className="btn btn-secondary">
                 Start New Interview
               </Link>
               <Link to="/history" className="btn btn-secondary">
@@ -181,12 +229,16 @@ export default function InterviewRoom() {
     session.interview_type === "hr" ? "Behavioral round" : "Technical round";
 
   return (
-    <div className="iv-shell">
+    <div className="iv-shell iv-focused">
       {/* Top Header Bar matching conceptual preview */}
       <header className="iv-header">
         <div className="iv-header-inner">
           <div className="iv-header-left">
-            <Link to="/dashboard" className="iv-brand" aria-label="PrepMate Dashboard">
+            <Link
+              to="/dashboard"
+              className="iv-brand"
+              aria-label="PrepMate Dashboard"
+            >
               <span className="iv-brand-mark">
                 <GraduationCapIcon size={18} />
               </span>
@@ -200,7 +252,8 @@ export default function InterviewRoom() {
           <div className="iv-header-right">
             {isInProgress && (
               <span className="iv-header-count tabular-nums">
-                Question {Math.min(session.question_index, session.max_questions)} of{" "}
+                Question{" "}
+                {Math.min(session.question_index, session.max_questions)} of{" "}
                 {session.max_questions}
               </span>
             )}
@@ -252,13 +305,12 @@ export default function InterviewRoom() {
                   {session.target_role} Interview
                 </h1>
                 <p className="iv-role-meta">
-                  {experienceLabel} level · {roundTypeLabel}
+                  {roundTypeLabel} / {experienceLabel} /{" "}
+                  {session.progression_mode === "mock" ? "Mock" : "Adaptive"}
                 </p>
               </div>
 
-              <div className="iv-status-pill">
-                In progress
-              </div>
+              <div className="iv-status-pill">In progress</div>
             </div>
 
             {/* Full-width slim progress bar */}
@@ -275,6 +327,18 @@ export default function InterviewRoom() {
                 question={session.current_question}
                 questionIndex={session.question_index}
                 maxQuestions={session.max_questions}
+                audioProps={
+                  inputMode === "voice"
+                    ? {
+                        isSpeaking: voiceState === "ai_speaking",
+                        isLoading: isAudioLoading,
+                        isMuted,
+                        onPlay: replayQuestionAudio,
+                        onStop: stopQuestionAudio,
+                        onToggleMute: toggleMute,
+                      }
+                    : undefined
+                }
               />
 
               <AnswerBox
@@ -284,6 +348,14 @@ export default function InterviewRoom() {
                 onSubmit={() => void handleSubmitAnswer()}
                 submitting={submitting}
                 disabled={loading}
+                inputMode={inputMode}
+                onSwitchMode={switchInputMode}
+                voiceState={voiceState}
+                interimText={interimText}
+                voiceError={voiceError}
+                onClearVoiceError={() => setVoiceError(null)}
+                onStartRecording={() => void startRecording()}
+                onStopRecording={stopRecording}
               />
             </div>
           </div>
@@ -320,14 +392,14 @@ export default function InterviewRoom() {
         )}
 
         {answeredTurns.length > 0 && (
-          <section className="iv-transcript-section">
-            <div className="iv-transcript-header">
-              <h3>Session Transcript</h3>
+          <details className="iv-transcript-section">
+            <summary className="iv-transcript-header">
+              <span>Submitted answers</span>
               <span className="badge badge-neutral tabular-nums">
                 {answeredTurns.length}{" "}
                 {answeredTurns.length === 1 ? "response" : "responses"}
               </span>
-            </div>
+            </summary>
             <div className="iv-transcript-list">
               {answeredTurns.map((turn) => (
                 <article key={turn.question_id} className="iv-transcript-item">
@@ -336,7 +408,9 @@ export default function InterviewRoom() {
                       Q{turn.question_index}
                       {turn.is_follow_up ? " · Follow-up" : ""} · {turn.topic}
                     </span>
-                    <span className="badge badge-neutral">{turn.difficulty}</span>
+                    <span className="badge badge-neutral">
+                      {turn.difficulty}
+                    </span>
                   </div>
                   <p className="iv-transcript-question">{turn.question_text}</p>
                   <p className="iv-transcript-answer">
@@ -345,7 +419,7 @@ export default function InterviewRoom() {
                 </article>
               ))}
             </div>
-          </section>
+          </details>
         )}
       </div>
     </div>
