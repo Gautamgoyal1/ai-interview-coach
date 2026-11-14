@@ -13,6 +13,7 @@ import History from "./pages/History";
 import InterviewRoom from "./pages/InterviewRoom";
 import PracticeWorkspace from "./pages/PracticeWorkspace";
 import Report from "./pages/Report";
+import Profile from "./pages/Profile";
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
             <Route element={<ProtectedRoute />}>
               <Route element={<Layout />}>
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/analyze" element={<ResumeAnalysis />} />
                 <Route path="/history" element={<History />} />
                 <Route path="/history/:analysisId" element={<History />} />

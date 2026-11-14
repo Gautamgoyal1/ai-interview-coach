@@ -102,7 +102,7 @@ a {
 }
 
 .btn-danger-outline {
-  background: #ffffff;
+  background: var(--bg-surface);
   color: var(--danger);
   border-color: var(--danger-border);
 }
@@ -250,7 +250,7 @@ a {
   padding: 10px 14px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
-  background: #ffffff;
+  background: var(--bg-surface);
   color: var(--text-primary);
   font: inherit;
   font-size: 15px;
@@ -263,7 +263,7 @@ a {
   outline: none;
   border-color: var(--accent);
   box-shadow: var(--focus-ring);
-  background: #ffffff;
+  background: var(--bg-surface);
 }
 
 .pm-input::placeholder,
@@ -310,7 +310,7 @@ a {
   padding: 16px 20px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  background: #ffffff;
+  background: var(--bg-surface);
   font-size: 14px;
   color: var(--text-secondary);
   box-shadow: var(--shadow-xs);

@@ -12,7 +12,7 @@
   padding: 34px 36px;
   display: grid;
   gap: 24px;
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
@@ -141,7 +141,7 @@
   display: grid;
   place-items: center;
   border-radius: var(--radius-md);
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   color: var(--accent);
   box-shadow: var(--shadow-xs);
@@ -150,7 +150,7 @@
 .upload-dropzone.has-file .upload-icon-box {
   color: var(--success);
   border-color: var(--success-border);
-  background: #ffffff;
+  background: var(--bg-surface);
 }
 
 .upload-copy {
@@ -238,7 +238,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 28px;
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
@@ -293,7 +293,7 @@
   width: 86px;
   height: 86px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--bg-surface);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -323,7 +323,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xs);
@@ -429,7 +429,7 @@
   gap: 16px;
   font-size: 14px;
   color: var(--text-secondary);
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xs);
@@ -449,7 +449,7 @@
   justify-content: space-between;
   gap: 14px;
   border-left: 4px solid var(--accent);
-  background: #ffffff;
+  background: var(--bg-surface);
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   border-left-width: 4px;

@@ -25,6 +25,16 @@ class User(Base):
         nullable=True,
         default=None,
     )
+    target_role: Mapped[str | None] = mapped_column(
+        String(120),
+        nullable=True,
+        default=None,
+    )
+    experience_level: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
+        default=None,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),

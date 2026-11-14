@@ -11,6 +11,7 @@ import {
   LogOutIcon,
   MenuIcon,
   MessageSquareIcon,
+  UserIcon,
   XIcon,
 } from "./Icons";
 import ThemeToggle from "./ThemeToggle";
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { to: "/interview", label: "AI Interview", icon: MessageSquareIcon, end: false },
   { to: "/reports", label: "Interview Reports", icon: BarChartIcon, end: false },
   { to: "/practice", label: "Practice Mode", icon: BookOpenIcon, end: false },
+  { to: "/profile", label: "Profile & Settings", icon: UserIcon, end: false },
 ];
 
 export default function Layout() {
@@ -49,7 +51,9 @@ export default function Layout() {
                 ? "Practice Studio"
                 : location.pathname === "/practice"
                   ? "Practice Hub"
-                  : "Dashboard";
+                  : location.pathname === "/profile"
+                    ? "Profile & Settings"
+                    : "Dashboard";
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -131,7 +135,13 @@ export default function Layout() {
         </nav>
 
         <div className="sidebar-bottom">
-          <div className="sidebar-user-card">
+          <NavLink
+            to="/profile"
+            className={({ isActive }) =>
+              `sidebar-user-card ${isActive ? "active" : ""}`
+            }
+            title="View and edit profile"
+          >
             <div className="profile-avatar">
               {(user?.full_name?.trim()?.[0] || user?.email?.[0] || "U").toUpperCase()}
             </div>
@@ -139,10 +149,15 @@ export default function Layout() {
               <strong title={user?.full_name?.trim() || user?.email || "User"}>
                 {user?.full_name?.trim() || user?.email || "User"}
               </strong>
-              <span>{user?.email || "Personal workspace"}</span>
+              <span>{user?.target_role || user?.email || "Personal workspace"}</span>
             </div>
-            <ThemeToggle className="sidebar-theme-toggle" />
-          </div>
+            <div
+              className="sidebar-user-action"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ThemeToggle className="sidebar-theme-toggle" />
+            </div>
+          </NavLink>
 
           <button
             type="button"
