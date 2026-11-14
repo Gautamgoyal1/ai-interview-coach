@@ -17,6 +17,7 @@ import type {
 import type { ResumeAnalysisHistoryItem } from "../../types/resume";
 import { formatDateTime } from "../../utils/formatters";
 import type { StartInterviewOptions } from "./useInterview";
+import { useAuth } from "../../hooks/useAuth";
 
 interface InterviewSetupProps {
   onStart: (analysisId: number, options: StartInterviewOptions) => void;
@@ -139,13 +140,15 @@ export default function InterviewSetup({
   onUnauthorized,
   starting,
 }: InterviewSetupProps) {
+  const { user } = useAuth();
   const [analyses, setAnalyses] = useState<ResumeAnalysisHistoryItem[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
   // Configuration options
   const [interviewType, setInterviewType] = useState<InterviewType>("technical");
-  const [experienceLevel, setExperienceLevel] =
-    useState<ExperienceLevel>("fresher");
+  const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel>(
+    (user?.experience_level as ExperienceLevel) || "fresher"
+  );
   const [startingDifficulty, setStartingDifficulty] =
     useState<StartingDifficulty>("medium");
   const [progressionMode, setProgressionMode] =
@@ -154,6 +157,12 @@ export default function InterviewSetup({
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user?.experience_level && experienceLevel === "fresher") {
+      setExperienceLevel(user.experience_level as ExperienceLevel);
+    }
+  }, [user?.experience_level]);
 
   useEffect(() => {
     let cancelled = false;

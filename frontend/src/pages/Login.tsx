@@ -31,7 +31,7 @@ export default function Login() {
         <ThemeToggle />
       </div>
       <section className="auth-card">
-        <Link to="/login" className="auth-brand">
+        <Link to="/" className="auth-brand">
           <span className="auth-brand-mark">P</span>
           <span>PrepMate</span>
         </Link>
