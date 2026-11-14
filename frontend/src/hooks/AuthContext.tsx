@@ -1,4 +1,3 @@
-
 import {
   createContext,
   useCallback,
@@ -7,7 +6,13 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { AuthCredentials, User } from "../types/auth";
+import type {
+  AuthCredentials,
+  ChangePasswordData,
+  RegisterCredentials,
+  UpdateProfileData,
+  User,
+} from "../types/auth";
 import * as authService from "../services/auth.service";
 import { getAccessToken } from "../utils/storage";
 
@@ -15,8 +20,11 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   login: (credentials: AuthCredentials) => Promise<User>;
-  register: (credentials: AuthCredentials) => Promise<User>;
+  register: (credentials: RegisterCredentials) => Promise<User>;
   logout: () => void;
+  updateUser: (updatedUser: User) => void;
+  updateProfile: (data: UpdateProfileData) => Promise<User>;
+  changePassword: (data: ChangePasswordData) => Promise<{ message: string }>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -73,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const register = useCallback(async (credentials: AuthCredentials) => {
+  const register = useCallback(async (credentials: RegisterCredentials) => {
     setLoading(true);
     try {
       return await authService.register(credentials);
@@ -87,9 +95,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const updateUser = useCallback((updatedUser: User) => {
+    setUser(updatedUser);
+  }, []);
+
+  const updateProfile = useCallback(async (data: UpdateProfileData) => {
+    const updated = await authService.updateProfile(data);
+    setUser(updated);
+    return updated;
+  }, []);
+
+  const changePassword = useCallback(async (data: ChangePasswordData) => {
+    return await authService.changePassword(data);
+  }, []);
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, register, logout }}
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        updateUser,
+        updateProfile,
+        changePassword,
+      }}
     >
       {children}
     </AuthContext.Provider>

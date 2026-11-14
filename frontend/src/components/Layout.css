@@ -168,6 +168,42 @@
   background: var(--bg-subtle);
   border: 1px solid var(--border-subtle);
   min-width: 0;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.18s ease;
+}
+
+.sidebar-user-card:hover {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-user-card.active {
+  background: var(--bg-surface);
+  border-color: var(--accent);
+}
+
+.sidebar-user-action {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.sidebar-theme-toggle {
+  min-height: 30px;
+  min-width: 30px;
+  padding: 5px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.sidebar-theme-toggle:hover {
+  background: var(--bg-hover);
+  color: var(--accent);
 }
 
 .profile-avatar {

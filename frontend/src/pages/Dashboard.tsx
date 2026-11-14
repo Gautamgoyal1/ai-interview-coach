@@ -63,9 +63,11 @@ export default function Dashboard() {
   const latestAnalysis = analyses[0] ?? null;
   const latestReport = reports[0] ?? null;
 
+  const userFullName = user?.full_name?.trim();
   const rawHandle = user?.email ? user.email.split("@")[0] : "";
   const cleanHandle = rawHandle.replace(/_\d{8,}$/, "");
-  const displayName = cleanHandle.length > 20 ? cleanHandle.slice(0, 18) + "…" : cleanHandle;
+  const fallbackHandle = cleanHandle.length > 20 ? cleanHandle.slice(0, 18) + "…" : cleanHandle;
+  const displayName = userFullName || fallbackHandle;
 
   // ── Next recommended action ──
   let nextTitle = "Analyze your resume to begin";

@@ -1,8 +1,10 @@
-
 import { apiRequest } from "./api";
 import type {
   AuthCredentials,
+  ChangePasswordData,
+  RegisterCredentials,
   TokenResponse,
+  UpdateProfileData,
   User,
 } from "../types/auth";
 import {
@@ -12,7 +14,7 @@ import {
 } from "../utils/storage";
 
 export async function register(
-  credentials: AuthCredentials,
+  credentials: RegisterCredentials,
 ): Promise<User> {
   return apiRequest<User>("/auth/register", {
     method: "POST",
@@ -58,6 +60,30 @@ export async function getCurrentUser(): Promise<User> {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+  });
+}
+
+export async function updateProfile(
+  data: UpdateProfileData,
+): Promise<User> {
+  return apiRequest<User>("/auth/profile", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function changePassword(
+  data: ChangePasswordData,
+): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>("/auth/change-password", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
   });
 }
 

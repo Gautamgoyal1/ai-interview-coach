@@ -18,9 +18,12 @@ from app.core.rate_limit import (
 from app.db.models.user import User
 from app.db.session import get_db
 from app.modules.auth.schemas import (
+    ChangePasswordRequest,
     LoginRequest,
+    MessageResponse,
     RegisterRequest,
     TokenResponse,
+    UpdateProfileRequest,
     UserResponse,
 )
 
@@ -47,10 +50,13 @@ def register(
         )
 
     password = request.password.get_secret_value()
+    raw_name = request.full_name or request.name
+    resolved_name = raw_name.strip() if raw_name and raw_name.strip() else None
 
     user = User(
         email=request.email,
         password_hash=hash_password(password),
+        full_name=resolved_name,
     )
     db.add(user)
 
@@ -113,3 +119,48 @@ def get_me(
     current_user: User = Depends(get_current_user),
 ) -> UserResponse:
     return UserResponse.model_validate(current_user)
+
+
+@router.patch("/profile", response_model=UserResponse)
+def update_profile(
+    request: UpdateProfileRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> UserResponse:
+    if request.full_name is not None:
+        current_user.full_name = request.full_name.strip() if request.full_name.strip() else None
+    if request.target_role is not None:
+        current_user.target_role = request.target_role.strip() if request.target_role.strip() else None
+    if request.experience_level is not None:
+        current_user.experience_level = request.experience_level.strip() if request.experience_level.strip() else None
+
+    db.commit()
+    db.refresh(current_user)
+    return UserResponse.model_validate(current_user)
+
+
+@router.post("/change-password", response_model=MessageResponse)
+def change_password(
+    request: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> MessageResponse:
+    current_pw = request.current_password.get_secret_value()
+    new_pw = request.new_password.get_secret_value()
+
+    if not verify_password(current_pw, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect.",
+        )
+
+    if current_pw == new_pw:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New password cannot be the same as your current password.",
+        )
+
+    current_user.password_hash = hash_password(new_pw)
+    db.commit()
+
+    return MessageResponse(message="Password changed successfully.")

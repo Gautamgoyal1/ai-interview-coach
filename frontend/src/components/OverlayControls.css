@@ -18,7 +18,7 @@
   padding: 0 10px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  background: #ffffff;
+  background: var(--bg-surface);
   color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
@@ -41,7 +41,7 @@
   min-width: 190px;
   padding: 6px;
   border-radius: var(--radius-md);
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border-strong);
   box-shadow: var(--shadow-md);
   display: flex;
@@ -97,7 +97,7 @@
 .pm-dialog {
   width: 100%;
   max-width: 440px;
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);

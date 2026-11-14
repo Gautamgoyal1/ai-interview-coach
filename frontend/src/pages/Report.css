@@ -17,7 +17,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-4);
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
@@ -41,7 +41,7 @@
    ============================================================ */
 .report-table-card {
   overflow: hidden;
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xs);
@@ -145,7 +145,7 @@
   align-items: center;
   gap: 28px;
   flex-wrap: wrap;
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   border-left: 4px solid var(--accent);
   border-radius: var(--radius-lg);
@@ -231,7 +231,7 @@
    ============================================================ */
 .report-card {
   padding: 30px 32px;
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xs);
@@ -446,7 +446,7 @@
 .qfb-details {
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  background: #ffffff;
+  background: var(--bg-surface);
   overflow: hidden;
   transition: border-color var(--transition-fast);
 }
@@ -463,7 +463,7 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  background: #ffffff;
+  background: var(--bg-surface);
   transition: background-color var(--transition-fast);
 }
 
@@ -537,7 +537,7 @@
 .qfb-dimensions {
   padding: 14px 16px;
   border-radius: var(--radius-md);
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -577,7 +577,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
 }

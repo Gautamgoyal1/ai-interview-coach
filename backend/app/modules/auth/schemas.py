@@ -1,3 +1,4 @@
+from datetime import datetime
 import re
 
 from pydantic import (
@@ -10,6 +11,8 @@ from pydantic import (
 
 
 class RegisterRequest(BaseModel):
+    name: str | None = Field(default=None, max_length=120)
+    full_name: str | None = Field(default=None, max_length=120)
     email: str = Field(min_length=3, max_length=320)
     password: SecretStr = Field(min_length=8, max_length=72)
 
@@ -49,6 +52,33 @@ class UserResponse(BaseModel):
 
     id: int
     email: str
+    full_name: str | None = None
+    target_role: str | None = None
+    experience_level: str | None = None
+    created_at: datetime | None = None
+
+
+class UpdateProfileRequest(BaseModel):
+    full_name: str | None = Field(default=None, max_length=120)
+    target_role: str | None = Field(default=None, max_length=120)
+    experience_level: str | None = Field(default=None, max_length=50)
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: SecretStr = Field(min_length=1, max_length=72)
+    new_password: SecretStr = Field(min_length=8, max_length=72)
+
+    @field_validator("new_password")
+    @classmethod
+    def validate_password_bytes(cls, value: SecretStr) -> SecretStr:
+        password = value.get_secret_value()
+        if len(password.encode("utf-8")) > 72:
+            raise ValueError("Password must not exceed 72 UTF-8 bytes.")
+        return value
+
+
+class MessageResponse(BaseModel):
+    message: str
 
 
 class TokenResponse(BaseModel):

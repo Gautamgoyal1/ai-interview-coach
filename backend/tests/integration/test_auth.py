@@ -125,3 +125,85 @@ def test_me_rejects_missing_invalid_and_expired_jwt(sqlite_client: TestClient):
         headers={"Authorization": f"Bearer {expired_token}"},
     )
     assert expired_res.status_code == 401
+
+
+def test_update_profile_and_change_password_flow(sqlite_client: TestClient):
+    """Users can update their profile fields and securely change their password."""
+    # 1. Register with name
+    reg = sqlite_client.post(
+        "/auth/register",
+        json={"email": "charlie@example.com", "password": "password123", "full_name": "Charlie Chaplin"},
+    )
+    assert reg.status_code == 201
+    assert reg.json()["full_name"] == "Charlie Chaplin"
+
+    # 2. Login
+    login_res = sqlite_client.post(
+        "/auth/login",
+        json={"email": "charlie@example.com", "password": "password123"},
+    )
+    token = login_res.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # 3. Update profile
+    patch_res = sqlite_client.patch(
+        "/auth/profile",
+        headers=headers,
+        json={
+            "full_name": "Charlie C. Chaplin",
+            "target_role": "Principal AI Architect",
+            "experience_level": "experienced",
+        },
+    )
+    assert patch_res.status_code == 200
+    pdata = patch_res.json()
+    assert pdata["full_name"] == "Charlie C. Chaplin"
+    assert pdata["target_role"] == "Principal AI Architect"
+    assert pdata["experience_level"] == "experienced"
+
+    # 4. Verify /auth/me reflects changes
+    me_res = sqlite_client.get("/auth/me", headers=headers)
+    assert me_res.status_code == 200
+    assert me_res.json()["full_name"] == "Charlie C. Chaplin"
+    assert me_res.json()["target_role"] == "Principal AI Architect"
+    assert me_res.json()["experience_level"] == "experienced"
+
+    # 5. Change password: wrong current password returns 400
+    bad_pw = sqlite_client.post(
+        "/auth/change-password",
+        headers=headers,
+        json={"current_password": "wrong_password", "new_password": "new_password_123"},
+    )
+    assert bad_pw.status_code == 400
+    assert "Current password is incorrect" in bad_pw.json()["detail"]
+
+    # 6. Change password: same password returns 400
+    same_pw = sqlite_client.post(
+        "/auth/change-password",
+        headers=headers,
+        json={"current_password": "password123", "new_password": "password123"},
+    )
+    assert same_pw.status_code == 400
+
+    # 7. Valid password change returns 200
+    good_pw = sqlite_client.post(
+        "/auth/change-password",
+        headers=headers,
+        json={"current_password": "password123", "new_password": "brand_new_pass_456"},
+    )
+    assert good_pw.status_code == 200
+
+    # 8. Old password fails login
+    assert sqlite_client.post(
+        "/auth/login",
+        json={"email": "charlie@example.com", "password": "password123"},
+    ).status_code == 401
+
+    # 9. New password succeeds login
+    new_login = sqlite_client.post(
+        "/auth/login",
+        json={"email": "charlie@example.com", "password": "brand_new_pass_456"},
+    )
+    assert new_login.status_code == 200
+    assert new_login.json()["access_token"]
+

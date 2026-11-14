@@ -8,14 +8,20 @@ import { useAuth } from "../hooks/useAuth";
 import "./ResumeAnalysis.css";
 
 export default function ResumeAnalysis() {
+  const { user, logout } = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
-  const [jobRole, setJobRole] = useState("Machine Learning Engineer");
+  const [jobRole, setJobRole] = useState(user?.target_role || "Machine Learning Engineer");
   const [jobDescription, setJobDescription] = useState("");
 
-  const { logout } = useAuth();
   const navigate = useNavigate();
   const { result, loading, error, unauthorized, submitResume } = useResume();
+
+  useEffect(() => {
+    if (user?.target_role && jobRole === "Machine Learning Engineer") {
+      setJobRole(user.target_role);
+    }
+  }, [user?.target_role]);
 
   useEffect(() => {
     if (unauthorized) {

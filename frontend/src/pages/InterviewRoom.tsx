@@ -6,6 +6,7 @@ import {
   GraduationCapIcon,
   XIcon,
 } from "../components/Icons";
+import ThemeToggle from "../components/ThemeToggle";
 import AnswerBox from "../features/interview/AnswerBox";
 import InterviewSetup from "../features/interview/InterviewSetup";
 import ProgressBar from "../features/interview/ProgressBar";
@@ -203,6 +204,7 @@ export default function InterviewRoom() {
                 {session.max_questions}
               </span>
             )}
+            <ThemeToggle className="iv-header-theme-toggle" />
             <Link to="/dashboard" className="btn btn-ghost iv-header-btn">
               Dashboard
             </Link>
