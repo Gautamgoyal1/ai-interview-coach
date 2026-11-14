@@ -13,6 +13,7 @@ import type {
   ProgressionMode,
   StartingDifficulty,
 } from "../../types/interview";
+import type { InterviewInputMode } from "../../types/speech";
 
 export interface StartInterviewOptions {
   interviewType?: InterviewType;
@@ -20,6 +21,7 @@ export interface StartInterviewOptions {
   startingDifficulty?: StartingDifficulty;
   progressionMode?: ProgressionMode;
   maxQuestions?: number;
+  inputMode?: InterviewInputMode;
 }
 
 export function useInterview() {

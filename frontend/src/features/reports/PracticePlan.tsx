@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { practiceLink, type PracticeOrigin } from "../../utils/practiceNavigation";
 import type { RecommendationItem } from "../../types/report";
 
 interface PracticePlanProps {
+  origin?: PracticeOrigin;
   recommendations: RecommendationItem[];
 }
 
@@ -13,7 +15,7 @@ function priorityBadgeClass(priority: string): string {
   return "badge-neutral";
 }
 
-export default function PracticePlan({ recommendations }: PracticePlanProps) {
+export default function PracticePlan({ recommendations, origin = {} }: PracticePlanProps) {
   const [completed, setCompleted] = useState<Record<number, boolean>>({});
 
   function toggleItem(index: number) {
@@ -25,7 +27,7 @@ export default function PracticePlan({ recommendations }: PracticePlanProps) {
       <div className="report-card-header">
         <div>
           <h3>Personalized Preparation Roadmap</h3>
-          <p>Prioritized next steps based on your interview gaps</p>
+          <p>Prioritized next steps. Checkmarks are temporary and reset when you leave this page.</p>
         </div>
       </div>
 
@@ -61,7 +63,7 @@ export default function PracticePlan({ recommendations }: PracticePlanProps) {
                 </p>
                 <div style={{ marginTop: "0.75rem" }}>
                   <Link
-                    to={`/practice?topic=${encodeURIComponent(rec.area)}&gap=${encodeURIComponent(rec.observed_gap)}`}
+                    to={practiceLink(rec.area, origin, rec.observed_gap)}
                     className="btn btn-secondary"
                     style={{ fontSize: "0.8rem", padding: "0.35rem 0.75rem" }}
                   >

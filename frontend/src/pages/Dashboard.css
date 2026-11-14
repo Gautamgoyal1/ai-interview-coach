@@ -484,3 +484,307 @@
     padding: 0;
   }
 }
+/* Preparation command center. Scoped to avoid changing shared legacy headings. */
+.prep-dashboard {
+  display: grid;
+  gap: 30px;
+  min-width: 0;
+}
+.prep-dashboard h1,
+.prep-dashboard h2,
+.prep-dashboard p {
+  margin: 0;
+}
+.prep-dashboard p {
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+.prep-dashboard .pm-eyebrow {
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+.prep-dashboard a {
+  text-underline-offset: 4px;
+}
+.command-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 4px;
+}
+.command-heading h1 {
+  font-size: clamp(27px, 2.6vw, 37px);
+  line-height: 1.18;
+  letter-spacing: -0.04em;
+  margin: 8px 0 10px;
+  max-width: 780px;
+  overflow-wrap: anywhere;
+}
+.command-text-link {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.command-next {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 245px;
+  gap: 46px;
+  padding: 34px 38px;
+  background: var(--bg-secondary);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+.command-next-main {
+  min-width: 0;
+}
+.command-next h2 {
+  font-size: clamp(24px, 2.4vw, 32px);
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+  margin: 10px 0 12px;
+  overflow-wrap: anywhere;
+}
+.command-next-main > p:not(.pm-eyebrow) {
+  max-width: 620px;
+}
+.command-next .btn {
+  margin-top: 22px;
+  min-height: 46px;
+}
+.command-next-note {
+  border-left: 1px solid var(--border-strong);
+  padding-left: 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  justify-content: center;
+  font-size: 13px;
+}
+.command-next-note > svg {
+  color: var(--accent);
+}
+.command-note-rule {
+  display: none;
+}
+.command-loading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-top: 20px;
+  font-size: 13px;
+}
+.command-evidence {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--border);
+}
+.command-evidence article {
+  min-width: 0;
+}
+.command-evidence article + article {
+  border-left: 1px solid var(--border);
+  padding-left: 32px;
+}
+.command-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.command-section-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  letter-spacing: -0.015em;
+}
+.command-section-head > a {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.command-measure {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.command-measure > strong {
+  font-size: 30px;
+  letter-spacing: -0.04em;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.command-measure small {
+  font-size: 18px;
+}
+.command-measure > span {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.command-work-link {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  margin-bottom: 12px;
+  max-width: 100%;
+}
+.command-work-link svg {
+  flex-shrink: 0;
+}
+.command-caption {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+.command-lower {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 36px;
+}
+.command-lower section {
+  min-width: 0;
+}
+.command-lower ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.command-lower li {
+  border-top: 1px solid var(--border);
+  padding: 15px 0;
+}
+.command-activity li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+.command-activity li > div {
+  min-width: 0;
+}
+.command-activity li a,
+.command-practice li a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 4px 0;
+}
+.command-activity li a svg,
+.command-practice li a svg {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+.command-file {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.command-activity-value {
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.command-practice {
+  padding-left: 28px;
+  border-left: 1px solid var(--border);
+}
+.command-practice li p {
+  font-size: 13px;
+}
+@media (max-width: 1100px) {
+  .command-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .command-next {
+    grid-template-columns: minmax(0, 1fr) 180px;
+    gap: 24px;
+    padding: 28px;
+  }
+  .command-next-note {
+    padding-left: 20px;
+  }
+  .command-lower {
+    gap: 24px;
+  }
+}
+@media (max-width: 650px) {
+  .prep-dashboard {
+    gap: 24px;
+  }
+  .command-next {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 24px 20px;
+    gap: 18px;
+  }
+  .command-next-note {
+    border-left: 0;
+    border-top: 1px solid var(--border-strong);
+    padding: 16px 0 0;
+    display: block;
+  }
+  .command-next-note > svg {
+    display: none;
+  }
+  .command-next-note strong {
+    font-size: 12px;
+  }
+  .command-next-note p {
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  .command-next .btn {
+    width: 100%;
+  }
+  .command-evidence,
+  .command-lower {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .command-evidence article + article {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    padding: 22px 0 0;
+  }
+  .command-practice {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .command-section-head {
+    gap: 8px;
+  }
+  .command-section-head h2 {
+    font-size: 15px;
+  }
+  .command-section-head > a {
+    font-size: 11.5px;
+  }
+  .command-activity li {
+    align-items: flex-start;
+  }
+  .command-activity-value {
+    font-size: 11px;
+  }
+}

@@ -1,0 +1,282 @@
+/* Active workspace only; the Practice Hub keeps its established layout. */
+.practice-learning {
+  max-width: 1220px;
+  gap: 24px;
+}
+.learning-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
+}
+.learning-nav {
+  display: flex;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+.learning-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.learning-title-row > div {
+  min-width: 0;
+}
+.learning-title-row h1 {
+  font-size: clamp(24px, 2.6vw, 32px);
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  margin: 4px 0 8px;
+  overflow-wrap: anywhere;
+}
+.learning-section-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0;
+}
+.learning-caption {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0;
+}
+.learning-question-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 100%;
+  font-size: 12px;
+}
+.learning-question-picker select {
+  width: 100%;
+}
+.learning-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr);
+  align-items: start;
+  gap: 32px;
+}
+.learning-main {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+}
+.learning-question {
+  padding: 26px 28px 22px;
+}
+.learning-question-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+.learning-question-meta > span:last-child {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+.practice-learning .practice-question-text {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: clamp(22px, 2.1vw, 28px);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+  margin: 18px 0;
+}
+.learning-growth {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0 0 18px;
+}
+.learning-help {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.practice-learning summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.practice-learning details[open] > summary {
+  margin-bottom: 12px;
+}
+.learning-help-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.learning-hint {
+  margin-top: 16px;
+  border-left: 2px solid var(--accent-border);
+  padding-left: 14px;
+}
+.learning-hint p {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.practice-learning h3 {
+  font-size: 13px;
+  margin: 0 0 8px;
+  font-weight: 650;
+}
+.learning-editor {
+  border-top: 1px solid var(--border);
+  padding: 24px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.learning-editor-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.learning-editor-heading label {
+  font-weight: 600;
+  font-size: 16px;
+}
+.learning-assistance {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.practice-learning .practice-textarea {
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  background: var(--bg-canvas);
+  padding: 14px 16px;
+  font-size: 16px;
+  line-height: 1.7;
+  min-height: 240px;
+}
+.practice-learning .practice-editor-meta {
+  margin: 0;
+  font-size: 12px;
+}
+.learning-editor-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: end;
+  flex-wrap: wrap;
+}
+.learning-coach {
+  min-width: 0;
+  padding: 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.learning-coach-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.learning-coach h2 {
+  font-size: 21px;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.learning-coach-head > span {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.learning-recommendation {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+}
+.learning-coach > .btn-primary {
+  align-self: start;
+}
+.learning-coach ul,
+.learning-coach ol {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  display: grid;
+  gap: 6px;
+}
+.learning-coach > section,
+.learning-coach > details {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+.learning-coach .learning-comparison {
+  border-left: 2px solid var(--accent);
+  padding-left: 14px;
+}
+.learning-example {
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.learning-next {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+.learning-next p,
+.learning-coach-empty p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+}
+.learning-empty {
+  padding: 24px 0;
+}
+.practice-learning button,
+.practice-learning a {
+  max-width: 100%;
+  white-space: normal;
+}
+.practice-learning :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+@media (max-width: 1100px) {
+  .learning-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .learning-coach {
+    padding: 4px 0 0;
+  }
+}
+@media (max-width: 480px) {
+  .learning-question {
+    padding: 20px 18px;
+  }
+  .learning-editor {
+    padding: 20px 18px;
+  }
+  .learning-editor-actions > button {
+    width: 100%;
+  }
+  .learning-help-actions > button {
+    width: 100%;
+  }
+  .practice-learning .practice-textarea {
+    padding: 12px;
+  }
+  .learning-title-row {
+    align-items: stretch;
+  }
+  .learning-question-picker {
+    width: 100%;
+  }
+}

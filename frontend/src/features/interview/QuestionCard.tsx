@@ -1,9 +1,26 @@
 import type { InterviewQuestion } from "../../types/interview";
+import {
+  RotateCcwIcon,
+  SquareIcon,
+  Volume2Icon,
+  VolumeXIcon,
+} from "../../components/Icons";
+
+export interface QuestionAudioProps {
+  isSpeaking: boolean;
+  isLoading: boolean;
+  isMuted: boolean;
+  onPlay: () => void;
+  onStop: () => void;
+  onToggleMute: () => void;
+}
 
 interface QuestionCardProps {
   question: InterviewQuestion;
   questionIndex: number;
   maxQuestions: number;
+  audioProps?: QuestionAudioProps;
+  voiceMode?: boolean;
 }
 
 function formatQuestionNumber(index: number, total: number): string {
@@ -13,15 +30,14 @@ function formatQuestionNumber(index: number, total: number): string {
 
 function formatLabel(raw: string): string {
   if (!raw) return "";
-  return raw
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (ch) => ch.toUpperCase());
+  return raw.replace(/_/g, " ").replace(/\b\w/g, (ch) => ch.toUpperCase());
 }
 
 export default function QuestionCard({
   question,
   questionIndex,
   maxQuestions,
+  audioProps,
 }: QuestionCardProps) {
   const typeLabel = question.is_follow_up
     ? "Follow-up"
@@ -55,6 +71,87 @@ export default function QuestionCard({
         </div>
 
         <h2 className="iv-question-text">{question.question_text}</h2>
+
+        {audioProps && (
+          <div className="iv-question-audio-bar">
+            <div className="iv-audio-status">
+              {audioProps.isLoading ? (
+                <span className="iv-audio-pill loading">
+                  <span
+                    className="pm-spinner iv-audio-spinner"
+                    aria-hidden="true"
+                  />
+                  <span>Preparing question audio...</span>
+                </span>
+              ) : audioProps.isSpeaking ? (
+                <span className="iv-audio-pill active">
+                  <span className="iv-audio-wave-bars" aria-hidden="true">
+                    <span />
+                    <span />
+                    <span />
+                  </span>
+                  <span>Reading question</span>
+                </span>
+              ) : (
+                <span className="iv-audio-pill idle">
+                  <Volume2Icon size={14} />
+                  <span>Question playback</span>
+                </span>
+              )}
+            </div>
+
+            <div className="iv-audio-actions">
+              {audioProps.isSpeaking || audioProps.isLoading ? (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm iv-audio-btn"
+                  onClick={audioProps.onStop}
+                  title="Stop AI speech"
+                  aria-label={
+                    audioProps.isLoading
+                      ? "Cancel question audio"
+                      : "Stop reading question"
+                  }
+                >
+                  <SquareIcon size={13} />
+                  <span>Stop</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm iv-audio-btn"
+                  onClick={audioProps.onPlay}
+                  disabled={audioProps.isLoading}
+                  title="Replay question"
+                  aria-label="Replay question"
+                >
+                  <RotateCcwIcon size={13} />
+                  <span>Replay</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                className={`btn btn-ghost btn-sm iv-audio-btn ${
+                  audioProps.isMuted ? "muted" : ""
+                }`}
+                onClick={audioProps.onToggleMute}
+                title={audioProps.isMuted ? "Unmute AI Voice" : "Mute AI Voice"}
+                aria-label={
+                  audioProps.isMuted ? "Unmute AI Voice" : "Mute AI Voice"
+                }
+                aria-pressed={audioProps.isMuted}
+              >
+                {audioProps.isMuted ? (
+                  <VolumeXIcon size={14} />
+                ) : (
+                  <Volume2Icon size={14} />
+                )}
+                <span>{audioProps.isMuted ? "Muted" : "Mute"}</span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <p className="iv-question-guidance">

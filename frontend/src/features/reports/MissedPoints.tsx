@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
+import { practiceLink, type PracticeOrigin } from "../../utils/practiceNavigation";
 
 interface MissedPointsProps {
+  origin?: PracticeOrigin;
   strengths: string[];
   weaknesses: string[];
   missingConcepts: string[];
 }
 
 export default function MissedPoints({
+  origin = {},
   strengths,
   weaknesses,
   missingConcepts,
@@ -37,7 +40,7 @@ export default function MissedPoints({
         <div className="report-card-header">
           <div>
             <h3>Areas for Improvement</h3>
-            <p>Observed weaknesses and missing technical concepts</p>
+            <p>Observed weaknesses and missing concepts</p>
           </div>
         </div>
         {weaknesses.length > 0 ? (
@@ -46,7 +49,7 @@ export default function MissedPoints({
               <li key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem" }}>
                 <span>{item}</span>
                 <Link
-                  to={`/practice?topic=${encodeURIComponent(item.split(":")[0])}&gap=${encodeURIComponent(item)}`}
+                  to={practiceLink(item.split(":")[0], origin, item)}
                   className="badge badge-neutral"
                   style={{ textDecoration: "none", fontSize: "0.75rem", whiteSpace: "nowrap", cursor: "pointer" }}
                 >
@@ -68,7 +71,7 @@ export default function MissedPoints({
               {missingConcepts.map((concept, idx) => (
                 <Link
                   key={idx}
-                  to={`/practice?topic=${encodeURIComponent(concept)}&gap=${encodeURIComponent('Missing concept: ' + concept)}`}
+                  to={practiceLink(concept, origin, 'Missing concept: ' + concept)}
                   className="badge badge-warning"
                   style={{ textDecoration: "none", cursor: "pointer" }}
                 >

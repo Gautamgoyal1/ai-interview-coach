@@ -159,9 +159,9 @@ export default function ResumeAnalysis() {
           {result.reused ? (
             <div className="pm-card reuse-banner" role="status">
               <div>
-                <strong>Reused existing analysis (v{result.version ?? 1})</strong>
+                <strong>Opened saved analysis (v{result.version ?? 1})</strong>
                 <p>
-                  This matches a previous analysis with the same resume, role, and job description — no duplicate history entry was created.
+                  This resume and target role match a saved analysis. You can review it below or analyze again.
                 </p>
               </div>
               <button
@@ -174,7 +174,7 @@ export default function ResumeAnalysis() {
                   }
                 }}
               >
-                Force Fresh Analysis
+                Analyze Again
               </button>
             </div>
           ) : (

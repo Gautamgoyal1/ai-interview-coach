@@ -1,17 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import ConfirmDialog from "../components/ConfirmDialog";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ArrowRightIcon,
-  BookOpenIcon,
-  CheckCircleIcon,
-  ChevronDownIcon,
-  CodeIcon,
-  LightbulbIcon,
-  RotateCcwIcon,
-  SparklesIcon,
-  UsersIcon,
-} from "../components/Icons";
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
+import { listInterviewReports } from "../services/report.service";
+import { practiceLink } from "../utils/practiceNavigation";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { ArrowRightIcon, BookOpenIcon } from "../components/Icons";
 import { useAuth } from "../hooks/useAuth";
 import { ApiError } from "../services/api";
 import {
@@ -37,6 +34,12 @@ import type {
 import { listPracticeSessions } from "../services/practice.service";
 import { formatDateTime } from "../utils/formatters";
 import "./Practice.css";
+import "./PracticeLearning.css";
+import PracticeCoaching from "../features/practice/PracticeCoaching";
+import {
+  confirmDiscardAnswer,
+  useUnsentAnswerWarning,
+} from "../hooks/useUnsentAnswerWarning";
 
 export default function PracticeWorkspace() {
   const { sessionId } = useParams<{ sessionId?: string }>();
@@ -52,6 +55,10 @@ export default function PracticeWorkspace() {
   // Active question state
   const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
   const [answerText, setAnswerText] = useState("");
+  const answerRef = useRef<HTMLTextAreaElement>(null);
+  const operationRef = useRef(false);
+  const focusCoaching = useRef(false);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [revealingHint, setRevealingHint] = useState(false);
   const [revealingRef, setRevealingRef] = useState(false);
@@ -60,12 +67,24 @@ export default function PracticeWorkspace() {
 
   // Hub state (when no sessionId)
   const [summaries, setSummaries] = useState<PracticeSessionSummary[]>([]);
-  const [recommendations, setRecommendations] = useState<PracticeRecommendationItem[]>([]);
+  const [recommendations, setRecommendations] = useState<
+    PracticeRecommendationItem[]
+  >([]);
+  const [hubFailures, setHubFailures] = useState({
+    sessions: false,
+    recommendations: false,
+  });
+  const [returnSessionId, setReturnSessionId] = useState<string | null>(null);
+  const startingQuery = useRef<string | null>(null);
+  const [queryAttempt, setQueryAttempt] = useState(0);
   const [hubTopic, setHubTopic] = useState("Authentication & Authorization");
   const [hubType, setHubType] = useState<InterviewType>("technical");
-  const [hubDifficulty, setHubDifficulty] = useState<PracticeDifficulty>("medium");
+  const [hubDifficulty, setHubDifficulty] =
+    useState<PracticeDifficulty>("medium");
   const [startingSession, setStartingSession] = useState(false);
-  const [pendingDeleteSession, setPendingDeleteSession] = useState<string | null>(null);
+  const [pendingDeleteSession, setPendingDeleteSession] = useState<
+    string | null
+  >(null);
   const [deleting, setDeleting] = useState(false);
 
   const handleUnauthorized = useCallback(() => {
@@ -74,53 +93,78 @@ export default function PracticeWorkspace() {
   }, [logout, navigate]);
 
   // Load session or Hub
-  const loadSession = useCallback(async (id: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getPracticeSession(id);
-      setSession(data);
-      setActiveQuestionIndex((data.questions?.length ?? 1) - 1);
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) {
-        handleUnauthorized();
-        return;
+  const loadSession = useCallback(
+    async (id: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getPracticeSession(id);
+        setSession(data);
+        setActiveQuestionIndex(Math.max(0, (data.questions?.length ?? 1) - 1));
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 401) {
+          handleUnauthorized();
+          return;
+        }
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to load practice session.",
+        );
+      } finally {
+        setLoading(false);
+        setStartingSession(false);
       }
-      setError(err instanceof Error ? err.message : "Failed to load practice session.");
-    } finally {
-      setLoading(false);
-      setStartingSession(false);
-    }
-  }, [handleUnauthorized]);
+    },
+    [handleUnauthorized],
+  );
 
   const loadHub = useCallback(async () => {
     setLoading(true);
     setError(null);
-    try {
-      const [sumList, recList] = await Promise.all([
-        listPracticeSessions(20),
-        getPracticeRecommendations(5),
-      ]);
-      setSummaries(sumList);
-      setRecommendations(recList);
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) {
-        handleUnauthorized();
-        return;
-      }
-      setError(err instanceof Error ? err.message : "Failed to load practice history.");
-    } finally {
+    const results = await Promise.allSettled([
+      listPracticeSessions(20),
+      getPracticeRecommendations(5),
+    ]);
+    if (
+      results.some(
+        (result) =>
+          result.status === "rejected" &&
+          result.reason instanceof ApiError &&
+          result.reason.status === 401,
+      )
+    ) {
+      handleUnauthorized();
       setLoading(false);
+      return;
     }
+    const [sessionsResult, recommendationsResult] = results;
+    if (sessionsResult.status === "fulfilled")
+      setSummaries(sessionsResult.value);
+    if (recommendationsResult.status === "fulfilled")
+      setRecommendations(recommendationsResult.value);
+    setHubFailures({
+      sessions: sessionsResult.status === "rejected",
+      recommendations: recommendationsResult.status === "rejected",
+    });
+    if (results.some((result) => result.status === "rejected"))
+      setError(
+        "Some practice information could not be loaded. Available sessions and recommendations are shown below.",
+      );
+    setLoading(false);
   }, [handleUnauthorized]);
 
   // Automatic session creation from query params (e.g. from report click)
   useEffect(() => {
     const qTopic = searchParams.get("topic");
     if (!sessionId && qTopic) {
+      if (startingQuery.current === searchParams.toString()) return;
+      startingQuery.current = searchParams.toString();
       const qType = (searchParams.get("type") as InterviewType) || "technical";
       const qGap = searchParams.get("gap") || undefined;
-      const qReportId = searchParams.get("reportId") ? parseInt(searchParams.get("reportId")!, 10) : undefined;
+      const qReportId = searchParams.get("reportId")
+        ? parseInt(searchParams.get("reportId")!, 10)
+        : undefined;
 
       async function initFromQuery() {
         setStartingSession(true);
@@ -131,16 +175,24 @@ export default function PracticeWorkspace() {
             interview_type: qType,
             weakness_context: qGap,
             source_report_id: qReportId,
+            target_role: searchParams.get("role") || undefined,
             difficulty: "medium",
           });
           setSession(newSession);
           setActiveQuestionIndex((newSession.questions?.length ?? 1) - 1);
           setStartingSession(false);
           setLoading(false);
-          navigate(`/practice/${newSession.id}`, { replace: true });
+          navigate(`/practice/${newSession.id}?${searchParams.toString()}`, {
+            replace: true,
+          });
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Could not initialize practice session.");
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Could not initialize practice session.",
+          );
           setStartingSession(false);
+          setLoading(false);
         }
       }
       void initFromQuery();
@@ -148,6 +200,7 @@ export default function PracticeWorkspace() {
     }
 
     if (sessionId) {
+      startingQuery.current = null;
       if (session?.id === sessionId && (session.questions?.length ?? 0) > 0) {
         setLoading(false);
         setStartingSession(false);
@@ -158,12 +211,68 @@ export default function PracticeWorkspace() {
       setSession(null);
       void loadHub();
     }
-  }, [sessionId, searchParams, loadSession, loadHub, navigate, session?.id, session?.questions?.length]);
+  }, [
+    sessionId,
+    searchParams,
+    loadSession,
+    loadHub,
+    navigate,
+    session?.id,
+    session?.questions?.length,
+    queryAttempt,
+  ]);
 
   // Active question & attempt
-  const currentQuestion: PracticeQuestion | undefined = session?.questions?.[activeQuestionIndex];
+  const currentQuestion: PracticeQuestion | undefined =
+    session?.questions?.[activeQuestionIndex];
   const attempts: PracticeAttempt[] = currentQuestion?.attempts || [];
-  const latestAttempt: PracticeAttempt | undefined = attempts[attempts.length - 1];
+  const latestAttempt: PracticeAttempt | undefined =
+    attempts[attempts.length - 1];
+
+  useEffect(() => {
+    if (focusCoaching.current && latestAttempt) {
+      focusCoaching.current = false;
+      document.getElementById("coaching-title")?.focus();
+    }
+  }, [latestAttempt?.id]);
+  const busy = submitting || revealingHint || revealingRef || generatingSimilar;
+  const dirty =
+    Boolean(answerText.trim()) &&
+    answerText.trim() !== latestAttempt?.answer_text.trim();
+  useUnsentAnswerWarning(Boolean(sessionId) && dirty);
+  function improveAnswer() {
+    if (!answerText.trim()) setAnswerText(latestAttempt?.answer_text || "");
+    answerRef.current?.focus();
+    answerRef.current?.scrollIntoView({ block: "center", behavior: "auto" });
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    setReturnSessionId(null);
+    if (!session?.source_report_id) return;
+    const supplied = searchParams.get("reportSessionId");
+    if (
+      supplied &&
+      Number(searchParams.get("reportId")) === session.source_report_id
+    ) {
+      setReturnSessionId(supplied);
+      return;
+    }
+    void listInterviewReports(100)
+      .then((reports) => {
+        if (!cancelled)
+          setReturnSessionId(
+            reports.find((report) => report.id === session.source_report_id)
+              ?.session_id || null,
+          );
+      })
+      .catch(() => {
+        /* Keep the honest Reports-list fallback if the source is unavailable. */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.source_report_id, searchParams]);
 
   // Determine current assistance level
   function getAssistanceLevel(): AssistanceLevel {
@@ -175,11 +284,13 @@ export default function PracticeWorkspace() {
 
   // Handle Hint Reveal
   async function handleRevealNextHint() {
-    if (!currentQuestion || revealingHint) return;
+    if (!currentQuestion || operationRef.current) return;
     const currentHints = currentQuestion.hints_revealed || [];
     const nextLevel = currentHints.includes(1) ? 2 : 1;
     if (currentHints.includes(nextLevel)) return;
 
+    operationRef.current = true;
+    setActionError(null);
     setRevealingHint(true);
     try {
       const res = await revealHint(currentQuestion.id, nextLevel);
@@ -196,15 +307,20 @@ export default function PracticeWorkspace() {
         return { ...prev, questions: updatedQuestions };
       });
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to reveal hint.");
+      setActionError(
+        err instanceof Error ? err.message : "Failed to reveal hint.",
+      );
     } finally {
+      operationRef.current = false;
       setRevealingHint(false);
     }
   }
 
   // Handle Reference Reveal
   async function handleConfirmRevealRef() {
-    if (!currentQuestion || revealingRef) return;
+    if (!currentQuestion || operationRef.current) return;
+    operationRef.current = true;
+    setActionError(null);
     setRevealingRef(true);
     setShowRefConfirm(false);
     try {
@@ -220,20 +336,28 @@ export default function PracticeWorkspace() {
         return { ...prev, questions: updatedQuestions };
       });
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to reveal reference answer.");
+      setActionError(
+        err instanceof Error
+          ? err.message
+          : "Failed to reveal reference answer.",
+      );
     } finally {
+      operationRef.current = false;
       setRevealingRef(false);
     }
   }
 
   // Handle Submit Answer
   async function handleSubmitAnswer() {
-    if (!currentQuestion || !answerText.trim() || submitting) return;
+    if (!currentQuestion || !answerText.trim() || operationRef.current) return;
+    operationRef.current = true;
+    setActionError(null);
     setSubmitting(true);
     try {
       const newAttempt = await submitPracticeAttempt(currentQuestion.id, {
         answer_text: answerText.trim(),
       });
+      focusCoaching.current = true;
       setSession((prev) => {
         if (!prev) return prev;
         const updatedQuestions = [...prev.questions];
@@ -243,19 +367,26 @@ export default function PracticeWorkspace() {
         return { ...prev, questions: updatedQuestions };
       });
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to evaluate answer.");
+      setActionError(
+        err instanceof Error ? err.message : "Failed to evaluate answer.",
+      );
     } finally {
+      operationRef.current = false;
       setSubmitting(false);
     }
   }
 
   // Handle Generate Similar Question
   async function handleGenerateSimilar() {
-    if (!session || generatingSimilar) return;
+    if (!session || operationRef.current || !confirmDiscardAnswer(dirty))
+      return;
+    operationRef.current = true;
+    setActionError(null);
     setGeneratingSimilar(true);
     try {
       const newQ = await generateNextQuestion(session.id, {
-        difficulty: (currentQuestion?.difficulty as PracticeDifficulty) || "medium",
+        difficulty:
+          (currentQuestion?.difficulty as PracticeDifficulty) || "medium",
       });
       setSession((prev) => {
         if (!prev) return prev;
@@ -267,14 +398,23 @@ export default function PracticeWorkspace() {
       setActiveQuestionIndex(session.questions.length);
       setAnswerText("");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to generate similar question.");
+      setActionError(
+        err instanceof Error
+          ? err.message
+          : "Failed to generate similar question.",
+      );
     } finally {
+      operationRef.current = false;
       setGeneratingSimilar(false);
     }
   }
 
   // Start new session from Hub
-  async function handleStartHubSession(topic: string, type: InterviewType, diff: PracticeDifficulty) {
+  async function handleStartHubSession(
+    topic: string,
+    type: InterviewType,
+    diff: PracticeDifficulty,
+  ) {
     setStartingSession(true);
     setError(null);
     try {
@@ -289,7 +429,11 @@ export default function PracticeWorkspace() {
       setLoading(false);
       navigate(`/practice/${newSession.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not create practice session.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not create practice session.",
+      );
       setStartingSession(false);
     }
   }
@@ -303,7 +447,11 @@ export default function PracticeWorkspace() {
       setSummaries((prev) => prev.filter((s) => s.id !== pendingDeleteSession));
       setPendingDeleteSession(null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete practice session.");
+      alert(
+        err instanceof Error
+          ? err.message
+          : "Failed to delete practice session.",
+      );
     } finally {
       setDeleting(false);
     }
@@ -313,23 +461,35 @@ export default function PracticeWorkspace() {
   if (loading || startingSession) {
     return (
       <div className="practice-page">
-        <div className="pm-card" style={{ padding: "3rem", textAlign: "center" }}>
-          <SparklesIcon size={24} style={{ color: "#3b82f6", marginBottom: "1rem" }} />
-          <h2>Preparing Your Practice Session...</h2>
+        <div className="pm-status-banner" role="status">
+          <span className="pm-spinner" aria-hidden="true" />
+          <h2>
+            {startingSession
+              ? "Preparing Your Practice Session..."
+              : sessionId
+                ? "Loading practice session..."
+                : "Loading practice hub..."}
+          </h2>
           <p style={{ color: "#94a3b8" }}>
-            Grounding concepts, progressive hints, and reference answers with AI.
+            Your saved questions and attempts will appear here.
           </p>
         </div>
       </div>
     );
   }
 
-  if (error && !session) {
+  if (error && sessionId && (!session || session.id !== sessionId)) {
     return (
       <div className="practice-page">
-        <div className="pm-card" style={{ padding: "2.5rem", textAlign: "center" }}>
+        <div className="pm-card" role="alert" style={{ padding: "2rem" }}>
           <h2 style={{ color: "#ef4444" }}>Could Not Load Practice</h2>
           <p style={{ color: "#94a3b8", marginBottom: "1.5rem" }}>{error}</p>
+          <button
+            className="btn btn-secondary"
+            onClick={() => void loadSession(sessionId)}
+          >
+            Retry
+          </button>
           <Link to="/practice" className="btn btn-secondary">
             Return to Practice Hub
           </Link>
@@ -347,36 +507,83 @@ export default function PracticeWorkspace() {
 
     return (
       <div className="practice-page">
+        {error && (
+          <div className="pm-alert-error" role="alert">
+            <span>{error}</span>
+            <button
+              className="btn btn-secondary"
+              onClick={() => {
+                if (searchParams.get("topic")) {
+                  startingQuery.current = null;
+                  setQueryAttempt((value) => value + 1);
+                } else void loadHub();
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+        {hubFailures.recommendations && (
+          <p role="status">
+            Recommendations unavailable. You can still choose a topic or resume
+            a session.
+          </p>
+        )}
         {/* Open page header — no card border */}
         <header className="practice-hub-header">
           <div>
             <p className="practice-hub-eyebrow">Guided Learning</p>
             <h1 className="practice-hub-title">Practice Studio</h1>
             <p className="practice-hub-sub">
-              Master interview answers through progressive hints, AI coaching, and targeted gap practice.
+              Master interview answers through progressive hints, AI coaching,
+              and targeted gap practice.
             </p>
           </div>
         </header>
 
         {/* Featured recommendation in warm editorial band */}
         {featuredRec && (
-          <section className="practice-featured-section" aria-label="Recommended for you">
+          <section
+            className="practice-featured-section"
+            aria-label="Recommended for you"
+          >
             <p className="practice-featured-label">Recommended for You</p>
             <div className="practice-featured-topic">
               <div className="practice-featured-main">
                 <div className="practice-featured-badges">
-                  <span className="badge badge-accent" style={{ textTransform: "capitalize" }}>
+                  <span
+                    className="badge badge-accent"
+                    style={{ textTransform: "capitalize" }}
+                  >
                     {featuredRec.interview_type}
                   </span>
-                  <span className={`badge ${featuredRec.priority === "high" ? "badge-danger" : "badge-warning"}`}>
+                  <span
+                    className={`badge ${featuredRec.priority === "high" ? "badge-danger" : "badge-warning"}`}
+                  >
                     {featuredRec.priority} priority
                   </span>
                 </div>
-                <h2 className="practice-featured-topic-name">{featuredRec.topic}</h2>
-                <p className="practice-featured-gap">{featuredRec.observed_gap}</p>
+                <h2 className="practice-featured-topic-name">
+                  {featuredRec.topic}
+                </h2>
+                <p className="practice-featured-gap">
+                  {featuredRec.observed_gap}
+                </p>
                 <button
                   className="btn btn-primary"
-                  onClick={() => handleStartHubSession(featuredRec.topic, featuredRec.interview_type, "medium")}
+                  onClick={() =>
+                    navigate(
+                      practiceLink(
+                        featuredRec.topic,
+                        {
+                          interviewType: featuredRec.interview_type,
+                          reportId: featuredRec.source_report_id,
+                          targetRole: featuredRec.target_role,
+                        },
+                        featuredRec.observed_gap,
+                      ),
+                    )
+                  }
                 >
                   <span>Practice Now</span>
                   <ArrowRightIcon size={14} />
@@ -390,16 +597,35 @@ export default function PracticeWorkspace() {
                 {additionalRecs.map((rec, idx) => (
                   <div key={idx + 1} className="practice-compact-rec-row">
                     <div className="practice-compact-rec-info">
-                      <strong className="practice-compact-rec-topic">{rec.topic}</strong>
-                      <span className="practice-compact-rec-gap">{rec.observed_gap}</span>
+                      <strong className="practice-compact-rec-topic">
+                        {rec.topic}
+                      </strong>
+                      <span className="practice-compact-rec-gap">
+                        {rec.observed_gap}
+                      </span>
                     </div>
                     <div className="practice-compact-rec-actions">
-                      <span className="badge" style={{ textTransform: "capitalize" }}>
+                      <span
+                        className="badge"
+                        style={{ textTransform: "capitalize" }}
+                      >
                         {rec.interview_type}
                       </span>
                       <button
                         className="practice-compact-cta"
-                        onClick={() => handleStartHubSession(rec.topic, rec.interview_type, "medium")}
+                        onClick={() =>
+                          navigate(
+                            practiceLink(
+                              rec.topic,
+                              {
+                                interviewType: rec.interview_type,
+                                reportId: rec.source_report_id,
+                                targetRole: rec.target_role,
+                              },
+                              rec.observed_gap,
+                            ),
+                          )
+                        }
                       >
                         Practice →
                       </button>
@@ -412,26 +638,36 @@ export default function PracticeWorkspace() {
         )}
 
         {/* Start Practice — open form section, not inside a card */}
-        <section className="practice-start-section" aria-label="Start a new practice session">
+        <section
+          className="practice-start-section"
+          aria-label="Start a new practice session"
+        >
           <h2 className="practice-start-heading">Start Targeted Practice</h2>
           <p className="practice-start-sub">
-            Choose any concept or topic to begin self-paced practice with instant AI coaching.
+            Choose any concept or topic to begin self-paced practice with
+            instant AI coaching.
           </p>
           <div className="practice-start-form">
             <div className="practice-start-field practice-start-field--wide">
-              <label className="field-label">Topic / Concept</label>
+              <label htmlFor="practice-topic" className="field-label">
+                Topic / Concept
+              </label>
               <input
                 type="text"
                 className="pm-input"
                 value={hubTopic}
                 onChange={(e) => setHubTopic(e.target.value)}
+                id="practice-topic"
                 placeholder="e.g. SQL Joins, System Design, Conflict Resolution"
               />
             </div>
             <div className="practice-start-field">
-              <label className="field-label">Interview Type</label>
+              <label htmlFor="practice-type" className="field-label">
+                Interview Type
+              </label>
               <select
                 className="pm-select"
+                id="practice-type"
                 value={hubType}
                 onChange={(e) => setHubType(e.target.value as InterviewType)}
               >
@@ -440,11 +676,16 @@ export default function PracticeWorkspace() {
               </select>
             </div>
             <div className="practice-start-field">
-              <label className="field-label">Difficulty</label>
+              <label htmlFor="practice-difficulty" className="field-label">
+                Difficulty
+              </label>
               <select
                 className="pm-select"
+                id="practice-difficulty"
                 value={hubDifficulty}
-                onChange={(e) => setHubDifficulty(e.target.value as PracticeDifficulty)}
+                onChange={(e) =>
+                  setHubDifficulty(e.target.value as PracticeDifficulty)
+                }
               >
                 <option value="easy">Easy</option>
                 <option value="medium">Medium</option>
@@ -452,10 +693,14 @@ export default function PracticeWorkspace() {
               </select>
             </div>
             <div className="practice-start-field practice-start-field--btn">
-              <label className="field-label" style={{ visibility: "hidden" }}>Launch</label>
+              <label className="field-label" style={{ visibility: "hidden" }}>
+                Launch
+              </label>
               <button
                 className="btn btn-primary"
-                onClick={() => handleStartHubSession(hubTopic, hubType, hubDifficulty)}
+                onClick={() =>
+                  handleStartHubSession(hubTopic, hubType, hubDifficulty)
+                }
                 disabled={!hubTopic.trim()}
               >
                 <BookOpenIcon size={16} />
@@ -466,8 +711,17 @@ export default function PracticeWorkspace() {
         </section>
 
         {/* History: plain list section, no card wrapper */}
+        {hubFailures.sessions && (
+          <p role="status">
+            Practice sessions unavailable. Your saved sessions have not been
+            deleted.
+          </p>
+        )}
         {summaries.length > 0 && (
-          <section className="practice-history-section" aria-label="Your practice sessions">
+          <section
+            className="practice-history-section"
+            aria-label="Your practice sessions"
+          >
             <div className="practice-history-head">
               <h2 className="dash-section-heading">Your Sessions</h2>
             </div>
@@ -477,17 +731,26 @@ export default function PracticeWorkspace() {
                   <div className="practice-history-row-info">
                     <div className="practice-history-row-title">
                       <strong>{s.topic}</strong>
-                      <span className="badge badge-neutral" style={{ textTransform: "capitalize" }}>
+                      <span
+                        className="badge badge-neutral"
+                        style={{ textTransform: "capitalize" }}
+                      >
                         {s.interview_type}
                       </span>
                     </div>
                     <p className="practice-history-row-meta">
-                      {s.question_count} {s.question_count === 1 ? "question" : "questions"} ·{" "}
-                      {s.attempt_count} {s.attempt_count === 1 ? "attempt" : "attempts"} · {formatDateTime(s.created_at)}
+                      {s.question_count}{" "}
+                      {s.question_count === 1 ? "question" : "questions"} ·{" "}
+                      {s.attempt_count}{" "}
+                      {s.attempt_count === 1 ? "attempt" : "attempts"} ·{" "}
+                      {formatDateTime(s.created_at)}
                     </p>
                   </div>
                   <div className="practice-history-row-actions">
-                    <Link to={`/practice/${s.id}`} className="btn btn-secondary btn-sm">
+                    <Link
+                      to={`/practice/${s.id}`}
+                      className="btn btn-secondary btn-sm"
+                    >
                       <span>Resume</span>
                       <ArrowRightIcon size={14} />
                     </Link>
@@ -523,333 +786,286 @@ export default function PracticeWorkspace() {
   const assistanceLevel = getAssistanceLevel();
 
   return (
-    <div className="practice-page">
-      {/* Studio Header */}
-      <header className="practice-header">
-        <div>
-          <div className="practice-header-nav">
-            <Link to="/practice" className="practice-back-link">
-              ← Back to Practice Hub
-            </Link>
-            {session?.source_report_id && (
-              <Link
-                to={`/reports/${session.source_report_id}`}
-                className="practice-report-link"
-              >
-                · Return to Report
-              </Link>
-            )}
-          </div>
-          <h1 className="pm-page-title" style={{ fontSize: "1.75rem" }}>{session?.topic}</h1>
-          <div className="practice-badge-group">
-            <span className="badge badge-neutral">
-              {session?.interview_type === "hr" ? <UsersIcon size={13} /> : <CodeIcon size={13} />}
-              <span style={{ textTransform: "capitalize", marginLeft: "4px" }}>
-                {session?.interview_type} Practice
-              </span>
-            </span>
-            <span className="badge badge-neutral">Difficulty: {currentQuestion?.difficulty || "medium"}</span>
-            <span
-              className={`badge ${
-                assistanceLevel === "independent"
-                  ? "badge-independent"
-                  : assistanceLevel === "hint_assisted"
-                    ? "badge-hint-assisted"
-                    : "badge-reference-assisted"
-              }`}
+    <div className="practice-page practice-learning">
+      <header className="learning-header">
+        <nav aria-label="Practice navigation" className="learning-nav">
+          <Link to="/practice" className="practice-back-link">
+            Back to Practice Hub
+          </Link>
+          {session?.source_report_id && (
+            <Link
+              to={
+                returnSessionId
+                  ? `/reports/${encodeURIComponent(returnSessionId)}`
+                  : "/reports"
+              }
+              className="practice-report-link"
             >
-              {assistanceLevel === "independent"
-                ? "Independent Practice"
-                : assistanceLevel === "hint_assisted"
-                  ? "Hint-Assisted"
-                  : "Reference-Assisted"}
-            </span>
+              {returnSessionId ? "Return to Report" : "Interview Reports"}
+            </Link>
+          )}
+        </nav>
+        <div className="learning-title-row">
+          <div>
+            <p className="learning-section-label">Practice workspace</p>
+            <h1>{session?.topic || "Your practice session"}</h1>
+            <p className="learning-caption">
+              {session?.interview_type === "hr"
+                ? "HR / Behavioral"
+                : "Technical"}{" "}
+              / {session?.target_role}
+            </p>
           </div>
-        </div>
-
-        {/* Question Selector if multiple */}
-        {session && session.questions.length > 1 && (
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span style={{ fontSize: "0.825rem", color: "#94a3b8" }}>Questions:</span>
-            {session.questions.map((q, idx) => (
-              <button
-                key={q.id}
-                className={`btn ${idx === activeQuestionIndex ? "btn-primary" : "btn-secondary"}`}
-                style={{ minWidth: "36px", padding: "0.35rem 0.65rem", fontSize: "0.85rem" }}
-                onClick={() => {
-                  setActiveQuestionIndex(idx);
+          {session && session.questions.length > 1 && (
+            <div className="learning-question-picker">
+              <label htmlFor="practice-question-picker">Saved question</label>
+              <select
+                id="practice-question-picker"
+                className="pm-select"
+                value={activeQuestionIndex}
+                disabled={busy}
+                onChange={(e) => {
+                  const index = Number(e.target.value);
+                  if (!confirmDiscardAnswer(dirty)) return;
+                  setActiveQuestionIndex(index);
                   setAnswerText("");
+                  setActionError(null);
                 }}
               >
-                {idx + 1}
-              </button>
-            ))}
-          </div>
-        )}
+                {session.questions.map((q, index) => (
+                  <option key={q.id} value={index}>
+                    Question {index + 1} / {q.difficulty}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
       </header>
-
-      {/* Main Studio Grid */}
-      <div className="practice-grid">
-        {/* Question & Clues Panel */}
-        <section className="practice-question-card">
-          <div className="practice-question-head">
-            <span className="badge badge-neutral">
-              Question {activeQuestionIndex + 1} of {session?.questions.length || 1}
-            </span>
-            <span style={{ fontSize: "0.825rem", color: "#64748b" }}>
-              {attempts.length} {attempts.length === 1 ? "attempt submitted" : "attempts submitted"}
-            </span>
+      {actionError && (
+        <div className="pm-alert-error" role="alert">
+          <div>
+            <strong>That action could not be completed.</strong>
+            <p>{actionError}</p>
+            <p>Your answer is still here. Use the same action to retry.</p>
           </div>
-
-          <h2 className="practice-question-text">{currentQuestion?.question_text}</h2>
-
-          {session?.weakness_context && (
-            <div className="practice-weakness-note">
-              <strong>Targeting Growth Area:</strong> {session.weakness_context}
-            </div>
-          )}
-
-          {/* Help & Clues Toolbar */}
-          <div className="practice-help-toolbar">
-            <button
-              className="btn btn-secondary"
-              onClick={handleRevealNextHint}
-              disabled={revealingHint || (currentQuestion?.hints_revealed?.length ?? 0) >= 2}
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => setActionError(null)}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+      {!currentQuestion ? (
+        <section className="learning-empty">
+          <h2>No questions in this session yet</h2>
+          <p>Generate a question to begin. Your session is saved.</p>
+          <button
+            type="button"
+            className="btn btn-primary"
+            disabled={busy}
+            onClick={handleGenerateSimilar}
+          >
+            {generatingSimilar
+              ? "Generating question..."
+              : "Generate a question"}
+          </button>
+        </section>
+      ) : (
+        <div className="learning-grid">
+          <div className="learning-main">
+            <section
+              className="learning-question"
+              aria-labelledby="practice-question-title"
             >
-              <LightbulbIcon size={15} style={{ color: "#eab308" }} />
-              <span>
-                {(currentQuestion?.hints_revealed?.length ?? 0) === 0
-                  ? "Get Hint 1 (Direction)"
-                  : (currentQuestion?.hints_revealed?.length ?? 0) === 1
-                    ? "Get Hint 2 (Structure)"
-                    : "All Hints Revealed"}
-              </span>
-            </button>
-
-            {!currentQuestion?.reference_revealed && (
-              <button
-                className="btn btn-secondary"
-                onClick={() => setShowRefConfirm(true)}
-                disabled={revealingRef}
-              >
-                <BookOpenIcon size={15} style={{ color: "#3b82f6" }} />
-                <span>Show Reference Answer</span>
-              </button>
-            )}
-          </div>
-
-          {/* Revealed Hints */}
-          {currentQuestion && currentQuestion.hints_revealed?.length > 0 && (
-            <div className="practice-hints-container">
-              {currentQuestion.hints_revealed.map((lvl) => (
-                <div key={lvl} className="hint-card">
-                  <div className="hint-card-title">
-                    <LightbulbIcon size={13} />
-                    <span>Hint {lvl} {lvl === 1 ? "· Directional Clue" : "· Answer Framework"}</span>
-                  </div>
-                  <p className="hint-card-text">{currentQuestion.revealed_hints[String(lvl)]}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Revealed Reference Answer */}
-          {currentQuestion?.reference_revealed && (
-            <div className="reference-card">
-              <div className="reference-card-title">
-                <BookOpenIcon size={14} />
+              <div className="learning-question-meta">
+                <span className="learning-section-label">
+                  01 / Question {activeQuestionIndex + 1}
+                </span>
                 <span>
-                  {session?.interview_type === "hr"
-                    ? "Example of a Strong Response (Assisted)"
-                    : "Complete Reference Answer (Assisted)"}
+                  {currentQuestion.difficulty} / {attempts.length}{" "}
+                  {attempts.length === 1 ? "attempt" : "attempts"}
                 </span>
               </div>
-              <p className="reference-card-body">{currentQuestion.reference_answer}</p>
-              {currentQuestion.reference_explanation && (
-                <p className="reference-card-explanation">{currentQuestion.reference_explanation}</p>
-              )}
-              <div className="reference-warning-alert">
-                Learning Note: You viewed the reference answer. Submissions for this question are recorded as assisted practice to help you learn formulation in your own words.
-              </div>
-            </div>
-          )}
-        </section>
-
-        {/* Answer Submission Workspace */}
-        <section className="practice-answer-section">
-          <div className="practice-textarea-wrap">
-            <textarea
-              className="practice-textarea"
-              placeholder="Formulate your interview answer here in your own words. Take your time to structure your explanation clearly..."
-              value={answerText}
-              onChange={(e) => setAnswerText(e.target.value)}
-              disabled={submitting}
-              rows={8}
-            />
-            <div className="practice-editor-meta">
-              <span>{answerText.length} characters</span>
-              <span>{answerText.trim().split(/\s+/).filter(Boolean).length} words</span>
-            </div>
-          </div>
-
-          <div className="practice-action-row">
-            {latestAttempt && !answerText && (
-              <button
-                className="btn btn-secondary"
-                onClick={() => setAnswerText(latestAttempt.answer_text)}
+              <h2
+                id="practice-question-title"
+                className="practice-question-text"
               >
-                <RotateCcwIcon size={14} />
-                <span>Reload Last Attempt</span>
-              </button>
-            )}
-
-            <button
-              className="btn btn-primary"
-              onClick={handleSubmitAnswer}
-              disabled={!answerText.trim() || submitting}
-            >
-              <SparklesIcon size={15} />
-              <span>{submitting ? "Analyzing with AI Coach..." : "Submit for AI Coaching"}</span>
-            </button>
-          </div>
-        </section>
-
-        {/* AI Answer Coach Feedback Panel (when attempt submitted) */}
-        {latestAttempt && (
-          <section className="coach-panel">
-            <div className="coach-header">
-              <div className="coach-title">
-                <SparklesIcon size={18} style={{ color: "#3b82f6" }} />
-                <span>AI Answer Coach Feedback · Attempt #{latestAttempt.attempt_number}</span>
-              </div>
-              <span className={`badge ${
-                latestAttempt.assistance_level === "independent"
-                  ? "badge-independent"
-                  : latestAttempt.assistance_level === "hint_assisted"
-                    ? "badge-hint-assisted"
-                    : "badge-reference-assisted"
-              }`}>
-                {latestAttempt.assistance_level === "independent"
-                  ? "Independent Attempt"
-                  : latestAttempt.assistance_level === "hint_assisted"
-                    ? "Hint-Assisted"
-                    : "Reference-Assisted"}
-              </span>
-            </div>
-
-            {/* Comparison with previous attempt if retry */}
-            {latestAttempt.feedback.improvements_from_previous &&
-              latestAttempt.feedback.improvements_from_previous.length > 0 && (
-                <div className="coach-comparison-banner">
-                  <span className="coach-comparison-title">What Improved Since Your Last Attempt:</span>
-                  <ul className="coach-list">
-                    {latestAttempt.feedback.improvements_from_previous.map((imp, idx) => (
-                      <li key={idx} style={{ color: "#22c55e" }}>{imp}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-            {/* What you got right & what was missing */}
-            <div className="coach-two-col">
-              <div className="coach-card coach-card-good">
-                <h3 className="coach-card-title">What You Got Right</h3>
-                {latestAttempt.feedback.correct_points.length > 0 ? (
-                  <ul className="coach-list">
-                    {latestAttempt.feedback.correct_points.map((pt, idx) => (
-                      <li key={idx}>{pt}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p style={{ fontSize: "0.85rem", color: "#94a3b8", margin: 0 }}>
-                    Keep developing your response to articulate core fundamentals.
-                  </p>
-                )}
-              </div>
-
-              <div className="coach-card coach-card-missing">
-                <h3 className="coach-card-title">What Was Missing</h3>
-                {latestAttempt.feedback.missing_points.length > 0 ? (
-                  <ul className="coach-list">
-                    {latestAttempt.feedback.missing_points.map((pt, idx) => (
-                      <li key={idx}>{pt}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p style={{ fontSize: "0.85rem", color: "#94a3b8", margin: 0 }}>
-                    Strong coverage of key concepts without major omissions.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Suggested Structure */}
-            {latestAttempt.feedback.suggested_structure.length > 0 && (
-              <div className="coach-card coach-card-structure">
-                <h3 className="coach-card-title">Recommended Answer Structure</h3>
-                <ul className="coach-list">
-                  {latestAttempt.feedback.suggested_structure.map((step, idx) => (
-                    <li key={idx}>{step}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Improved Example Answer */}
-            {latestAttempt.feedback.improved_example_answer && (
-              <div className="coach-example-card">
-                <span className="coach-example-label">
-                  Polished Example Answer (AI Benchmark)
-                </span>
-                <p className="coach-example-text">
-                  {latestAttempt.feedback.improved_example_answer}
+                {currentQuestion.question_text}
+              </h2>
+              {session?.weakness_context && (
+                <p className="learning-growth">
+                  <strong>Practice focus:</strong> {session.weakness_context}
                 </p>
-              </div>
-            )}
-
-            {/* Next Action & Refinement CTA */}
-            {latestAttempt.feedback.next_action && (
-              <div className="coach-next-action-card">
-                <div>
-                  <span className="coach-next-action-label">
-                    Recommended Next Step
-                  </span>
-                  <p className="coach-next-action-text">
-                    {latestAttempt.feedback.next_action}
-                  </p>
-                </div>
-                <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+              )}
+              <details className="learning-help">
+                <summary>Need a starting point? Hints & example</summary>
+                <p className="learning-caption">
+                  Hints and examples are recorded as assistance for this
+                  question, including later attempts.
+                </p>
+                <div className="learning-help-actions">
                   <button
+                    type="button"
                     className="btn btn-secondary"
-                    onClick={() => {
-                      setAnswerText("");
-                      window.scrollTo({ top: 300, behavior: "smooth" });
-                    }}
+                    onClick={handleRevealNextHint}
+                    disabled={
+                      busy || (currentQuestion.hints_revealed?.length ?? 0) >= 2
+                    }
                   >
-                    <RotateCcwIcon size={14} />
-                    <span>Improve My Answer</span>
+                    {revealingHint
+                      ? "Loading hint..."
+                      : (currentQuestion.hints_revealed?.length ?? 0) === 0
+                        ? "Get Hint 1 (Direction)"
+                        : currentQuestion.hints_revealed.length === 1
+                          ? "Get Hint 2 (Structure)"
+                          : "All hints revealed"}
                   </button>
-
-                  <button
-                    className="btn btn-primary"
-                    onClick={handleGenerateSimilar}
-                    disabled={generatingSimilar}
-                  >
-                    <span>{generatingSimilar ? "Generating..." : "Try a Similar Question"}</span>
-                    <ArrowRightIcon size={14} />
-                  </button>
+                  {!currentQuestion.reference_revealed && (
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setShowRefConfirm(true)}
+                      disabled={busy}
+                    >
+                      {revealingRef
+                        ? "Loading example..."
+                        : "Show Reference Answer"}
+                    </button>
+                  )}
                 </div>
+                {currentQuestion.hints_revealed?.map((level) => (
+                  <section key={level} className="learning-hint">
+                    <h3>
+                      Hint {level} / {level === 1 ? "Direction" : "Structure"}
+                    </h3>
+                    <p>{currentQuestion.revealed_hints[String(level)]}</p>
+                  </section>
+                ))}
+                {currentQuestion.reference_revealed && (
+                  <section className="learning-hint">
+                    <h3>AI-generated example / Reference-assisted</h3>
+                    <p className="learning-caption">
+                      One possible response, not an authoritative benchmark.
+                      Verify claims and adapt it to your experience.
+                    </p>
+                    <p className="learning-example">
+                      {currentQuestion.reference_answer}
+                    </p>
+                    {currentQuestion.reference_explanation && (
+                      <p>{currentQuestion.reference_explanation}</p>
+                    )}
+                    <p className="learning-caption">
+                      Future submissions for this question are recorded as
+                      reference-assisted.
+                    </p>
+                  </section>
+                )}
+              </details>
+            </section>
+            <form
+              className="learning-editor"
+              aria-busy={submitting}
+              onSubmit={(event) => {
+                event.preventDefault();
+                void handleSubmitAnswer();
+              }}
+            >
+              <div className="learning-section-label">
+                02 / {latestAttempt ? "Improved attempt" : "Your answer"}
               </div>
-            )}
-          </section>
-        )}
-      </div>
-
-      {/* Confirmation Dialog before revealing reference answer */}
+              <div className="learning-editor-heading">
+                <label htmlFor="practice-answer">
+                  {latestAttempt
+                    ? "Refine your response"
+                    : "Build your response"}
+                </label>
+                <span className="learning-assistance">
+                  {assistanceLevel === "independent"
+                    ? "Independent practice"
+                    : assistanceLevel === "hint_assisted"
+                      ? "Hint-assisted"
+                      : "Reference-assisted"}
+                </span>
+              </div>
+              <textarea
+                ref={answerRef}
+                id="practice-answer"
+                aria-label="Your practice answer"
+                aria-describedby="practice-draft-note"
+                className="practice-textarea"
+                placeholder="Explain your approach in your own words. Include a concrete example."
+                value={answerText}
+                onChange={(e) => setAnswerText(e.target.value)}
+                disabled={busy}
+                rows={9}
+              />
+              <div className="practice-editor-meta">
+                <span>
+                  {answerText.trim().split(/\s+/).filter(Boolean).length} words
+                </span>
+                <span>Attempt {attempts.length + 1}</span>
+              </div>
+              <p id="practice-draft-note" className="learning-caption">
+                Unsubmitted edits are temporary. Submitted attempts are saved to
+                this session.
+              </p>
+              <div className="learning-editor-actions">
+                {latestAttempt && !answerText && (
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    disabled={busy}
+                    onClick={improveAnswer}
+                  >
+                    Use last attempt
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={!answerText.trim() || busy}
+                >
+                  {submitting
+                    ? "Getting coaching..."
+                    : latestAttempt
+                      ? "Submit improved attempt"
+                      : "Submit for coaching"}
+                </button>
+              </div>
+            </form>
+          </div>
+          {latestAttempt ? (
+            <PracticeCoaching
+              attempt={latestAttempt}
+              previous={attempts[attempts.length - 2]}
+              onImprove={improveAnswer}
+              onNext={() => void handleGenerateSimilar()}
+              busy={busy}
+              generating={generatingSimilar}
+            />
+          ) : (
+            <aside className="learning-coach learning-coach-empty">
+              <div className="learning-section-label">03 / Coaching</div>
+              <h2>Make the first attempt yours</h2>
+              <p>
+                Submit an answer to see what worked, what to strengthen, and a
+                focused next step.
+              </p>
+              <p className="learning-caption">
+                You can revise the same answer after coaching. Hints are
+                available when you need a starting point.
+              </p>
+            </aside>
+          )}
+        </div>
+      )}
       <ConfirmDialog
         open={showRefConfirm}
         title="Reveal Reference Answer?"
-        description="Viewing the reference answer is great for assisted learning, but it marks your practice session as 'Reference-Assisted'. You can still submit and refine your answer to test your formulation."
+        description="Viewing this AI-generated example marks future attempts on this question as reference-assisted. It is one possible approach, not an authoritative answer. Use it to learn, then explain in your own words."
         confirmLabel="Reveal Answer"
         busy={revealingRef}
         onConfirm={handleConfirmRevealRef}

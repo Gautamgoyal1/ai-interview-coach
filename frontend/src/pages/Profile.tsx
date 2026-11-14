@@ -297,7 +297,7 @@ export default function Profile() {
             <div className="profile-form-group">
               <label htmlFor="email" className="profile-label">
                 <span>Email Address</span>
-                <span className="badge badge-success">Verified</span>
+                <span className="badge badge-neutral">Account email</span>
               </label>
               <div className="profile-input-wrapper">
                 <span className="profile-input-icon">

@@ -12,11 +12,11 @@ interface ResumeReportProps {
   statusLabel?: string;
 }
 
-type SkillFilter = "all" | "demonstrated" | "mentioned" | "missing";
+type SkillFilter = "all" | "demonstrated" | "mentioned" | "missing" | "unknown";
 
 interface SkillEntry {
   name: string;
-  category: "demonstrated" | "mentioned" | "missing";
+  category: "demonstrated" | "mentioned" | "missing" | "unknown";
   isMatched: boolean;
 }
 
@@ -57,7 +57,7 @@ export default function ResumeReport({
       }
       return {
         name,
-        category: matchedSet.has(name) ? "demonstrated" : "mentioned",
+        category: "unknown",
         isMatched: matchedSet.has(name),
       };
     });
@@ -66,6 +66,7 @@ export default function ResumeReport({
   const counts = useMemo(() => {
     return {
       all: skillEntries.length,
+      unknown: skillEntries.filter((s) => s.category === "unknown").length,
       demonstrated: skillEntries.filter((s) => s.category === "demonstrated").length,
       mentioned: skillEntries.filter((s) => s.category === "mentioned").length,
       missing: skillEntries.filter((s) => s.category === "missing").length,
@@ -185,6 +186,7 @@ export default function ResumeReport({
               ["demonstrated", `Demonstrated (${counts.demonstrated})`],
               ["mentioned", `Mentioned (${counts.mentioned})`],
               ["missing", `Missing (${counts.missing})`],
+              ["unknown", `Evidence unavailable (${counts.unknown})`],
             ] as const
           ).map(([key, label]) => (
             <button
@@ -240,11 +242,13 @@ export default function ResumeReport({
                   ? "Demonstrated in resume"
                   : selectedEntry.category === "missing"
                     ? "Missing from resume"
-                    : "Mentioned only"}
+                    : selectedEntry.category === "unknown" ? "Evidence unavailable" : "Mentioned only"}
               </span>
             </div>
             <p>
-              {selectedEntry.category === "demonstrated"
+              {selectedEntry.category === "unknown"
+                ? `Evidence classification is unavailable for ${selectedEntry.name}. A skill match alone does not establish practical experience.`
+                : selectedEntry.category === "demonstrated"
                 ? `Your resume shows practical context for ${selectedEntry.name}${
                     selectedEntry.isMatched ? ` aligned with ${result.job_role}.` : "."
                   } Be ready to walk through a concrete project or trade-off using it.`
@@ -257,6 +261,7 @@ export default function ResumeReport({
       </article>
 
       {/* Section 3 — Priority Improvements & Strengths */}
+      <p className="result-empty">Improvement checkmarks are temporary and reset when you leave this page.</p>
       <div className="result-grid">
         <article className="pm-card result-card">
           <div className="result-card-heading">

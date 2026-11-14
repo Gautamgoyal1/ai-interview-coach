@@ -499,6 +499,7 @@ export default function Report() {
           report.rubric_version?.includes("hr") ||
           "reasoning_critical_thinking" in report.dimension_scores;
         const activeDimensions = isHR ? HR_DIMENSIONS : TECHNICAL_DIMENSIONS;
+        const origin = { interviewType: isHR ? "hr" as const : "technical" as const, reportId: report.id, reportSessionId: report.session_id, targetRole: report.target_role };
 
         return (
         <div className="report-sections">
@@ -559,7 +560,8 @@ export default function Report() {
                   ? report.overall_score.toFixed(1)
                   : "N/A"}
               </strong>
-              <span className="report-overall-denom">out of 100</span>
+              <span className="report-overall-denom">{report.overall_score === null ? "Score unavailable" : "out of 100"}</span>
+              <span className="report-overall-denom">{report.evaluation_coverage.evaluated_count} of {report.evaluation_coverage.total_answered} answers graded{report.evaluation_coverage.is_partial ? " · Partial coverage" : ""}</span>
             </div>
           </header>
 
@@ -607,7 +609,7 @@ export default function Report() {
                     <p>
                       Average score{" "}
                       <span className="tabular-nums">
-                        {strongest.score?.toFixed(2)} / 5
+                        {strongest.score?.toFixed(1)}%
                       </span>{" "}
                       across {strongest.questions_asked} question(s).
                     </p>
@@ -673,15 +675,16 @@ export default function Report() {
             </div>
           </section>
 
-          <TopicScores topics={report.topic_scores} />
+          <TopicScores topics={report.topic_scores} origin={origin} />
 
           <MissedPoints
+            origin={origin}
             strengths={report.strengths}
             weaknesses={report.weaknesses}
             missingConcepts={report.missing_concepts}
           />
 
-          <PracticePlan recommendations={report.recommendations} />
+          <PracticePlan recommendations={report.recommendations} origin={origin} />
 
           <ModelAnswer items={report.question_feedback} />
         </div>

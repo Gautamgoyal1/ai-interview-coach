@@ -1,5 +1,6 @@
-import { useEffect, useId, useRef } from "react";
+import { useId, useRef } from "react";
 import "./OverlayControls.css";
+import { useModalFocus } from "../hooks/useModalFocus";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -35,19 +36,9 @@ export default function ConfirmDialog({
   const titleId = useId();
   const descId = useId();
   const cancelBtnRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  useModalFocus(open, dialogRef, () => { if (!busy) onCancel(); });
 
-  useEffect(() => {
-    if (!open) return;
-    cancelBtnRef.current?.focus();
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape" && !busy) {
-        onCancel();
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, busy, onCancel]);
 
   if (!open) return null;
 
@@ -63,6 +54,8 @@ export default function ConfirmDialog({
     >
       <div
         className="pm-dialog"
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -98,6 +91,7 @@ export default function ConfirmDialog({
         <div className="pm-dialog-actions">
           <button
             ref={cancelBtnRef}
+            data-modal-initial-focus
             type="button"
             className="btn btn-secondary"
             onClick={onCancel}

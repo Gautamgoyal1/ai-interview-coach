@@ -131,6 +131,19 @@ def _clean_state_for_storage(state: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _evaluation_for_turn(state: dict[str, Any], question_id: str) -> dict[str, Any]:
+    """Read the submitted turn's grade, independently of graph advancement.
+
+    Question generation resets current_evaluation. The append-only evaluation
+    history retains both primary and follow-up grades with their question IDs.
+    Never substitute another question's grade or invent a score if it is absent.
+    """
+    for entry in reversed(state.get("evaluation_history") or []):
+        if entry.get("question_id") == question_id:
+            return {key: value for key, value in entry.items() if key not in {"question_id", "topic"}}
+    return {"grading_status": "unavailable", "overall_score": None}
+
+
 class InterviewService:
     """Coordinates LangGraph workflow execution with database persistence."""
 
@@ -386,7 +399,7 @@ class InterviewService:
             db=db,
             turn=turn,
             answer_text=cleaned_answer,
-            evaluation=updated_state.get("current_evaluation"),
+            evaluation=_evaluation_for_turn(updated_state, request.question_id),
         )
 
         next_question = updated_state.get("current_question")
