@@ -89,6 +89,7 @@ export default function PracticeWorkspace() {
       setError(err instanceof Error ? err.message : "Failed to load practice session.");
     } finally {
       setLoading(false);
+      setStartingSession(false);
     }
   }, [handleUnauthorized]);
 
@@ -123,6 +124,7 @@ export default function PracticeWorkspace() {
 
       async function initFromQuery() {
         setStartingSession(true);
+        setError(null);
         try {
           const newSession = await createPracticeSession({
             topic: qTopic!,
@@ -131,6 +133,10 @@ export default function PracticeWorkspace() {
             source_report_id: qReportId,
             difficulty: "medium",
           });
+          setSession(newSession);
+          setActiveQuestionIndex((newSession.questions?.length ?? 1) - 1);
+          setStartingSession(false);
+          setLoading(false);
           navigate(`/practice/${newSession.id}`, { replace: true });
         } catch (err) {
           setError(err instanceof Error ? err.message : "Could not initialize practice session.");
@@ -142,11 +148,17 @@ export default function PracticeWorkspace() {
     }
 
     if (sessionId) {
+      if (session?.id === sessionId && (session.questions?.length ?? 0) > 0) {
+        setLoading(false);
+        setStartingSession(false);
+        return;
+      }
       void loadSession(sessionId);
     } else {
+      setSession(null);
       void loadHub();
     }
-  }, [sessionId, searchParams, loadSession, loadHub, navigate]);
+  }, [sessionId, searchParams, loadSession, loadHub, navigate, session?.id, session?.questions?.length]);
 
   // Active question & attempt
   const currentQuestion: PracticeQuestion | undefined = session?.questions?.[activeQuestionIndex];
@@ -264,12 +276,17 @@ export default function PracticeWorkspace() {
   // Start new session from Hub
   async function handleStartHubSession(topic: string, type: InterviewType, diff: PracticeDifficulty) {
     setStartingSession(true);
+    setError(null);
     try {
       const newSession = await createPracticeSession({
         topic,
         interview_type: type,
         difficulty: diff,
       });
+      setSession(newSession);
+      setActiveQuestionIndex((newSession.questions?.length ?? 1) - 1);
+      setStartingSession(false);
+      setLoading(false);
       navigate(`/practice/${newSession.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create practice session.");
