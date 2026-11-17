@@ -26,6 +26,9 @@ class InterviewQuestion(BaseModel):
         "conceptual"
     )
     is_follow_up: bool = False
+    # Durable coverage is stored in existing private graph fingerprints, never
+    # in the candidate question object or API schema.
+    reasoning_family: str | None = Field(default=None, exclude=True)
 
 
 class AnswerEvaluation(BaseModel):
@@ -105,6 +108,7 @@ class InterviewSessionResponse(BaseModel):
     follow_up_count: int
     max_follow_ups: int
     current_question: PublicInterviewQuestion | None = None
+    generation_unavailable: bool = False
     conversation_history: list[PublicConversationTurn] = Field(
         default_factory=list
     )

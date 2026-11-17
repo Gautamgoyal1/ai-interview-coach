@@ -1,4 +1,3 @@
-
 {
   "machine learning engineer": [
     "python",
@@ -30,5 +29,72 @@
     "python",
     "sql",
     "docker"
+  ],
+  "software engineer": [
+    "data structures",
+    "algorithms",
+    "object-oriented programming",
+    "git",
+    "sql",
+    "testing",
+    "debugging"
+  ],
+  "frontend developer": [
+    "html",
+    "css",
+    "javascript",
+    "http",
+    "git",
+    "testing",
+    "accessibility"
+  ],
+  "backend developer": [
+    "sql",
+    "http",
+    "rest apis",
+    "git",
+    "testing",
+    "debugging",
+    "security fundamentals"
+  ],
+  "full stack developer": [
+    "html",
+    "css",
+    "javascript",
+    "http",
+    "rest apis",
+    "sql",
+    "git",
+    "testing"
+  ],
+  "data analyst": [
+    "sql",
+    "statistics",
+    "data visualization",
+    "spreadsheets",
+    "data cleaning"
+  ],
+  "devops engineer": [
+    "linux",
+    "networking",
+    "git",
+    "ci/cd",
+    "docker",
+    "cloud platforms",
+    "observability"
+  ],
+  "cybersecurity analyst": [
+    "networking",
+    "linux",
+    "security fundamentals",
+    "incident response",
+    "log analysis"
+  ],
+  "qa engineer": [
+    "testing",
+    "test design",
+    "git",
+    "debugging",
+    "http"
   ]
 }

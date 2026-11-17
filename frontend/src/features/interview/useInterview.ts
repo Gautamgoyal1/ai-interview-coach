@@ -5,6 +5,7 @@ import {
   getInterviewSession,
   startInterview,
   submitInterviewAnswer,
+  retryInterviewQuestion,
 } from "../../services/interview.service";
 import type {
   ExperienceLevel,
@@ -121,6 +122,18 @@ export function useInterview() {
         return updated;
       } catch (err) {
         handleError(err, "Failed to submit your answer. Please try again.");
+        if (err instanceof ApiError && err.status === 503) {
+          // A completed grade may already be saved. Refresh the public recovery
+          // flag rather than inviting a duplicate answer submission.
+          try {
+            const saved = await getInterviewSession(sessionId);
+            if (saved.generation_unavailable) setSession(saved);
+          } catch (refreshError) {
+            if (refreshError instanceof ApiError && refreshError.status === 401) {
+              handleError(refreshError, "Please sign in again.");
+            }
+          }
+        }
         return null;
       } finally {
         setSubmitting(false);
@@ -153,6 +166,24 @@ export function useInterview() {
     [handleError],
   );
 
+  const retryQuestion = useCallback(async (sessionId: string): Promise<InterviewSession | null> => {
+    if (inFlightRef.current) return null;
+    inFlightRef.current = true;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const updated = await retryInterviewQuestion(sessionId);
+      setSession(updated);
+      return updated;
+    } catch (err) {
+      handleError(err, "The next question is still unavailable. Your answer is saved.");
+      return null;
+    } finally {
+      setSubmitting(false);
+      inFlightRef.current = false;
+    }
+  }, [handleError]);
+
   return {
     session,
     loading,
@@ -164,5 +195,6 @@ export function useInterview() {
     loadSession,
     submitAnswer,
     finishSession,
+    retryQuestion,
   };
 }

@@ -7,6 +7,7 @@ from pydantic import ValidationError
 
 from app.integrations.llm.base import LLMError
 from app.integrations.llm.factory import get_llm_provider
+from app.modules.resume.catalog import canonical_role_name
 from app.modules.resume.evidence import classify_skills_evidence
 from app.modules.resume.feedback_evaluator import evaluate_feedback
 from app.modules.resume.parser import extract_resume_text
@@ -57,9 +58,7 @@ class ResumeAnalysisService:
             )
         else:
             role_skills = load_role_skills()
-            required_skills = role_skills.get(
-                request.job_role.strip().lower()
-            )
+            required_skills = role_skills.get(canonical_role_name(request.job_role))
 
             if required_skills is None:
                 raise ResumeAnalysisError(
@@ -126,12 +125,8 @@ class ResumeAnalysisService:
                 "missing_skills": match["missing_skills"],
                 "match_score": match["match_score"],
                 "strengths": feedback["strengths"],
-                "improvement_suggestions": feedback[
-                    "improvement_suggestions"
-                ],
-                "likely_interview_questions": feedback[
-                    "likely_interview_questions"
-                ],
+                "improvement_suggestions": feedback["improvement_suggestions"],
+                "likely_interview_questions": feedback["likely_interview_questions"],
             }
 
             result = ResumeAnalysisResult.model_validate(result_data)
@@ -168,9 +163,7 @@ class ResumeAnalysisService:
             {
                 "strengths": result.strengths,
                 "improvement_suggestions": result.improvement_suggestions,
-                "likely_interview_questions": (
-                    result.likely_interview_questions
-                ),
+                "likely_interview_questions": (result.likely_interview_questions),
             },
             quality_expectations,
         )
@@ -182,8 +175,7 @@ class ResumeAnalysisService:
                 quality_report["issues"],
             )
             raise ResumeAnalysisError(
-                "The AI returned feedback that failed quality checks. "
-                "Please retry."
+                "The AI returned feedback that failed quality checks. " "Please retry."
             )
 
         # Record other quality warnings without automatically rejecting

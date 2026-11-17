@@ -88,6 +88,16 @@ async def end_interview_session(
     )
 
 
+@router.post("/{session_id}/retry-question", response_model=InterviewSessionResponse)
+async def retry_question(
+    session_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> InterviewSessionResponse:
+    """Resume pending generation without resubmitting or regrading an answer."""
+    return await service.retry_question(db, current_user.id, session_id)
+
+
 @router.delete("/{session_id}")
 async def delete_interview_session(
     session_id: str,

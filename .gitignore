@@ -1,28 +1,78 @@
-
-# Secrets and local files
+# Local configuration and credentials. Templates are intentionally public.
 .env
-*.env.local
-storage/*
-!storage/.gitkeep
+.env.*
+*.env
+*.env.*
+!.env.example
+!*.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account*.json
 
-# Python
+# Runtime/private storage and reviewed local experiment output.
+# Do not ignore storage wholesale: source/fixtures require deliberate review.
+/storage/uploads/
+/storage/resumes/
+/storage/candidate-data/
+/storage/backups/
+/storage/phase6/
+/storage/phase6b/*
+!/storage/phase6b/README.md
+!/storage/phase6b/rollout_b_checks.py
+/storage/phase7/
+/storage/phase71/
+/storage/phase72/
+/storage/practical-interviews/
+/storage/ui-phase1/
+/storage/ui-phase2/
+/storage/ui-phase3/
+/storage/ui-ux-audit/
+/storage/voice-acceptance/
+/storage/voice-release-regression/
+/storage/repository-sync/
+# Session-specific assistant authorization is not a product contribution policy.
+/docs/development-testing-policy.md
+
+# Python environments, bytecode and test output.
 __pycache__/
 *.py[cod]
 .venv/
 venv/
+env/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 .coverage
+.coverage.*
 htmlcov/
+coverage.xml
+*.egg-info/
 
-# Node.js / frontend
+# Frontend dependencies and generated bundles.
 node_modules/
 dist/
+coverage/
+*.tsbuildinfo
 
-# OS / editor
-.DS_Store
-.idea/
-.vscode/
+# Local databases, backups and logs; SQL source/fixtures remain trackable.
+*.dump
+*.backup
+*.bak
+*.sqlite
+*.sqlite3
+*.db
+*.log
+/storage/*.sql
 
-# Generated resume evaluation artifacts
+# Generated resume evaluation output, not the synthetic benchmark fixtures.
 /backend/eval_results/
 /backend/tests/fixtures/sample_resume.pdf
+
+# OS/editor files.
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

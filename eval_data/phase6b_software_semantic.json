@@ -1,0 +1,694 @@
+{
+  "schema_version": 1,
+  "benchmark_version": "1.0",
+  "authorship": "Author-curated realistic paraphrases; not an independent human holdout. Gold judgments are frozen before any provider call.",
+  "criteria": {
+    "positive_hit_at_1_min": 0.8,
+    "positive_hit_at_3_min": 0.9,
+    "mrr_min": 0.85,
+    "ndcg_at_3_min": 0.8,
+    "min_primary_hits_per_family": 2,
+    "runtime_role_violations_max": 0,
+    "runtime_difficulty_violations_max": 0,
+    "runtime_negative_abstentions_required": 2,
+    "candidate_count_per_positive_semantic_query": 10,
+    "note": "Primary semantic arm omits SQL topic filters and gold topic names from embedding queries. Exact topic gates are a separate functional check. No similarity threshold is tuned on this set."
+  },
+  "cases": [
+    {
+      "id": "ds-easy",
+      "role": "Software Developer",
+      "interview_type": "technical",
+      "experience_level": "fresher",
+      "difficulty": "easy",
+      "topic_display": "Arrays & Linked Lists",
+      "query": "An incoming list contains many repeated order IDs. I only need to ask whether an ID has appeared before. Which container properties should drive my choice?",
+      "primary_family": "swe.data_structures",
+      "secondary_families": [
+        "swe.algorithms"
+      ],
+      "required_support": [
+        "membership semantics",
+        "expected lookup cost",
+        "ordering"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "27": 3
+      }
+    },
+    {
+      "id": "ds-medium",
+      "role": "SWE",
+      "interview_type": "technical",
+      "experience_level": "intermediate",
+      "difficulty": "medium",
+      "topic_display": "Arrays & Linked Lists",
+      "query": "A CSV import repeats a customer ID with different values. Keep the earliest record without rearranging the file. Explain the algorithm and failure cases.",
+      "primary_family": "swe.data_structures",
+      "secondary_families": [
+        "swe.algorithms"
+      ],
+      "required_support": [
+        "identity key",
+        "first occurrence",
+        "extra memory"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "27": 2,
+        "29": 1
+      }
+    },
+    {
+      "id": "ds-hard",
+      "role": "Software Engineer",
+      "interview_type": "technical",
+      "experience_level": "experienced",
+      "difficulty": "hard",
+      "topic_display": "Arrays & Linked Lists",
+      "query": "Events can be replayed for seven days and the identifier set cannot fit in RAM. What state would you retain, and what guarantee expires with it?",
+      "primary_family": "swe.data_structures",
+      "secondary_families": [
+        "swe.algorithms"
+      ],
+      "required_support": [
+        "durable deduplication",
+        "retention window",
+        "recovery"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "29": 1
+      }
+    },
+    {
+      "id": "algo-easy",
+      "role": "Software Developer",
+      "interview_type": "technical",
+      "experience_level": "fresher",
+      "difficulty": "easy",
+      "topic_display": "Time Complexity",
+      "query": "A lookup repeatedly discards half the remaining entries. What has to be true of the input, and why must the remaining interval shrink?",
+      "primary_family": "swe.algorithms",
+      "secondary_families": [
+        "swe.data_structures"
+      ],
+      "required_support": [
+        "sorted input",
+        "comparison order",
+        "progress invariant"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {}
+    },
+    {
+      "id": "algo-medium",
+      "role": "SWE",
+      "interview_type": "technical",
+      "experience_level": "intermediate",
+      "difficulty": "medium",
+      "topic_display": "Time Complexity",
+      "query": "A two-element search sometimes hangs because the lower boundary never changes. Walk through a minimal failing case and a correction.",
+      "primary_family": "swe.algorithms",
+      "secondary_families": [
+        "swe.data_structures"
+      ],
+      "required_support": [
+        "boundary convention",
+        "midpoint progress",
+        "duplicate cases"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {}
+    },
+    {
+      "id": "algo-hard",
+      "role": "Software Engineer",
+      "interview_type": "technical",
+      "experience_level": "experienced",
+      "difficulty": "hard",
+      "topic_display": "Time Complexity",
+      "query": "Our ordered lookup table is read often but receives bursts of inserts. Compare a contiguous sorted array with a balanced search tree, including work hidden outside the lookup itself.",
+      "primary_family": "swe.algorithms",
+      "secondary_families": [
+        "swe.data_structures"
+      ],
+      "required_support": [
+        "insertion movement",
+        "balancing assumptions",
+        "locality and workload"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "27": 1
+      }
+    },
+    {
+      "id": "oop-easy",
+      "role": "Software Developer",
+      "interview_type": "technical",
+      "experience_level": "fresher",
+      "difficulty": "easy",
+      "topic_display": "Object-Oriented Programming",
+      "query": "Two independently created carts unexpectedly show the same newly added item. How could shared class state cause that, and what belongs on each instance?",
+      "primary_family": "swe.oop",
+      "secondary_families": [
+        "swe.debugging"
+      ],
+      "required_support": [
+        "shared versus instance state",
+        "mutable collections",
+        "isolation test"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "31": 2,
+        "30": 1
+      }
+    },
+    {
+      "id": "oop-medium",
+      "role": "SWE",
+      "interview_type": "technical",
+      "experience_level": "intermediate",
+      "difficulty": "medium",
+      "topic_display": "Object-Oriented Programming",
+      "query": "Checkout must support two payment providers with different error types. Where would you put the boundary so orchestration stays testable?",
+      "primary_family": "swe.oop",
+      "secondary_families": [
+        "swe.debugging"
+      ],
+      "required_support": [
+        "interface contract",
+        "composition",
+        "error translation"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "31": 2
+      }
+    },
+    {
+      "id": "oop-hard",
+      "role": "Software Engineer",
+      "interview_type": "technical",
+      "experience_level": "experienced",
+      "difficulty": "hard",
+      "topic_display": "Object-Oriented Programming",
+      "query": "A replacement payment adapter retries a charge but the previous implementation did not. What observable contract must be clarified before treating these implementations as interchangeable?",
+      "primary_family": "swe.oop",
+      "secondary_families": [
+        "swe.debugging"
+      ],
+      "required_support": [
+        "substitutability",
+        "idempotency and effects",
+        "explicit outcomes"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "31": 1,
+        "1": 1
+      }
+    },
+    {
+      "id": "sql-easy",
+      "role": "Software Developer",
+      "interview_type": "technical",
+      "experience_level": "fresher",
+      "difficulty": "easy",
+      "topic_display": "SQL Joins",
+      "query": "A customer list should include people who have never placed an order. Why did adding a paid-status filter make those customers disappear?",
+      "primary_family": "swe.sql",
+      "secondary_families": [
+        "swe.debugging"
+      ],
+      "required_support": [
+        "outer join preservation",
+        "NULL right values",
+        "WHERE filtering"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {}
+    },
+    {
+      "id": "sql-medium",
+      "role": "SWE",
+      "interview_type": "technical",
+      "experience_level": "intermediate",
+      "difficulty": "medium",
+      "topic_display": "SQL Joins",
+      "query": "Stock is one. Two requests read that value before either writes and both confirm a sale. Propose an atomic database operation and explain how the loser detects failure.",
+      "primary_family": "swe.sql",
+      "secondary_families": [
+        "swe.debugging"
+      ],
+      "required_support": [
+        "conditional update",
+        "affected-row count",
+        "transaction scope"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {}
+    },
+    {
+      "id": "sql-hard",
+      "role": "Software Engineer",
+      "interview_type": "technical",
+      "experience_level": "experienced",
+      "difficulty": "hard",
+      "topic_display": "SQL Joins",
+      "query": "A cart reserves several products while other carts change the same rows. Compare explicit row locks with serializable execution and explain which operations must not be blindly retried.",
+      "primary_family": "swe.sql",
+      "secondary_families": [
+        "swe.debugging"
+      ],
+      "required_support": [
+        "lock ordering",
+        "serialization retry",
+        "external side effects"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {}
+    },
+    {
+      "id": "http-easy",
+      "role": "Software Developer",
+      "interview_type": "technical",
+      "experience_level": "fresher",
+      "difficulty": "easy",
+      "topic_display": "HTTP",
+      "query": "Deleting an already deleted object can return a different status from the first deletion. Does that alone violate idempotency? Explain the intended-effect distinction.",
+      "primary_family": "swe.http",
+      "secondary_families": [
+        "swe.rest"
+      ],
+      "required_support": [
+        "intended effect",
+        "response may differ",
+        "method semantics"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "1": 1
+      }
+    },
+    {
+      "id": "http-medium",
+      "role": "SWE",
+      "interview_type": "technical",
+      "experience_level": "intermediate",
+      "difficulty": "medium",
+      "topic_display": "HTTP",
+      "query": "A client lost the connection after sending an order request. The server may have committed it. How can retrying avoid creating a second order?",
+      "primary_family": "swe.http",
+      "secondary_families": [
+        "swe.rest"
+      ],
+      "required_support": [
+        "unknown outcome",
+        "idempotency key",
+        "outcome lookup"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "1": 1
+      }
+    },
+    {
+      "id": "http-hard",
+      "role": "Software Engineer",
+      "interview_type": "technical",
+      "experience_level": "experienced",
+      "difficulty": "hard",
+      "topic_display": "HTTP",
+      "query": "A payment provider accepted a charge, then our local persistence failed. Design recovery without promising exactly-once behavior across those independent systems.",
+      "primary_family": "swe.http",
+      "secondary_families": [
+        "swe.rest"
+      ],
+      "required_support": [
+        "durable state machine",
+        "provider idempotency",
+        "reconciliation"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "1": 1
+      }
+    },
+    {
+      "id": "rest-easy",
+      "role": "Software Developer",
+      "interview_type": "technical",
+      "experience_level": "fresher",
+      "difficulty": "easy",
+      "topic_display": "REST APIs",
+      "query": "Design an operation to retrieve one order, including how the client distinguishes an unavailable resource and how access is checked.",
+      "primary_family": "swe.rest",
+      "secondary_families": [
+        "swe.http",
+        "swe.security"
+      ],
+      "required_support": [
+        "resource identity",
+        "GET semantics",
+        "authorization"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "2": 1
+      }
+    },
+    {
+      "id": "rest-medium",
+      "role": "SWE",
+      "interview_type": "technical",
+      "experience_level": "intermediate",
+      "difficulty": "medium",
+      "topic_display": "REST APIs",
+      "query": "Two agents loaded the same ticket. One saved changes before the other. How can the API reject a stale write instead of silently replacing the newer version?",
+      "primary_family": "swe.rest",
+      "secondary_families": [
+        "swe.http",
+        "swe.security"
+      ],
+      "required_support": [
+        "representation validator",
+        "conditional request",
+        "conflict recovery"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {}
+    },
+    {
+      "id": "rest-hard",
+      "role": "Software Engineer",
+      "interview_type": "technical",
+      "experience_level": "experienced",
+      "difficulty": "hard",
+      "topic_display": "REST APIs",
+      "query": "An order feed changes while clients page through it and an old mobile client must keep working. State the ordering and compatibility contracts before choosing pagination mechanics.",
+      "primary_family": "swe.rest",
+      "secondary_families": [
+        "swe.http",
+        "swe.security"
+      ],
+      "required_support": [
+        "stable ordering",
+        "cursor contract",
+        "API compatibility"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {}
+    },
+    {
+      "id": "git-easy",
+      "role": "Software Developer",
+      "interview_type": "technical",
+      "experience_level": "fresher",
+      "difficulty": "easy",
+      "topic_display": "Git",
+      "query": "A bad commit is already on a shared branch. Why might a new inverse commit be safer for collaborators than moving the branch pointer backward?",
+      "primary_family": "swe.git",
+      "secondary_families": [
+        "swe.testing"
+      ],
+      "required_support": [
+        "shared ancestry",
+        "inverse commit",
+        "auditability"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {}
+    },
+    {
+      "id": "git-medium",
+      "role": "SWE",
+      "interview_type": "technical",
+      "experience_level": "intermediate",
+      "difficulty": "medium",
+      "topic_display": "Git",
+      "query": "An inverse change conflicts with useful work added later. How would you decide which behavior to retain and verify the recovery?",
+      "primary_family": "swe.git",
+      "secondary_families": [
+        "swe.testing"
+      ],
+      "required_support": [
+        "conflict intent",
+        "dependency tests",
+        "forward fix alternative"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {}
+    },
+    {
+      "id": "git-hard",
+      "role": "Software Engineer",
+      "interview_type": "technical",
+      "experience_level": "experienced",
+      "difficulty": "hard",
+      "topic_display": "Git",
+      "query": "A merged release contains an incompatible data migration. What does selecting the mainline parent mean for the source revert, and why is that not a complete operational rollback?",
+      "primary_family": "swe.git",
+      "secondary_families": [
+        "swe.testing"
+      ],
+      "required_support": [
+        "merge parent semantics",
+        "application/data compatibility",
+        "recovery validation"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {}
+    },
+    {
+      "id": "testing-easy",
+      "role": "Software Developer",
+      "interview_type": "technical",
+      "experience_level": "fresher",
+      "difficulty": "easy",
+      "topic_display": "Testing",
+      "query": "Tests pass alone but fail together after one test changes a shared collection. What should setup and cleanup guarantee?",
+      "primary_family": "swe.testing",
+      "secondary_families": [
+        "swe.debugging"
+      ],
+      "required_support": [
+        "fixture isolation",
+        "controlled state",
+        "cleanup"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {}
+    },
+    {
+      "id": "testing-medium",
+      "role": "SWE",
+      "interview_type": "technical",
+      "experience_level": "intermediate",
+      "difficulty": "medium",
+      "topic_display": "Testing",
+      "query": "We want to test a payment timeout and retry without contacting a payment provider or waiting real seconds. Which boundaries should be controlled and checked separately?",
+      "primary_family": "swe.testing",
+      "secondary_families": [
+        "swe.debugging"
+      ],
+      "required_support": [
+        "fake failure",
+        "controlled time",
+        "separate integration contract"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "1": 1
+      }
+    },
+    {
+      "id": "testing-hard",
+      "role": "Software Engineer",
+      "interview_type": "technical",
+      "experience_level": "experienced",
+      "difficulty": "hard",
+      "topic_display": "Testing",
+      "query": "A checkout spans two services and retries after partial failures. Propose a small layered test strategy that checks observable guarantees rather than repeating implementation code.",
+      "primary_family": "swe.testing",
+      "secondary_families": [
+        "swe.debugging"
+      ],
+      "required_support": [
+        "failure injection",
+        "idempotency assertions",
+        "integration boundaries"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "1": 2
+      }
+    },
+    {
+      "id": "debug-easy",
+      "role": "Software Developer",
+      "interview_type": "technical",
+      "experience_level": "fresher",
+      "difficulty": "easy",
+      "topic_display": "Debugging",
+      "query": "A report says only that the application crashed. What additional observations would let another developer reproduce it without collecting private credentials or answers?",
+      "primary_family": "swe.debugging",
+      "secondary_families": [
+        "swe.testing"
+      ],
+      "required_support": [
+        "minimal inputs",
+        "expected versus observed",
+        "sensitive-data minimization"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "6": 1
+      }
+    },
+    {
+      "id": "debug-medium",
+      "role": "SWE",
+      "interview_type": "technical",
+      "experience_level": "intermediate",
+      "difficulty": "medium",
+      "topic_display": "Debugging",
+      "query": "Responses occasionally contain a different request's intermediate result. Explain how you would test the shared-state hypothesis without relying on random traffic.",
+      "primary_family": "swe.debugging",
+      "secondary_families": [
+        "swe.testing"
+      ],
+      "required_support": [
+        "request correlation",
+        "controlled concurrency",
+        "regression test"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "30": 1
+      }
+    },
+    {
+      "id": "debug-hard",
+      "role": "Software Engineer",
+      "interview_type": "technical",
+      "experience_level": "experienced",
+      "difficulty": "hard",
+      "topic_display": "Debugging",
+      "query": "Latency spikes in production but the same code is fast locally. How do you narrow the cause and mitigate safely without assuming that the latest change was responsible?",
+      "primary_family": "swe.debugging",
+      "secondary_families": [
+        "swe.testing"
+      ],
+      "required_support": [
+        "scope and traces",
+        "falsifiable hypothesis",
+        "safe mitigation"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "1": 1
+      }
+    },
+    {
+      "id": "security-easy",
+      "role": "Software Developer",
+      "interview_type": "technical",
+      "experience_level": "fresher",
+      "difficulty": "easy",
+      "topic_display": "Authentication & Authorization",
+      "query": "A user has successfully logged in but must not read another user's interview report. Which separate access decision is still required?",
+      "primary_family": "swe.security",
+      "secondary_families": [
+        "swe.rest"
+      ],
+      "required_support": [
+        "identity versus permission",
+        "resource ownership",
+        "server-side enforcement"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "2": 1
+      }
+    },
+    {
+      "id": "security-medium",
+      "role": "SWE",
+      "interview_type": "technical",
+      "experience_level": "intermediate",
+      "difficulty": "medium",
+      "topic_display": "Authentication & Authorization",
+      "query": "Changing a report ID in the URL returns a different account's report. Describe the lookup boundary and a two-user test covering both reads and edits.",
+      "primary_family": "swe.security",
+      "secondary_families": [
+        "swe.rest"
+      ],
+      "required_support": [
+        "owner/policy-scoped lookup",
+        "horizontal access tests",
+        "mutation paths"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "2": 1
+      }
+    },
+    {
+      "id": "security-hard",
+      "role": "Software Engineer",
+      "interview_type": "technical",
+      "experience_level": "experienced",
+      "difficulty": "hard",
+      "topic_display": "Authentication & Authorization",
+      "query": "Reports are accessible via exports, background jobs and expiring share links. How would you make revocation and cached responses follow the same access policy?",
+      "primary_family": "swe.security",
+      "secondary_families": [
+        "swe.rest"
+      ],
+      "required_support": [
+        "consistent policy",
+        "job principal",
+        "revocation and cache behavior"
+      ],
+      "expected_runtime_abstention": false,
+      "legacy_relevance_by_row_id": {
+        "2": 1,
+        "6": 1
+      }
+    },
+    {
+      "id": "out-of-scope-ml",
+      "role": "Software Developer",
+      "interview_type": "technical",
+      "experience_level": "intermediate",
+      "difficulty": "medium",
+      "topic_display": "Transformer attention mechanisms",
+      "query": "How do attention heads and positional encoding interact?",
+      "primary_family": null,
+      "secondary_families": [],
+      "required_support": [],
+      "expected_runtime_abstention": true,
+      "legacy_relevance_by_row_id": {}
+    },
+    {
+      "id": "unknown-role",
+      "role": "Quantum Pilot",
+      "interview_type": "technical",
+      "experience_level": "intermediate",
+      "difficulty": "medium",
+      "topic_display": "SQL",
+      "query": "How should two updates coordinate?",
+      "primary_family": null,
+      "secondary_families": [],
+      "required_support": [],
+      "expected_runtime_abstention": true,
+      "legacy_relevance_by_row_id": {}
+    }
+  ],
+  "legacy_snapshot_digest": "0cb2fefcfd095bfb6f5cb8f8a95533c0699b3cc91766cb842a827d2037938e2b",
+  "legacy_judgment_policy": "Grade legacy content independently of its ml_engineer tag: 3 direct support, 2 substantial but incomplete, 1 partial context, 0 unsupported. Unlisted row IDs have grade 0 after source-topic review. Frozen IDs are bound to legacy_snapshot_digest. For example, row 27 supports set/list membership and ordered deduplication; row 31 supports class/interface reasoning; agent failure notes provide partial retry context. Require independent human confirmation before the paid run. No new-source primary-ID hit metric is used as a legacy semantic metric."
+}

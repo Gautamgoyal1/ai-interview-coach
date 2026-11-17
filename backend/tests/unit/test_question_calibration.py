@@ -4,6 +4,7 @@ import json
 from unittest.mock import AsyncMock
 
 import anyio
+from app.modules.interview.generation_errors import QuestionGenerationUnavailable
 
 from app.modules.interview.calibration import (
     DEFAULT_EXPERIENCE_LEVEL,
@@ -59,14 +60,18 @@ def test_difficulty_distributions_by_experience_level():
 
 
 def test_category_plan_adapts_when_evidence_is_missing():
-    full_plan = build_category_plan(8, has_resume_skills=True, has_projects=True, has_gaps=True)
+    full_plan = build_category_plan(
+        8, has_resume_skills=True, has_projects=True, has_gaps=True
+    )
     assert len(full_plan) == 8
     assert full_plan.count("fundamental") == 3
     assert full_plan.count("resume_skill") == 2
     assert full_plan.count("project") == 2
     assert full_plan.count("gap_probe") == 1
 
-    no_evidence_plan = build_category_plan(8, has_resume_skills=False, has_projects=False, has_gaps=False)
+    no_evidence_plan = build_category_plan(
+        8, has_resume_skills=False, has_projects=False, has_gaps=False
+    )
     assert all(cat == "fundamental" for cat in no_evidence_plan)
 
 
@@ -128,7 +133,9 @@ def test_validator_rejects_academic_bundled_repetitive_and_ungrounded_questions(
         "What is the difference between a list and a tuple in Python?",
         experience_level="fresher",
         difficulty="easy",
-        previous_questions=["What is the difference between a list and a tuple in Python?"],
+        previous_questions=[
+            "What is the difference between a list and a tuple in Python?"
+        ],
     )
     assert ok_rep is False
 
@@ -214,10 +221,16 @@ def test_grader_passes_experience_level_and_preserves_rubric_contract():
         provider = AsyncMock()
         provider.generate.return_value = json.dumps(
             {
-                "technical_correctness": {"score": 4, "explanation": "Accurate for entry level."},
+                "technical_correctness": {
+                    "score": 4,
+                    "explanation": "Accurate for entry level.",
+                },
                 "relevance": {"score": 5, "explanation": "Directly answered."},
                 "completeness": {"score": 4, "explanation": "Covers core points."},
-                "technical_depth": {"score": 4, "explanation": "Good depth for fresher."},
+                "technical_depth": {
+                    "score": 4,
+                    "explanation": "Good depth for fresher.",
+                },
                 "strengths": ["Clear distinction between lists and tuples"],
                 "missing_concepts": [],
                 "improvement_suggestions": [],
@@ -259,24 +272,35 @@ def test_curated_evaluation_dataset_quality_across_roles():
         topics = get_role_fundamental_topics(role)
         assert len(topics) >= 6
         asked: list[str] = []
+        returned_difficulties = set()
         for idx, diff in enumerate(build_difficulty_plan("fresher", 8), start=1):
-            q = pick_curated_fallback_question(
-                target_role=role,
-                topic=topics[(idx - 1) % len(topics)],
-                difficulty=diff,
-                question_type="conceptual",
-                previous_questions=asked,
-                experience_level="fresher",
-                has_resume_evidence=True,
-            )
+            try:
+                q = pick_curated_fallback_question(
+                    target_role=role,
+                    topic=topics[(idx - 1) % len(topics)],
+                    difficulty=diff,
+                    question_type="conceptual",
+                    previous_questions=asked,
+                    experience_level="fresher",
+                    has_resume_evidence=True,
+                )
+            except QuestionGenerationUnavailable as exc:
+                # Finite coverage at any tier must be explicit, never a different
+                # topic or easier replacement just to fill the interview.
+                assert exc.difficulty == diff
+                assert exc.topic == topics[(idx - 1) % len(topics)]
+                continue
             ok, reason = validate_generated_question(
                 q.question_text,
                 experience_level="fresher",
-                difficulty=diff,
+                difficulty=q.difficulty,
                 previous_questions=asked,
                 candidate_context={"resume_skills": ["Python"]},
             )
             assert ok, f"{role} Q{idx} failed validation: {reason}"
+            assert q.topic == topics[(idx - 1) % len(topics)] and q.difficulty == diff
+            returned_difficulties.add(diff)
             asked.append(q.question_text)
-        assert len(set(asked)) == 8
+        assert len(set(asked)) == len(asked)
+        assert {"easy", "medium"} <= returned_difficulties
         assert len(CURATED_QUESTION_BANK) >= 6

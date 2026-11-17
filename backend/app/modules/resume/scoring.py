@@ -1,11 +1,10 @@
-
 """Skill extraction and deterministic resume-to-job matching."""
 
-import json
 import math
 import re
 from pathlib import Path
 
+from app.modules.resume.catalog import read_json
 
 TAXONOMY_PATH = Path(__file__).with_name("skills_taxonomy.json")
 ROLES_PATH = Path(__file__).with_name("roles.json")
@@ -13,14 +12,17 @@ ROLES_PATH = Path(__file__).with_name("roles.json")
 
 def load_skill_taxonomy() -> dict[str, list[str]]:
     """Load canonical skills and their aliases."""
-    with TAXONOMY_PATH.open("r", encoding="utf-8") as file:
-        taxonomy = json.load(file)
+    taxonomy = read_json(TAXONOMY_PATH)
 
     return {
-        canonical.lower(): [
-            canonical.lower(),
-            *(alias.lower() for alias in aliases),
-        ]
+        canonical.lower(): list(
+            dict.fromkeys(
+                [
+                    canonical.lower(),
+                    *(alias.lower() for alias in aliases),
+                ]
+            )
+        )
         for canonical, aliases in taxonomy.items()
     }
 
@@ -34,17 +36,23 @@ def extract_skills(
         taxonomy = load_skill_taxonomy()
 
     normalized_text = text.lower()
-    found = []
-
+    candidates = []
     for canonical, aliases in taxonomy.items():
-        for alias in aliases:
+        for alias in set(aliases):
             pattern = rf"(?<!\w){re.escape(alias.lower())}(?!\w)"
-
-            if re.search(pattern, normalized_text):
-                found.append(canonical)
-                break
-
-    return sorted(set(found))
+            for match in re.finditer(pattern, normalized_text):
+                candidates.append((match.start(), match.end(), canonical))
+    # A longer explicit alias owns its span: React.js must not also imply JS,
+    # and automated testing must not silently award the parent testing skill.
+    accepted = []
+    for start, end, canonical in sorted(
+        candidates, key=lambda item: (-(item[1] - item[0]), item[0], item[2])
+    ):
+        if not any(
+            start < old_end and end > old_start for old_start, old_end, _ in accepted
+        ):
+            accepted.append((start, end, canonical))
+    return sorted({canonical for _, _, canonical in accepted})
 
 
 def calculate_match(
@@ -60,9 +68,7 @@ def calculate_match(
     missing = sorted(required_skills - resume_skills)
 
     score = (
-        round(len(matched) / len(required_skills) * 100, 2)
-        if required_skills
-        else 0.0
+        round(len(matched) / len(required_skills) * 100, 2) if required_skills else 0.0
     )
 
     return {
@@ -76,13 +82,10 @@ def calculate_match(
 
 def load_role_skills() -> dict[str, list[str]]:
     """Load default required skills for supported job roles."""
-    with ROLES_PATH.open("r", encoding="utf-8") as file:
-        roles = json.load(file)
+    roles = read_json(ROLES_PATH)
 
     return {
-        role.strip().lower(): [
-            skill.strip().lower() for skill in skills
-        ]
+        role.strip().lower(): [skill.strip().lower() for skill in skills]
         for role, skills in roles.items()
     }
 
@@ -103,18 +106,12 @@ def calculate_match_against_skills(
     unknown_skills = required - set(taxonomy)
 
     if unknown_skills:
-        raise ValueError(
-            f"Unknown canonical skills: {sorted(unknown_skills)}"
-        )
+        raise ValueError(f"Unknown canonical skills: {sorted(unknown_skills)}")
 
     matched = sorted(resume_skills & required)
     missing = sorted(required - resume_skills)
 
-    score = (
-        round(len(matched) / len(required) * 100, 2)
-        if required
-        else 0.0
-    )
+    score = round(len(matched) / len(required) * 100, 2) if required else 0.0
 
     return {
         "resume_skills": sorted(resume_skills),
@@ -137,13 +134,11 @@ def calculate_weighted_match(
     unknown_matches = matched - required
     if unknown_matches:
         raise ValueError(
-            "Matched skills must be required skills: "
-            f"{sorted(unknown_matches)}"
+            "Matched skills must be required skills: " f"{sorted(unknown_matches)}"
         )
 
     normalized_weights = {
-        skill.strip().lower(): weight
-        for skill, weight in skill_weights.items()
+        skill.strip().lower(): weight for skill, weight in skill_weights.items()
     }
 
     missing_weights = required - set(normalized_weights)
@@ -161,27 +156,18 @@ def calculate_weighted_match(
             or not math.isfinite(weight)
             or weight <= 0
         ):
-            raise ValueError(
-                f"Weight for '{skill}' must be a finite positive number."
-            )
+            raise ValueError(f"Weight for '{skill}' must be a finite positive number.")
 
     total_weight = sum(normalized_weights[skill] for skill in required)
-    matched_weight = sum(
-        normalized_weights[skill] for skill in matched
-    )
+    matched_weight = sum(normalized_weights[skill] for skill in matched)
 
-    score = (
-        round(matched_weight / total_weight * 100, 2)
-        if total_weight
-        else 0.0
-    )
+    score = round(matched_weight / total_weight * 100, 2) if total_weight else 0.0
 
     return {
         "weighted_match_score": score,
         "matched_weight": round(matched_weight, 4),
         "total_weight": round(total_weight, 4),
     }
-
 
 
 def adjust_skill_weights_from_job_description(
@@ -260,3 +246,12 @@ def adjust_skill_weights_from_job_description(
             adjusted[canonical] = float(weight)
 
     return adjusted
+
+
+def normalize_skill(value: str, taxonomy=None) -> str | None:
+    """Resolve an exact skill alias; do not infer parent or prerequisite skills."""
+    label = " ".join(value.strip().lower().split())
+    for canonical, aliases in (taxonomy or load_skill_taxonomy()).items():
+        if label in {canonical, *aliases}:
+            return canonical
+    return None

@@ -66,6 +66,13 @@ export async function endInterviewSession(
   );
 }
 
+export async function retryInterviewQuestion(sessionId: string): Promise<InterviewSession> {
+  return apiRequest<InterviewSession>(
+    `/interview/${encodeURIComponent(sessionId)}/retry-question`,
+    { method: "POST" },
+  );
+}
+
 export async function deleteInterviewSession(
   sessionId: string,
 ): Promise<{ deleted: boolean; session_id: string }> {

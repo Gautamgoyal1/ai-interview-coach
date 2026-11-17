@@ -56,6 +56,7 @@ export default function InterviewRoom() {
     loadSession,
     submitAnswer,
     finishSession,
+    retryQuestion,
   } = useInterview();
 
   const [answerText, setAnswerText] = useState("");
@@ -95,8 +96,12 @@ export default function InterviewRoom() {
     ["starting", "listening", "stopping"].includes(voiceState),
   );
   useUnsentAnswerWarning(
-    !unauthorized && session?.status === "in_progress" && hasUnsentAnswer,
+    !unauthorized && !session?.generation_unavailable && session?.status === "in_progress" && hasUnsentAnswer,
   );
+
+  useEffect(() => {
+    if (session?.generation_unavailable) setAnswerText("");
+  }, [session?.generation_unavailable]);
 
   const handleUnauthorized = useCallback(() => {
     logout();
@@ -223,8 +228,7 @@ export default function InterviewRoom() {
   );
   const experienceLabel =
     EXPERIENCE_LABELS[session.experience_level ?? "fresher"];
-  const isInProgress =
-    session.status === "in_progress" && session.current_question !== null;
+  const isInProgress = session.status === "in_progress";
   const roundTypeLabel =
     session.interview_type === "hr" ? "Behavioral round" : "Technical round";
 
@@ -296,7 +300,16 @@ export default function InterviewRoom() {
           </div>
         )}
 
-        {isInProgress && session.current_question ? (
+        {session.status === "in_progress" && session.generation_unavailable ? (
+          <section className="iv-complete-card" aria-labelledby="generation-unavailable-title">
+            <h2 id="generation-unavailable-title">The next question is unavailable</h2>
+            <p>Your submitted answer is saved. You can retry without submitting or grading it again.</p>
+            <button type="button" className="btn btn-primary" disabled={submitting}
+              onClick={() => void retryQuestion(session.session_id)}>
+              {submitting ? "Preparing question..." : "Retry question generation"}
+            </button>
+          </section>
+        ) : isInProgress && session.current_question ? (
           <div className="iv-workspace">
             {/* Subheader bar */}
             <div className="iv-subheader">

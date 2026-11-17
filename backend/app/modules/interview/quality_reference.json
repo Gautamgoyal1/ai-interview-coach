@@ -1,0 +1,355 @@
+{
+  "reviewer": "Agent-only review; no independent human adjudication",
+  "scales": {
+    "R": "Role relevance: 2 directly useful to SWE, 1 loosely related, 0 unrelated",
+    "T": "Technical correctness: 2 sound premises/contracts, 1 questionable or underspecified implication, 0 false/contradictory premise",
+    "L": "Interview likelihood: 2 plausible bounded interview, 1 generic/trivia/contrived, 0 obscure or implausible",
+    "H": "Experience-relative Hard depth: 2 multi-step reasoning and a meaningful constraint/edge/trade-off, 1 routine one-step application/explanation, 0 recognition/definition only",
+    "E": "Experience appropriateness: 2 challenging but assumes appropriate background, 1 mild over/undershoot, 0 inappropriate senior assumptions or severe triviality",
+    "C": "Clarity: 2 one focused answerable task with sufficient assumptions, 1 clarification needed or broad, 0 ambiguous/unanswerable/bundled",
+    "F": "Follow-up potential: 2 concrete extension can probe reasoning without repairing the question, 1 mostly restatement/trivia, 0 cannot meaningfully follow up"
+  },
+  "pass_rule": "R=T=H=E=C=2; L>=1; F>=1; novel=true",
+  "cases": [
+    {
+      "id": "ref-F01",
+      "role": "Software Engineer",
+      "experience_level": "fresher",
+      "topic": "Data Structures",
+      "question": "A search box keeps the last 100 distinct queries in most-recent-first order. Repeating a query moves it to the front; adding a 101st evicts the oldest. How would you implement these operations without scanning all 100 entries, including the repeat-then-evict boundary?",
+      "previous_questions": [],
+      "scores": {
+        "R": 2,
+        "T": 2,
+        "L": 2,
+        "H": 2,
+        "E": 2,
+        "C": 2,
+        "F": 2
+      },
+      "novel": true,
+      "expected_accept": true,
+      "basis": "Reviewed fallback integrates hash lookup, recency mutation, bounded eviction and repeat/evict correctness. Relative fresher Hard, not experienced Hard.",
+      "provenance": "Frozen Phase 7 agent assessment; copied without relabelling"
+    },
+    {
+      "id": "ref-E05",
+      "role": "Software Engineer",
+      "experience_level": "experienced",
+      "topic": "HTTP",
+      "question": "A messaging API has `POST /imports` to create a bulk import job. Clients may retry after a timeout, and sometimes the response is lost after the server has already committed the job. You must guarantee that the same authenticated user can safely retry the same request, but if they reuse the same idempotency key with a different payload, the server should reject it. What server-side contract and storage/claim flow would you implement so concurrent identical retries do not create two jobs, while still returning a stable outcome for pending or completed requests?",
+      "previous_questions": [],
+      "scores": {
+        "R": 2,
+        "T": 2,
+        "L": 2,
+        "H": 2,
+        "E": 2,
+        "C": 2,
+        "F": 2
+      },
+      "novel": true,
+      "expected_accept": true,
+      "basis": "Requires atomic key claim, payload mismatch handling, concurrent retries and stable pending/completed outcomes after lost responses.",
+      "provenance": "Frozen Phase 7 agent assessment; copied without relabelling"
+    },
+    {
+      "id": "ref-E09",
+      "role": "Software Engineer",
+      "experience_level": "experienced",
+      "topic": "Debugging",
+      "question": "After a deployment, p99 latency on an API triples, but median latency, CPU, and database query time stay flat. Traces show most of the extra time is waiting to acquire a DB connection, and the pool stays at its limit even after requests complete. Assuming requests are well-formed and the app must stay live, how would you distinguish a leaked connection from a legitimate long-held transaction, and what bounded change or instrumentation would you add first to prove it without widening the pool? Consider cancellation and exception paths too.",
+      "previous_questions": [],
+      "scores": {
+        "R": 2,
+        "T": 2,
+        "L": 2,
+        "H": 2,
+        "E": 2,
+        "C": 2,
+        "F": 2
+      },
+      "novel": true,
+      "expected_accept": true,
+      "basis": "Discriminating pool-wait evidence, competing leak/ownership hypotheses and cancellation paths require a bounded falsifiable experiment.",
+      "provenance": "Frozen Phase 7 agent assessment; copied without relabelling"
+    },
+    {
+      "id": "ref-E03",
+      "role": "Software Engineer",
+      "experience_level": "experienced",
+      "topic": "Object-Oriented Programming",
+      "question": "Imagine a file-storage client with two operations: uploadBlob() for ordinary file uploads and createLockFile() for a mutual-exclusion marker that must be atomic, even across retries. Backend X supports conditional writes; backend Y only supports read/overwrite but gives you versioned object keys. If a request times out, the caller must be able to tell whether the lock was created, definitely not created, or the outcome is unknown. How would you shape the interfaces or class boundaries so uploadBlob can use Y, while createLockFile either preserves the atomic contract or clearly rejects unsupported use? Assume callers rely on those outcome distinctions.",
+      "previous_questions": [],
+      "scores": {
+        "R": 2,
+        "T": 2,
+        "L": 2,
+        "H": 1,
+        "E": 2,
+        "C": 2,
+        "F": 2
+      },
+      "novel": true,
+      "expected_accept": false,
+      "basis": "Typed capability interfaces and unsupported-operation handling largely restate the explicit mismatch. No concrete caller recovery sequence or competing implementation choice is required.",
+      "provenance": "Frozen Phase 7 agent assessment; copied without relabelling"
+    },
+    {
+      "id": "ref-F02",
+      "role": "Software Engineer",
+      "experience_level": "fresher",
+      "topic": "Algorithms",
+      "question": "You have a sorted array of timestamps that may contain duplicates, and you need to return the first timestamp that is at least a given cutoff. If no such timestamp exists, return -1. The array can be empty, and your solution should stay correct when several equal values sit around the cutoff. How would you adapt binary search so it always makes progress and still returns the first eligible timestamp rather than just any match?",
+      "previous_questions": [],
+      "scores": {
+        "R": 2,
+        "T": 2,
+        "L": 2,
+        "H": 1,
+        "E": 2,
+        "C": 2,
+        "F": 2
+      },
+      "novel": true,
+      "expected_accept": false,
+      "basis": "One lower-bound binary search with duplicates and empty input is a standard textbook implementation, without an additional interacting task.",
+      "provenance": "Frozen Phase 7 agent assessment; copied without relabelling"
+    },
+    {
+      "id": "ref-F03",
+      "role": "Software Engineer",
+      "experience_level": "fresher",
+      "topic": "Object-Oriented Programming",
+      "question": "Imagine a file storage app where each file has a name, size, and a method that returns its total cost. Regular files cost by size, but image files also have a fixed thumbnail fee. The app stores files in one list and prints the total bill by calling the same method on every item. If you add a new file type later, you should not have to change the billing loop. How would you design the classes and method contract so this works, while still handling the edge case that a file may report invalid state, like a negative size?",
+      "previous_questions": [],
+      "scores": {
+        "R": 2,
+        "T": 2,
+        "L": 2,
+        "H": 1,
+        "E": 2,
+        "C": 2,
+        "F": 2
+      },
+      "novel": true,
+      "expected_accept": false,
+      "basis": "Subclass price overrides and negative-size validation remain a routine polymorphism exercise; invalid input does not create substantial interacting constraints.",
+      "provenance": "Frozen Phase 7 agent assessment; copied without relabelling"
+    },
+    {
+      "id": "ref-E04",
+      "role": "Software Engineer",
+      "experience_level": "experienced",
+      "topic": "SQL",
+      "question": "Imagine an analytics service records one row per customer event, and a nightly job marks all events for a given customer as processed by updating a status column. New events for that customer can arrive while the job runs, and a retry may happen after a deadlock or serialization failure. If you had to make the job correct and idempotent under this contention, what transaction strategy would you use for the UPDATE, and where would you place the retry boundary? Assume the job must never mark an event processed unless it was actually selected in that run, and duplicate processing is worse than a temporary delay.",
+      "previous_questions": [],
+      "scores": {
+        "R": 2,
+        "T": 1,
+        "L": 2,
+        "H": 1,
+        "E": 2,
+        "C": 1,
+        "F": 1
+      },
+      "novel": true,
+      "expected_accept": false,
+      "basis": "The processing effect and selected-in-this-run semantics are unspecified. Updating status alone is not a defined exactly-once processing contract; a clarification is needed before choosing transaction boundaries.",
+      "provenance": "Frozen Phase 7 agent assessment; copied without relabelling"
+    },
+    {
+      "id": "ref-P7F03",
+      "role": "Software Engineer",
+      "experience_level": "fresher",
+      "topic": "Object-Oriented Programming",
+      "question": "Suppose a file-storage app has a `Storage` interface with `save(file)` and `delete(fileId)`. The app also guarantees this caller-visible rule: if `save()` fails halfway, no partial file should be visible to later `get()` calls. You need to add a new `EncryptedStorage` implementation without changing the code that orchestrates uploads and deletes. How would you structure the objects so that encryption can be swapped in while preserving that no-partial-file invariant, especially if `save()` can fail after writing the first chunk?",
+      "previous_questions": [],
+      "scores": {
+        "R": 2,
+        "T": 2,
+        "L": 2,
+        "H": 2,
+        "E": 2,
+        "C": 2,
+        "F": 2
+      },
+      "novel": true,
+      "expected_accept": true,
+      "basis": "A swappable encrypted writer must preserve no-partial-read visibility after a chunk failure; staged write/publication/cleanup is a concrete OOP boundary with a meaningful failure case.",
+      "provenance": "Frozen Phase 7 agent assessment; copied without relabelling"
+    },
+    {
+      "id": "ref-P7F04",
+      "role": "Software Engineer",
+      "experience_level": "fresher",
+      "topic": "SQL",
+      "question": "A platform has `customers(customer_id, name)` and `orders(order_id, customer_id, status, created_at)`, where `status` is `PAID` or `CANCELLED`. Write a query that returns every customer plus three columns: total paid orders, total cancelled orders, and the date of their most recent PAID order. If a customer has no paid orders, that last column must be `NULL`. If two paid orders share the same `created_at`, pick the one with the larger `order_id`. How would you avoid row multiplication between the two counts and still make the latest-order rule deterministic?",
+      "previous_questions": [],
+      "scores": {
+        "R": 2,
+        "T": 1,
+        "L": 2,
+        "H": 1,
+        "E": 2,
+        "C": 2,
+        "F": 1
+      },
+      "novel": true,
+      "expected_accept": false,
+      "basis": "Only the latest PAID date is returned, so selecting a larger order_id for tied dates has no observable effect. Two conditional counts over the same table are routine and do not inherently create independent join multiplication.",
+      "provenance": "Frozen Phase 7 agent assessment; copied without relabelling"
+    },
+    {
+      "id": "ref--refinedR04",
+      "role": "Software Engineer",
+      "experience_level": "fresher",
+      "topic": "Security Fundamentals",
+      "question": "A note app lets users own notes and share them with teammates. A share can also be revoked, but revocation is processed asynchronously: for a short time, the note may still show in a client cache even after the server has marked the share as revoked. If a user is the owner, they can edit; if they are only a shared viewer, they can read but not edit. How would you enforce access at the server boundary so a revoked viewer cannot keep editing by replaying an old note ID, and what single test would you run to prove the revoke takes effect on the next write even if the cached view is stale?",
+      "previous_questions": [],
+      "scores": {
+        "R": 2,
+        "T": 0,
+        "L": 2,
+        "H": 1,
+        "E": 2,
+        "C": 1,
+        "F": 1
+      },
+      "novel": true,
+      "expected_accept": false,
+      "basis": "Shared viewers could never edit, so denying their writes before and after revocation does not prove revocation worked. The test would pass even if revoked read access remained exposed.",
+      "provenance": "Frozen Phase 7 agent assessment; copied without relabelling"
+    },
+    {
+      "id": "ref-P7F09",
+      "role": "Software Engineer",
+      "experience_level": "fresher",
+      "topic": "Debugging",
+      "question": "An API sometimes returns one user\u2019s draft comment to another user, but only when two requests overlap and the server logs are enabled. You can add one temporary request ID to each request and run a controlled two-request test. What is the first explanation you would try to confirm, and what single experiment would you run to distinguish shared mutable state from a timing issue caused by logging? Include what result you would expect in each case.",
+      "previous_questions": [],
+      "scores": {
+        "R": 2,
+        "T": 1,
+        "L": 2,
+        "H": 2,
+        "E": 2,
+        "C": 1,
+        "F": 1
+      },
+      "novel": true,
+      "expected_accept": false,
+      "basis": "Shared mutable state and logging-induced timing are not mutually exclusive hypotheses. Toggling logging may expose the same race rather than distinguish its cause; the requested each-case oracle is misleading.",
+      "provenance": "Frozen Phase 7 agent assessment; copied without relabelling"
+    },
+    {
+      "id": "ref-P7E06",
+      "role": "Software Engineer",
+      "experience_level": "experienced",
+      "topic": "REST APIs",
+      "question": "Suppose GET /activities must return a stable snapshot of page 1 as-of the first response, ordered by (created_at, id), even while new rows are inserted and some rows are deleted. The cursor must expire after 10 minutes, and you cannot keep a full result set per client. If you had to choose one backing approach that actually enforces that contract, what would you implement so page 2 still reflects the same snapshot, and how would it handle one concrete race where a row is deleted after page 1 but before page 2?",
+      "previous_questions": [],
+      "scores": {
+        "R": 2,
+        "T": 2,
+        "L": 2,
+        "H": 2,
+        "E": 2,
+        "C": 2,
+        "F": 2
+      },
+      "novel": true,
+      "expected_accept": true,
+      "basis": "Explicit snapshot semantics under deletion require retained/as-of state or a clearly costed snapshot mechanism; a cursor alone does not satisfy the contract.",
+      "provenance": "Frozen Phase 7 agent assessment; copied without relabelling"
+    },
+    {
+      "id": "familiar-not-repeated",
+      "role": "Software Engineer",
+      "experience_level": "fresher",
+      "topic": "Data Structures",
+      "question": "A search box keeps the last 100 distinct queries in most-recent-first order. Repeating a query moves it to the front; adding a 101st evicts the oldest. How would you implement these operations without scanning all 100 entries, including the repeat-then-evict boundary?",
+      "previous_questions": [
+        "How would you test an input parser without network calls?"
+      ],
+      "scores": {
+        "R": 2,
+        "T": 2,
+        "L": 2,
+        "H": 2,
+        "E": 2,
+        "C": 2,
+        "F": 2
+      },
+      "novel": true,
+      "expected_accept": true,
+      "basis": "Familiar LRU pattern is still a new task relative to this unrelated question.",
+      "provenance": "Frozen Phase 7 agent assessment; copied without relabelling"
+    },
+    {
+      "id": "near-duplicate",
+      "role": "Software Engineer",
+      "experience_level": "fresher",
+      "topic": "Data Structures",
+      "question": "Keep the latest 100 distinct search terms, moving repeats to newest and evicting oldest without a scan. How would you implement it?",
+      "previous_questions": [
+        "A search box keeps the last 100 distinct queries in most-recent-first order. Repeating a query moves it to the front; adding a 101st evicts the oldest. How would you implement these operations without scanning all 100 entries, including the repeat-then-evict boundary?"
+      ],
+      "scores": {
+        "R": 2,
+        "T": 2,
+        "L": 2,
+        "H": 2,
+        "E": 2,
+        "C": 2,
+        "F": 2
+      },
+      "novel": false,
+      "expected_accept": false,
+      "basis": "Same recency/dedup/eviction reasoning as the earlier question despite different wording.",
+      "provenance": "Frozen Phase 7 agent assessment; copied without relabelling"
+    },
+    {
+      "id": "valid-alternative-index",
+      "role": "Software Engineer",
+      "experience_level": "experienced",
+      "topic": "Algorithms",
+      "question": "An index has ten million timestamped rows, 10,000 inserts/second in bursts and concurrent range reads. Acknowledged inserts must be visible; memory allows one base plus a small delta. A colleague proposes a sorted base with a searchable delta rather than a balanced tree. How would you implement read merging and rebuild publication so an interrupted rebuild cannot lose acknowledged inserts, and which workload would make you reject this design?",
+      "previous_questions": [],
+      "scores": {
+        "R": 2,
+        "T": 2,
+        "L": 2,
+        "H": 2,
+        "E": 2,
+        "C": 2,
+        "F": 2
+      },
+      "novel": true,
+      "expected_accept": true,
+      "basis": "A correct unfamiliar/alternative strategy can meet the invariant; no required tree answer.",
+      "provenance": "New agent-reviewed calibration example; not held-out evaluation"
+    },
+    {
+      "id": "impossible-exactly-once",
+      "role": "Software Engineer",
+      "experience_level": "experienced",
+      "topic": "HTTP",
+      "question": "An email provider has no idempotency key or delivery lookup and does not share transactions with your database. A send may succeed while its response is lost. Without changing those capabilities or weakening guarantees, implement automatic retries that always eventually deliver exactly one email. What local database flag makes this possible?",
+      "previous_questions": [],
+      "scores": {
+        "R": 2,
+        "T": 0,
+        "L": 1,
+        "H": 1,
+        "E": 2,
+        "C": 0,
+        "F": 0
+      },
+      "novel": true,
+      "expected_accept": false,
+      "basis": "The demanded guarantee is impossible with these capabilities; the question forbids the necessary redesign and falsely promises a flag solution.",
+      "provenance": "New agent-reviewed calibration example; not held-out evaluation"
+    }
+  ]
+}

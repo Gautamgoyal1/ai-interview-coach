@@ -1,0 +1,460 @@
+{
+  "schema_version": 1,
+  "taxonomy_version": "2.0",
+  "classification_policy": "Required is the minimal default matching denominator, not proof of candidate proficiency. Recommended and advanced are coaching context only. Languages are alternatives, not simultaneous requirements. Legacy role denominators are retained for score compatibility. No new weights.",
+  "roles": [
+    {
+      "id": "ml_engineer",
+      "name": "machine learning engineer",
+      "aliases": [
+        "ml engineer",
+        "ai / ml engineer",
+        "ai/ml engineer"
+      ],
+      "required": [
+        "python",
+        "machine learning",
+        "numpy",
+        "pandas",
+        "scikit-learn",
+        "data preprocessing",
+        "model evaluation",
+        "docker",
+        "cloud platforms"
+      ],
+      "recommended": [
+        "testing",
+        "ci/cd",
+        "observability",
+        "sql"
+      ],
+      "advanced": [],
+      "rationale": "Preserves the existing default denominator; this legacy profile is not a universal hiring standard.",
+      "experience_expectations": {
+        "internship": "Explain train/test separation and a simple model pipeline with guidance; no production platform ownership is assumed.",
+        "fresher": "Build a reproducible project pipeline, choose validation metrics and explain leakage prevention.",
+        "intermediate": "Debug training/serving mismatches, compare serving and data-processing trade-offs and justify measurements.",
+        "experienced": "Reason about deployment reliability, data/model drift, monitoring and operational recovery under stated constraints."
+      },
+      "knowledge_roles": [
+        "ml_engineer"
+      ]
+    },
+    {
+      "id": "data_scientist",
+      "name": "data scientist",
+      "aliases": [],
+      "required": [
+        "python",
+        "machine learning",
+        "numpy",
+        "pandas",
+        "scikit-learn",
+        "data preprocessing",
+        "model evaluation"
+      ],
+      "recommended": [
+        "statistics",
+        "sql",
+        "data visualization",
+        "experiment design"
+      ],
+      "advanced": [],
+      "rationale": "Preserves the existing default denominator; this legacy profile is not a universal hiring standard.",
+      "experience_expectations": {
+        "internship": "Explain a data question, basic summary statistics and a train/test split using a small example.",
+        "fresher": "Justify preprocessing, validation and metrics for a documented project without causal overclaims.",
+        "intermediate": "Compare modeling and experiment alternatives, diagnose bias/leakage and communicate uncertainty.",
+        "experienced": "Reason about experimental validity, population shifts, product trade-offs and limits of causal interpretation."
+      },
+      "knowledge_roles": [
+        "data_scientist",
+        "ml_engineer"
+      ]
+    },
+    {
+      "id": "ai_engineer",
+      "name": "ai engineer",
+      "aliases": [
+        "artificial intelligence engineer",
+        "genai engineer",
+        "ai / genai engineer"
+      ],
+      "required": [
+        "python",
+        "machine learning",
+        "docker",
+        "cloud platforms"
+      ],
+      "recommended": [
+        "rest apis",
+        "testing",
+        "observability"
+      ],
+      "advanced": [],
+      "rationale": "Preserves the existing default denominator; this legacy profile is not a universal hiring standard.",
+      "experience_expectations": {
+        "internship": "Explain embeddings, API requests and why generated answers need verification using a small example.",
+        "fresher": "Build a bounded AI/RAG prototype, cite sources and test known failure cases.",
+        "intermediate": "Diagnose retrieval/generation failures, compare evaluation strategies and control permissions and costs.",
+        "experienced": "Reason about reliability, adversarial inputs, evaluation uncertainty, observability and safe operational recovery."
+      },
+      "knowledge_roles": [
+        "ai_engineer",
+        "ml_engineer"
+      ]
+    },
+    {
+      "id": "python_developer",
+      "name": "python developer",
+      "aliases": [
+        "python engineer"
+      ],
+      "required": [
+        "python",
+        "sql",
+        "docker"
+      ],
+      "recommended": [
+        "testing",
+        "debugging",
+        "git",
+        "object-oriented programming"
+      ],
+      "advanced": [],
+      "rationale": "Preserves the existing default denominator; this legacy profile is not a universal hiring standard.",
+      "experience_expectations": {
+        "internship": "Trace collections, functions and exceptions in a small Python program with guidance.",
+        "fresher": "Build a tested small CLI or API, explain personal implementation choices and handle common failures.",
+        "intermediate": "Profile I/O and CPU bottlenecks, debug state sharing and choose appropriate concurrency mechanisms.",
+        "experienced": "Design maintainable interfaces and reliable deployment/diagnostic boundaries, with explicit compatibility trade-offs."
+      },
+      "knowledge_roles": [
+        "python_developer",
+        "ml_engineer"
+      ]
+    },
+    {
+      "id": "software_engineer",
+      "name": "software engineer",
+      "aliases": [
+        "software developer",
+        "swe",
+        "sde",
+        "software development engineer",
+        "software developer intern",
+        "software engineer intern"
+      ],
+      "required": [
+        "data structures",
+        "algorithms",
+        "object-oriented programming",
+        "git",
+        "sql",
+        "testing",
+        "debugging"
+      ],
+      "recommended": [
+        "http",
+        "rest apis",
+        "security fundamentals",
+        "python",
+        "javascript",
+        "java"
+      ],
+      "advanced": [
+        "concurrency",
+        "system design"
+      ],
+      "rationale": "Language-neutral programming and collaborative delivery baseline; choose a stack-specific JD when language proficiency is required.",
+      "experience_expectations": {
+        "internship": "Explain fundamentals and trace a small example with guidance; coursework is acceptable evidence context, not demonstrated professional experience.",
+        "fresher": "Implement and test a small feature; explain a personal project and its limitations.",
+        "intermediate": "Debug failures, compare practical alternatives and explain measured trade-offs in this role.",
+        "experienced": "Reason about architecture, reliability, security and operational trade-offs; state assumptions rather than relying on trivia."
+      },
+      "knowledge_roles": [
+        "software_engineer"
+      ]
+    },
+    {
+      "id": "frontend_developer",
+      "name": "frontend developer",
+      "aliases": [
+        "frontend engineer",
+        "front-end developer",
+        "front-end engineer"
+      ],
+      "required": [
+        "html",
+        "css",
+        "javascript",
+        "http",
+        "git",
+        "testing",
+        "accessibility"
+      ],
+      "recommended": [
+        "typescript",
+        "react",
+        "rest apis",
+        "debugging",
+        "data structures"
+      ],
+      "advanced": [
+        "web performance",
+        "security fundamentals",
+        "system design"
+      ],
+      "rationale": "Browser fundamentals, accessible interaction and testable delivery are the baseline; frameworks remain stack-specific recommendations.",
+      "knowledge_roles": [
+        "frontend_developer"
+      ],
+      "experience_expectations": {
+        "internship": "Explain fundamentals and trace an accessible browser interaction with guidance; no production ownership is assumed.",
+        "fresher": "Build or explain an accessible browser interaction in a project, including basic tests and limitations.",
+        "intermediate": "Debug an accessible browser interaction under realistic constraints and compare practical alternatives using evidence.",
+        "experienced": "Reason about architecture, reliability, security and operational trade-offs around an accessible browser interaction; document assumptions and failure recovery."
+      }
+    },
+    {
+      "id": "backend_developer",
+      "name": "backend developer",
+      "aliases": [
+        "backend engineer",
+        "back-end developer",
+        "back-end engineer"
+      ],
+      "required": [
+        "sql",
+        "http",
+        "rest apis",
+        "git",
+        "testing",
+        "debugging",
+        "security fundamentals"
+      ],
+      "recommended": [
+        "python",
+        "java",
+        "javascript",
+        "postgresql",
+        "redis",
+        "docker",
+        "object-oriented programming"
+      ],
+      "advanced": [
+        "concurrency",
+        "system design",
+        "message queues"
+      ],
+      "rationale": "Focuses on API/data correctness and access boundaries; languages and database products are alternatives rather than simultaneous requirements.",
+      "knowledge_roles": [
+        "backend_developer"
+      ],
+      "experience_expectations": {
+        "internship": "Explain fundamentals and trace a failure-safe API operation with guidance; no production ownership is assumed.",
+        "fresher": "Build or explain a failure-safe API operation in a project, including basic tests and limitations.",
+        "intermediate": "Debug a failure-safe API operation under realistic constraints and compare practical alternatives using evidence.",
+        "experienced": "Reason about architecture, reliability, security and operational trade-offs around a failure-safe API operation; document assumptions and failure recovery."
+      }
+    },
+    {
+      "id": "full_stack_developer",
+      "name": "full stack developer",
+      "aliases": [
+        "full stack engineer",
+        "full-stack developer",
+        "full-stack engineer",
+        "fullstack developer"
+      ],
+      "required": [
+        "html",
+        "css",
+        "javascript",
+        "http",
+        "rest apis",
+        "sql",
+        "git",
+        "testing"
+      ],
+      "recommended": [
+        "react",
+        "typescript",
+        "python",
+        "security fundamentals",
+        "accessibility",
+        "object-oriented programming"
+      ],
+      "advanced": [
+        "system design",
+        "web performance",
+        "concurrency"
+      ],
+      "rationale": "Covers a browser-to-service workflow without requiring multiple UI frameworks or backend languages.",
+      "knowledge_roles": [
+        "full_stack_developer"
+      ],
+      "experience_expectations": {
+        "internship": "Explain fundamentals and trace a browser-to-database feature with guidance; no production ownership is assumed.",
+        "fresher": "Build or explain a browser-to-database feature in a project, including basic tests and limitations.",
+        "intermediate": "Debug a browser-to-database feature under realistic constraints and compare practical alternatives using evidence.",
+        "experienced": "Reason about architecture, reliability, security and operational trade-offs around a browser-to-database feature; document assumptions and failure recovery."
+      }
+    },
+    {
+      "id": "data_analyst",
+      "name": "data analyst",
+      "aliases": [
+        "data analytics analyst",
+        "analytics analyst",
+        "business data analyst"
+      ],
+      "required": [
+        "sql",
+        "statistics",
+        "data visualization",
+        "spreadsheets",
+        "data cleaning"
+      ],
+      "recommended": [
+        "python",
+        "pandas",
+        "business intelligence",
+        "etl"
+      ],
+      "advanced": [
+        "experiment design",
+        "model evaluation"
+      ],
+      "rationale": "Prioritizes reproducible data questions and clear interpretation; machine learning is not a universal analyst prerequisite.",
+      "knowledge_roles": [
+        "data_analyst"
+      ],
+      "experience_expectations": {
+        "internship": "Explain fundamentals and trace a reproducible query and chart with guidance; no production ownership is assumed.",
+        "fresher": "Build or explain a reproducible query and chart in a project, including basic tests and limitations.",
+        "intermediate": "Debug a reproducible query and chart under realistic constraints and compare practical alternatives using evidence.",
+        "experienced": "Reason about architecture, reliability, security and operational trade-offs around a reproducible query and chart; document assumptions and failure recovery."
+      }
+    },
+    {
+      "id": "devops_engineer",
+      "name": "devops engineer",
+      "aliases": [
+        "devops developer",
+        "cloud engineer",
+        "devops / cloud engineer",
+        "devops/cloud engineer",
+        "platform engineer"
+      ],
+      "required": [
+        "linux",
+        "networking",
+        "git",
+        "ci/cd",
+        "docker",
+        "cloud platforms",
+        "observability"
+      ],
+      "recommended": [
+        "terraform",
+        "security fundamentals",
+        "python"
+      ],
+      "advanced": [
+        "kubernetes",
+        "site reliability",
+        "system design",
+        "cloud security"
+      ],
+      "rationale": "An initial DevOps/cloud operating baseline; no particular cloud vendor or senior cluster design is required by default.",
+      "knowledge_roles": [
+        "devops_engineer"
+      ],
+      "experience_expectations": {
+        "internship": "Explain fundamentals and trace a deployment and rollback with guidance; no production ownership is assumed.",
+        "fresher": "Build or explain a deployment and rollback in a project, including basic tests and limitations.",
+        "intermediate": "Debug a deployment and rollback under realistic constraints and compare practical alternatives using evidence.",
+        "experienced": "Reason about architecture, reliability, security and operational trade-offs around a deployment and rollback; document assumptions and failure recovery."
+      }
+    },
+    {
+      "id": "cybersecurity_analyst",
+      "name": "cybersecurity analyst",
+      "aliases": [
+        "cyber security analyst",
+        "security analyst",
+        "soc analyst"
+      ],
+      "required": [
+        "networking",
+        "linux",
+        "security fundamentals",
+        "incident response",
+        "log analysis"
+      ],
+      "recommended": [
+        "python",
+        "threat modeling",
+        "cloud platforms"
+      ],
+      "advanced": [
+        "digital forensics",
+        "cloud security",
+        "system design"
+      ],
+      "rationale": "Centers on evidence, triage and safe access boundaries rather than assuming offensive exploitation expertise.",
+      "knowledge_roles": [
+        "cybersecurity_analyst"
+      ],
+      "experience_expectations": {
+        "internship": "Explain fundamentals and trace an evidence-based security triage with guidance; no production ownership is assumed.",
+        "fresher": "Build or explain an evidence-based security triage in a project, including basic tests and limitations.",
+        "intermediate": "Debug an evidence-based security triage under realistic constraints and compare practical alternatives using evidence.",
+        "experienced": "Reason about architecture, reliability, security and operational trade-offs around an evidence-based security triage; document assumptions and failure recovery."
+      }
+    },
+    {
+      "id": "qa_engineer",
+      "name": "qa engineer",
+      "aliases": [
+        "qa analyst",
+        "qa automation engineer",
+        "automation engineer",
+        "test engineer",
+        "quality assurance engineer",
+        "qa / automation engineer",
+        "qa/automation engineer"
+      ],
+      "required": [
+        "testing",
+        "test design",
+        "git",
+        "debugging",
+        "http"
+      ],
+      "recommended": [
+        "test automation",
+        "sql",
+        "python",
+        "javascript"
+      ],
+      "advanced": [
+        "performance testing",
+        "security fundamentals",
+        "ci/cd"
+      ],
+      "rationale": "Separates test reasoning from specific automation products; tooling is recommended rather than proof of proficiency.",
+      "knowledge_roles": [
+        "qa_engineer"
+      ],
+      "experience_expectations": {
+        "internship": "Explain fundamentals and trace a deterministic boundary-case test with guidance; no production ownership is assumed.",
+        "fresher": "Build or explain a deterministic boundary-case test in a project, including basic tests and limitations.",
+        "intermediate": "Debug a deterministic boundary-case test under realistic constraints and compare practical alternatives using evidence.",
+        "experienced": "Reason about architecture, reliability, security and operational trade-offs around a deterministic boundary-case test; document assumptions and failure recovery."
+      }
+    }
+  ]
+}

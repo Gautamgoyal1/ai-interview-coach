@@ -1,6 +1,103 @@
-# One entry per source. Record the license before adding anything to the knowledge base.
+# Original PrepMate notes are licensed separately from linked references.
 sources:
-  - name: example-source
-    url: https://example.com/docs
-    license: "CHECK LICENSE BEFORE USE"
-    topic: python
+  - id: swe.algorithms
+    file: knowledge_base/software_engineering/algorithms.md
+    url: https://docs.python.org/3/library/bisect.html
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
+  - id: swe.data_structures
+    file: knowledge_base/software_engineering/data_structures.md
+    url: https://docs.python.org/3/tutorial/datastructures.html
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
+  - id: swe.debugging
+    file: knowledge_base/software_engineering/debugging.md
+    url: https://docs.python.org/3/library/pdb.html
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
+  - id: swe.git
+    file: knowledge_base/software_engineering/git.md
+    url: https://git-scm.com/docs/git-revert
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
+  - id: swe.http
+    file: knowledge_base/software_engineering/http.md
+    url: https://www.rfc-editor.org/rfc/rfc9110.html
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
+  - id: swe.oop
+    file: knowledge_base/software_engineering/oop.md
+    url: https://docs.python.org/3/tutorial/classes.html
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
+  - id: swe.rest
+    file: knowledge_base/software_engineering/rest.md
+    url: https://www.rfc-editor.org/rfc/rfc9110.html
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
+  - id: swe.security
+    file: knowledge_base/software_engineering/security.md
+    url: https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
+  - id: swe.sql
+    file: knowledge_base/software_engineering/sql.md
+    url: https://www.postgresql.org/docs/16/transaction-iso.html
+    supporting_references:
+      - claim: Join preservation and filtering
+        url: https://www.postgresql.org/docs/16/queries-table-expressions.html
+      - claim: Conditional updates and affected rows
+        url: https://www.postgresql.org/docs/16/sql-update.html
+      - claim: Aggregate null semantics
+        url: https://www.postgresql.org/docs/16/functions-aggregate.html
+      - claim: Index predicates and access methods
+        url: https://www.postgresql.org/docs/16/indexes-types.html
+      - claim: SQL string constants
+        url: https://www.postgresql.org/docs/16/sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
+  - id: swe.testing
+    file: knowledge_base/software_engineering/testing.md
+    url: https://docs.pytest.org/en/stable/how-to/fixtures.html
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
+  - id: core.accessibility
+    file: knowledge_base/role_foundations/accessibility.md
+    url: https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
+  - id: core.cicd
+    file: knowledge_base/role_foundations/cicd.md
+    url: https://docs.github.com/en/actions/concepts/workflows-and-actions/deployment-environments
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
+  - id: core.incident_response
+    file: knowledge_base/role_foundations/incident_response.md
+    url: https://csrc.nist.gov/pubs/sp/800/61/r3/final
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
+  - id: core.statistics
+    file: knowledge_base/role_foundations/statistics.md
+    url: https://www.itl.nist.gov/div898/handbook/prc/section1/prc131.htm
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
+  - id: core.test_automation
+    file: knowledge_base/role_foundations/test_automation.md
+    url: https://playwright.dev/docs/best-practices
+    reviewed_on: "2026-11-15"
+    reference_usage: "Primary documentation consulted; third-party prose not imported."
+    notes_license: "CC-BY-4.0 (original PrepMate notes)"
