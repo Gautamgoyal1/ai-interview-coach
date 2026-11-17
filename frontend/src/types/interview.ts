@@ -46,6 +46,7 @@ export interface InterviewSession {
   follow_up_count: number;
   max_follow_ups: number;
   current_question: InterviewQuestion | null;
+  generation_unavailable?: boolean;
   conversation_history: ConversationTurn[];
   started_at: string;
   completed_at: string | null;

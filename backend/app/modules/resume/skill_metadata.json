@@ -1,0 +1,380 @@
+{
+  "schema_version": 1,
+  "skills": [
+    {
+      "id": "machine_learning",
+      "name": "machine learning",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "python",
+      "name": "python",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "sql",
+      "name": "sql",
+      "prerequisites": [],
+      "related_concepts": [
+        "data structures"
+      ]
+    },
+    {
+      "id": "numpy",
+      "name": "numpy",
+      "prerequisites": [
+        "python"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "pandas",
+      "name": "pandas",
+      "prerequisites": [
+        "python"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "scikit_learn",
+      "name": "scikit-learn",
+      "prerequisites": [
+        "python"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "data_preprocessing",
+      "name": "data preprocessing",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "model_evaluation",
+      "name": "model evaluation",
+      "prerequisites": [
+        "machine learning"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "docker",
+      "name": "docker",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "cloud_platforms",
+      "name": "cloud platforms",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "data_structures",
+      "name": "data structures",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "algorithms",
+      "name": "algorithms",
+      "prerequisites": [
+        "data structures"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "object_oriented_programming",
+      "name": "object-oriented programming",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "git",
+      "name": "git",
+      "prerequisites": [],
+      "related_concepts": [
+        "testing"
+      ]
+    },
+    {
+      "id": "http",
+      "name": "http",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "rest_apis",
+      "name": "rest apis",
+      "prerequisites": [
+        "http"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "testing",
+      "name": "testing",
+      "prerequisites": [],
+      "related_concepts": [
+        "debugging"
+      ]
+    },
+    {
+      "id": "debugging",
+      "name": "debugging",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "security_fundamentals",
+      "name": "security fundamentals",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "javascript",
+      "name": "javascript",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "java",
+      "name": "java",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "concurrency",
+      "name": "concurrency",
+      "prerequisites": [
+        "data structures"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "system_design",
+      "name": "system design",
+      "prerequisites": [
+        "http",
+        "sql"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "html",
+      "name": "html",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "css",
+      "name": "css",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "typescript",
+      "name": "typescript",
+      "prerequisites": [
+        "javascript"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "react",
+      "name": "react",
+      "prerequisites": [
+        "javascript",
+        "html"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "accessibility",
+      "name": "accessibility",
+      "prerequisites": [
+        "html"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "web_performance",
+      "name": "web performance",
+      "prerequisites": [
+        "http"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "postgresql",
+      "name": "postgresql",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "redis",
+      "name": "redis",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "message_queues",
+      "name": "message queues",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "statistics",
+      "name": "statistics",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "data_visualization",
+      "name": "data visualization",
+      "prerequisites": [
+        "statistics"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "spreadsheets",
+      "name": "spreadsheets",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "data_cleaning",
+      "name": "data cleaning",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "business_intelligence",
+      "name": "business intelligence",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "experiment_design",
+      "name": "experiment design",
+      "prerequisites": [
+        "statistics"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "etl",
+      "name": "etl",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "linux",
+      "name": "linux",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "networking",
+      "name": "networking",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "ci_cd",
+      "name": "ci/cd",
+      "prerequisites": [
+        "git",
+        "testing"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "observability",
+      "name": "observability",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "terraform",
+      "name": "terraform",
+      "prerequisites": [
+        "cloud platforms"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "kubernetes",
+      "name": "kubernetes",
+      "prerequisites": [
+        "docker"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "site_reliability",
+      "name": "site reliability",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "incident_response",
+      "name": "incident response",
+      "prerequisites": [
+        "security fundamentals"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "log_analysis",
+      "name": "log analysis",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "threat_modeling",
+      "name": "threat modeling",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "digital_forensics",
+      "name": "digital forensics",
+      "prerequisites": [
+        "incident response"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "cloud_security",
+      "name": "cloud security",
+      "prerequisites": [
+        "security fundamentals"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "test_design",
+      "name": "test design",
+      "prerequisites": [],
+      "related_concepts": []
+    },
+    {
+      "id": "test_automation",
+      "name": "test automation",
+      "prerequisites": [
+        "testing"
+      ],
+      "related_concepts": []
+    },
+    {
+      "id": "performance_testing",
+      "name": "performance testing",
+      "prerequisites": [],
+      "related_concepts": []
+    }
+  ]
+}

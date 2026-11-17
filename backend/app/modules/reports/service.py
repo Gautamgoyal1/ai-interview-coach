@@ -154,7 +154,9 @@ class ReportService:
         if not is_hr and (insights.missing_concepts or insights.weaknesses):
             query = f"{session.target_role} {' '.join(insights.missing_concepts[:3])}".strip()
             try:
-                chunks = await retrieve_chunks_async(db=db, query=query, top_k=2)
+                chunks = await retrieve_chunks_async(
+                    db=db, query=query, top_k=2, role=session.target_role
+                )
                 retrieved_context = "\n".join(c.content.strip() for c in chunks)
             except Exception:
                 retrieved_context = ""
@@ -191,9 +193,7 @@ class ReportService:
         report.weaknesses = insights.weaknesses
         report.missing_concepts = insights.missing_concepts
         report.recommendations = [r.model_dump() for r in recommendations]
-        report.question_feedback = [
-            q.model_dump() for q in bundle.question_feedback
-        ]
+        report.question_feedback = [q.model_dump() for q in bundle.question_feedback]
         report.completion_stats = bundle.completion_stats.model_dump()
         report.evaluation_coverage = bundle.evaluation_coverage.model_dump()
         report.rubric_version = target_rubric_version

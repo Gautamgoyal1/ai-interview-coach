@@ -10,7 +10,6 @@ from langgraph.checkpoint.memory import MemorySaver
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
 from app.api.dependencies import get_current_user
 from app.db.models.interview_session import InterviewSession
@@ -59,11 +58,12 @@ class _CountingMockLLM(LLMProvider):
 
 
 @pytest.fixture()
-def isolated_db():
+def isolated_db(tmp_path):
     engine = create_engine(
-        "sqlite://",
+        # Concurrent HTTP dependencies need independent SQLite connections.
+        # Sharing a StaticPool handle across threads can corrupt cursor state.
+        f"sqlite:///{tmp_path / 'concurrent-interview.sqlite'}",
         connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
     )
     tables = [
         User.__table__,
@@ -108,10 +108,13 @@ def isolated_db():
     db.commit()
     db.refresh(analysis)
 
-    yield SessionLocal, user.id, analysis.id
+    ids = user.id, analysis.id
+    db.close()
+    yield SessionLocal, *ids
 
     for t in reversed(tables):
         t.drop(bind=engine)
+    engine.dispose()
 
 
 def test_concurrent_submit_answer_returns_409_and_runs_llm_once(isolated_db):

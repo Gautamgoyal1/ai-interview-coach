@@ -1,6 +1,5 @@
 """Deterministic content hashing and analysis fingerprinting for resume deduplication."""
 
-from functools import lru_cache
 import hashlib
 import json
 from pathlib import Path
@@ -8,7 +7,7 @@ import re
 
 from app.core.config import settings
 
-SCORING_VERSION = "1.0"
+SCORING_VERSION = "1.1"
 EVIDENCE_VERSION = "1.0"
 PROMPT_VERSION = "1.0"
 FINGERPRINT_VERSION = "1.0"
@@ -33,11 +32,15 @@ def normalize_role(role: str) -> str:
     return " ".join(role.strip().lower().split())
 
 
-@lru_cache(maxsize=1)
 def get_taxonomy_digest() -> str:
     """Return a SHA-256 digest of the skill taxonomy and role profile definitions."""
     h = hashlib.sha256()
-    for path in (_TAXONOMY_PATH, _ROLES_PATH):
+    for path in (
+        _TAXONOMY_PATH,
+        _ROLES_PATH,
+        _RESUME_DIR / "role_catalog.json",
+        _RESUME_DIR / "skill_metadata.json",
+    ):
         if path.exists():
             h.update(path.read_bytes())
     return h.hexdigest()
@@ -73,8 +76,10 @@ def compute_analysis_fingerprint(
     """Compute (resume_hash, analysis_fingerprint) from all material inputs."""
     resume_hash = compute_resume_hash(resume_text)
     jd_hash = compute_job_description_hash(job_description)
-    model_id = model_identifier if model_identifier is not None else (
-        settings.gemini_model or settings.azure_openai_model or "default"
+    model_id = (
+        model_identifier
+        if model_identifier is not None
+        else (settings.gemini_model or settings.azure_openai_model or "default")
     )
 
     payload = {
@@ -88,5 +93,7 @@ def compute_analysis_fingerprint(
         "prompt_version": prompt_version,
         "model": model_id,
     }
-    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    canonical = json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    )
     return resume_hash, compute_sha256(canonical)

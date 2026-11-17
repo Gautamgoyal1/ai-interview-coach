@@ -1,5 +1,6 @@
 """Structured question and follow-up generation with quality validation and curated fallback."""
 
+import asyncio
 import json
 import logging
 import re
@@ -26,12 +27,51 @@ from app.modules.interview.prompts import (
     INTERVIEW_QUESTION_SYSTEM_PROMPT,
     INTERVIEW_QUESTION_USER_PROMPT,
 )
+from app.modules.interview.difficulty_contract import (
+    difficulty_contract,
+    scenario_guidance,
+    topic_reasoning_guidance,
+)
+from app.modules.interview.problem_construction import (
+    construct_hard_question,
+    HARD_MODEL_BUDGET_SECONDS,
+)
+from app.modules.interview.question_quality import assess_family_question
+from app.modules.interview.problem_spec import question_character_limit
 from app.modules.interview.question_bank import pick_curated_fallback_question
 from app.modules.interview.schemas import InterviewQuestion
 
 logger = logging.getLogger(__name__)
 
 MAX_GENERATION_ATTEMPTS = 2
+
+
+def prepare_question_context(
+    context: str, difficulty: str, experience_level: str | None = None
+) -> str:
+    """Use Hard retrieval for facts, without copying its older elaborate examples."""
+    if difficulty != "hard":
+        return context
+    chunks = re.split(r"\n\n(?=\[[^\]\n]+\]\s*#)", context)
+    focused = []
+    for chunk in chunks:
+        sections = re.split(r"(?m)(?=^## )", chunk)
+        facts = [
+            s.strip()
+            for s in sections
+            if s.startswith(
+                (
+                    "## Definition\n",
+                    "## Core principles\n",
+                    "## Common misconceptions\n",
+                    "## Trade-offs and limitations\n",
+                    "## Provenance\n",
+                )
+            )
+        ]
+        focused.append("\n\n".join([sections[0].strip(), *facts]) if facts else chunk)
+    return "\n\n".join(focused)
+
 
 _OVERLY_ACADEMIC_PATTERNS = (
     r"\bmathematical derivation\b",
@@ -85,7 +125,9 @@ def _normalize_question_type(value: str, fallback: str) -> str:
     lowered = value.strip().lower()
     if lowered in {"conceptual", "applied", "gap_probe"}:
         return lowered
-    return fallback if fallback in {"conceptual", "applied", "gap_probe"} else "conceptual"
+    return (
+        fallback if fallback in {"conceptual", "applied", "gap_probe"} else "conceptual"
+    )
 
 
 def validate_generated_question(
@@ -96,16 +138,26 @@ def validate_generated_question(
     candidate_context: dict[str, Any] | None = None,
     topic: str = "",
     asked_fingerprints: list[str] | None = None,
+    check_hard_depth: bool = True,
 ) -> tuple[bool, str | None]:
     """Validate clarity, single-question focus, calibration, novelty, and grounding."""
     cleaned = question_text.strip()
     if len(cleaned) < 12:
         return False, "Question is too short."
-    if len(cleaned) > 420:
-        return False, "Question is overly long or broad; keep it concise and focused."
+    limit = question_character_limit(topic) if difficulty == "hard" else 420
+    if len(cleaned) > limit:
+        return (
+            False,
+            f"Question exceeds {limit} characters; keep one task and essential constraints.",
+        )
+    # Familiar/direct phrasing is not a difficulty defect. Semantic review owns
+    # level appropriateness; this validator checks structure, grounding and reuse.
 
     if cleaned.count("?") >= 3 or re.search(r"\b1\)\s+.*\b2\)\s+.*\b3\)\s+", cleaned):
-        return False, "Ask one main question at a time instead of bundling multiple questions."
+        return (
+            False,
+            "Ask one main question at a time instead of bundling multiple questions.",
+        )
 
     is_dup, dup_reason = is_duplicate_or_paraphrase(
         candidate_text=cleaned,
@@ -114,10 +166,17 @@ def validate_generated_question(
         asked_fingerprints=asked_fingerprints,
     )
     if is_dup:
-        return False, dup_reason or "Question repeats or closely paraphrases a previous question."
+        return (
+            False,
+            dup_reason
+            or "Question repeats or closely paraphrases a previous question.",
+        )
 
     lowered = cleaned.lower()
-    if experience_level in {"internship", "fresher"} or difficulty in {"easy", "medium"}:
+    if experience_level in {"internship", "fresher"} or difficulty in {
+        "easy",
+        "medium",
+    }:
         for pattern in _OVERLY_ACADEMIC_PATTERNS:
             if re.search(pattern, lowered):
                 return (
@@ -126,13 +185,13 @@ def validate_generated_question(
                 )
 
     ctx = candidate_context or {}
-    has_evidence = bool(
-        (ctx.get("projects") or [])
-        or (ctx.get("resume_skills") or [])
-        or (ctx.get("matched_skills") or [])
-    )
-    if not has_evidence and re.search(r"\b(your project|you built|your resume)\b", lowered):
-        return False, "Do not reference candidate projects when no resume evidence is available."
+    if not ctx.get("projects") and re.search(
+        r"\b(your project|you built|your work|your employer)\b", lowered
+    ):
+        return (
+            False,
+            "Do not reference candidate projects when no resume evidence is available.",
+        )
 
     return True, None
 
@@ -184,7 +243,10 @@ def _calibrate_follow_up_difficulty(
     if experience_level in {"internship", "fresher"} and primary_difficulty == "hard":
         return "medium", "Keep the follow-up practical and concise."
 
-    return primary_difficulty, "Ask one concise follow-up to clarify the missing detail."
+    return (
+        primary_difficulty,
+        "Ask one concise follow-up to clarify the missing detail.",
+    )
 
 
 def _format_topic_performance_summary(
@@ -232,10 +294,11 @@ def _fallback_primary_question(
     return InterviewQuestion(
         question_id=question_id,
         topic=curated.topic,
-        difficulty=norm_diff,
+        difficulty=curated.difficulty,
         question_text=curated.question_text,
         question_type=_normalize_question_type(curated.question_type, question_type),  # type: ignore[arg-type]
         is_follow_up=False,
+        reasoning_family=curated.reasoning_family,
     )
 
 
@@ -260,6 +323,23 @@ async def generate_interview_question(
     norm_level = normalize_experience_level(experience_level)
     norm_diff = _normalize_difficulty(difficulty)
 
+    if norm_diff == "hard" and question_type != "conceptual":
+        return await construct_hard_question(
+            provider=provider,
+            question_id=question_id,
+            target_role=target_role,
+            topic=topic,
+            question_type=_normalize_question_type(question_type, "applied"),
+            question_index=question_index,
+            candidate_context=candidate_context,
+            context=prepare_question_context(retrieved_context, norm_diff, norm_level),
+            previous_questions=previous_questions,
+            experience_level=norm_level,
+            asked_fingerprints=asked_fingerprints,
+            validate_text=validate_generated_question,
+            fallback=_fallback_primary_question,
+        )
+
     if provider is None:
         return _fallback_primary_question(
             question_id=question_id,
@@ -276,7 +356,12 @@ async def generate_interview_question(
     validation_feedback = ""
     topic_perf_summary = _format_topic_performance_summary(topic_performance)
 
-    for attempt in range(MAX_GENERATION_ATTEMPTS):
+    deadline = (
+        asyncio.get_running_loop().time() + HARD_MODEL_BUDGET_SECONDS
+        if norm_diff == "hard"
+        else None
+    )
+    for attempt in range(1 if norm_diff == "hard" else MAX_GENERATION_ATTEMPTS):
         prompt = INTERVIEW_QUESTION_USER_PROMPT.format(
             target_role=target_role,
             experience_level_label=EXPERIENCE_LEVEL_LABELS[norm_level],
@@ -288,26 +373,41 @@ async def generate_interview_question(
             question_index=question_index,
             max_questions=max_questions,
             topic_performance_summary=topic_perf_summary,
-            matched_skills=", ".join(candidate_context.get("matched_skills") or []) or "None listed",
-            resume_skills=", ".join(candidate_context.get("resume_skills") or []) or "None listed",
-            missing_skills=", ".join(candidate_context.get("missing_skills") or []) or "None listed",
-            strengths="; ".join(candidate_context.get("strengths") or []) or "None listed",
-            improvement_suggestions="; ".join(candidate_context.get("improvement_suggestions") or []) or "None listed",
-            retrieved_context=retrieved_context or "No external knowledge chunks retrieved; rely on standard technical interview fundamentals.",
-            previous_questions="\n".join(f"- {q}" for q in previous_questions[-20:]) or "None yet.",
+            matched_skills=", ".join(candidate_context.get("matched_skills") or [])
+            or "None listed",
+            resume_skills=", ".join(candidate_context.get("resume_skills") or [])
+            or "None listed",
+            missing_skills=", ".join(candidate_context.get("missing_skills") or [])
+            or "None listed",
+            strengths="; ".join(candidate_context.get("strengths") or [])
+            or "None listed",
+            improvement_suggestions="; ".join(
+                candidate_context.get("improvement_suggestions") or []
+            )
+            or "None listed",
+            retrieved_context=prepare_question_context(retrieved_context, norm_diff)
+            or "No external knowledge chunks retrieved; rely on standard technical interview fundamentals.",
+            previous_questions="\n".join(f"- {q}" for q in previous_questions[-20:])
+            or "None yet.",
             validation_feedback=validation_feedback,
+            difficulty_contract=difficulty_contract(norm_diff, norm_level),
+            scenario_guidance=scenario_guidance(question_index),
+            topic_reasoning_guidance=topic_reasoning_guidance(
+                topic, norm_level, norm_diff
+            ),
         )
 
         try:
-            raw = await provider.generate(
-                prompt=prompt,
-                system=INTERVIEW_QUESTION_SYSTEM_PROMPT,
-                json_mode=True,
-            )
+            async with asyncio.timeout_at(deadline):
+                raw = await provider.generate(
+                    prompt=prompt,
+                    system=INTERVIEW_QUESTION_SYSTEM_PROMPT,
+                    json_mode=True,
+                )
             data = json.loads(_strip_json_fences(raw))
             parsed = _GeneratedQuestionPayload.model_validate(data)
             question_text = parsed.question_text.strip()
-            resolved_topic = parsed.topic.strip() or topic
+            resolved_topic = topic  # The selector owns topic identity, not the LLM.
             is_valid, reason = validate_generated_question(
                 question_text=question_text,
                 experience_level=norm_level,
@@ -317,6 +417,23 @@ async def generate_interview_question(
                 topic=resolved_topic,
                 asked_fingerprints=asked_fingerprints,
             )
+            if parsed.topic.strip().casefold() != topic.strip().casefold():
+                is_valid, reason = (
+                    False,
+                    "Keep the selected topic; the response changed it.",
+                )
+            if is_valid and norm_diff == "hard":
+                async with asyncio.timeout_at(deadline):
+                    review = await assess_family_question(
+                        provider,
+                        question_text,
+                        topic,
+                        target_role,
+                        norm_level,
+                        previous_questions,
+                    )
+                logger.info("Direct Hard review: %s", review.model_dump_json())
+                is_valid, reason = review.accepted, review.reason
             if is_valid:
                 return InterviewQuestion(
                     question_id=question_id,
@@ -332,10 +449,14 @@ async def generate_interview_question(
                 attempt + 1,
                 reason,
             )
-            validation_feedback = (
-                f"\nPrevious attempt was rejected ({reason}). Generate a fresh, non-repeating question.\n"
-            )
-        except (LLMError, json.JSONDecodeError, ValidationError, ValueError) as exc:
+            validation_feedback = f"\nPrevious attempt was rejected ({reason}). Generate a fresh, non-repeating question.\n"
+        except (
+            LLMError,
+            json.JSONDecodeError,
+            ValidationError,
+            ValueError,
+            TimeoutError,
+        ) as exc:
             logger.warning(
                 "Question generation attempt %d failed (%s); falling back.",
                 attempt + 1,
@@ -389,9 +510,7 @@ async def generate_follow_up_question(
                 f"should you watch out for with {topic}?"
             )
         elif follow_up_type == "practical_application":
-            text = (
-                f"How would you apply {topic} in a small feature or API endpoint?"
-            )
+            text = f"How would you apply {topic} in a small feature or API endpoint?"
         elif missing:
             text = (
                 f"You touched on parts of {topic}. Could you briefly explain "
@@ -424,7 +543,8 @@ async def generate_follow_up_question(
         follow_up_reason=reason or "Clarify understanding gently.",
         follow_up_guidance=fu_guidance,
         missing_concepts=", ".join(missing) or "None specified",
-        retrieved_context=retrieved_context or "No external knowledge chunks retrieved.",
+        retrieved_context=retrieved_context
+        or "No external knowledge chunks retrieved.",
         difficulty=fu_diff,
     )
 
@@ -443,6 +563,7 @@ async def generate_follow_up_question(
             difficulty=fu_diff,
             previous_questions=[previous_question],
             topic=topic,
+            check_hard_depth=False,
         )
         if not is_valid:
             return _fallback()

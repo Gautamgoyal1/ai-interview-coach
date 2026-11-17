@@ -9,7 +9,6 @@ import pytest
 from langgraph.checkpoint.memory import MemorySaver
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
 from app.api.dependencies import get_current_user
 from app.db.models.interview_session import InterviewSession
@@ -29,11 +28,13 @@ def _make_pdf(marker: str) -> bytes:
 
 
 @pytest.fixture()
-def phase395_env():
+def phase395_env(tmp_path):
     engine = create_engine(
-        "sqlite://",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
+        # Concurrent ASGI requests need independent DBAPI connections. A single
+        # StaticPool connection can raise InterfaceError during overlapping ORM
+        # refreshes; file SQLite keeps real concurrency without sharing a handle.
+        f"sqlite:///{tmp_path / 'history.db'}",
+        connect_args={"check_same_thread": False, "timeout": 30},
     )
     tables = [
         User.__table__,
@@ -80,6 +81,7 @@ def phase395_env():
     app.dependency_overrides.clear()
     for t in reversed(tables):
         t.drop(bind=engine)
+    engine.dispose()
 
 
 def test_dedup_reuse_different_filename_role_jd_content_and_user_isolation(phase395_env):

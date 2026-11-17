@@ -1,0 +1,218 @@
+[
+  {
+    "id": "swe-1",
+    "role": "Software Developer",
+    "topic": "Arrays & Linked Lists",
+    "difficulty": "easy",
+    "experience_level": "fresher",
+    "query": "Preserve arrival order while deduplicating event identifiers",
+    "expected_subtopic": "data_structures"
+  },
+  {
+    "id": "swe-2",
+    "role": "SWE",
+    "topic": "Time Complexity",
+    "difficulty": "medium",
+    "experience_level": "fresher",
+    "query": "Binary search loops forever when only two entries remain",
+    "expected_subtopic": "algorithms"
+  },
+  {
+    "id": "swe-3",
+    "role": "Software Engineer",
+    "topic": "Object-Oriented Programming",
+    "difficulty": "hard",
+    "experience_level": "experienced",
+    "query": "A gateway subclass violates retry safety",
+    "expected_subtopic": "oop"
+  },
+  {
+    "id": "swe-4",
+    "role": "Software Developer",
+    "topic": "SQL Joins",
+    "difficulty": "easy",
+    "experience_level": "fresher",
+    "query": "Preserve customers without matching orders",
+    "expected_subtopic": "sql"
+  },
+  {
+    "id": "swe-5",
+    "role": "SWE",
+    "topic": "HTTP",
+    "difficulty": "medium",
+    "experience_level": "fresher",
+    "query": "A timed out order POST might already have committed",
+    "expected_subtopic": "http"
+  },
+  {
+    "id": "swe-6",
+    "role": "Software Engineer",
+    "topic": "REST APIs",
+    "difficulty": "hard",
+    "experience_level": "experienced",
+    "query": "Pagination while records change and compatibility matters",
+    "expected_subtopic": "rest"
+  },
+  {
+    "id": "swe-7",
+    "role": "Software Developer",
+    "topic": "Git",
+    "difficulty": "easy",
+    "experience_level": "fresher",
+    "query": "Undo a change on a shared branch",
+    "expected_subtopic": "git"
+  },
+  {
+    "id": "swe-8",
+    "role": "SWE",
+    "topic": "Testing",
+    "difficulty": "medium",
+    "experience_level": "fresher",
+    "query": "Test failure recovery with a fake network dependency",
+    "expected_subtopic": "testing"
+  },
+  {
+    "id": "swe-9",
+    "role": "Software Engineer",
+    "topic": "Debugging",
+    "difficulty": "hard",
+    "experience_level": "experienced",
+    "query": "Investigate an intermittent production latency incident",
+    "expected_subtopic": "debugging"
+  },
+  {
+    "id": "swe-10",
+    "role": "Software Developer",
+    "topic": "Authentication & Authorization",
+    "difficulty": "easy",
+    "experience_level": "fresher",
+    "query": "Can a logged-in user read another user report?",
+    "expected_subtopic": "security"
+  },
+  {
+    "id": "unknown-role",
+    "role": "Quantum Pilot",
+    "topic": "SQL",
+    "difficulty": "easy",
+    "experience_level": "fresher",
+    "query": "Join tables",
+    "expected_subtopic": null
+  },
+  {
+    "id": "no-hard-intern",
+    "role": "Software Developer",
+    "topic": "SQL",
+    "difficulty": "hard",
+    "experience_level": "internship",
+    "query": "Serializable concurrent transactions",
+    "expected_subtopic": null
+  },
+  {
+    "id": "frontend",
+    "role": "Frontend Developer",
+    "topic": "Accessibility",
+    "query": "Keyboard-operable confirmation dialog",
+    "difficulty": "medium",
+    "experience_level": "intermediate",
+    "expected_subtopic": "accessibility"
+  },
+  {
+    "id": "backend",
+    "role": "Backend Engineer",
+    "topic": "SQL",
+    "query": "Concurrent inventory update",
+    "difficulty": "medium",
+    "experience_level": "intermediate",
+    "expected_subtopic": "sql"
+  },
+  {
+    "id": "fullstack",
+    "role": "Full-Stack Developer",
+    "topic": "REST APIs",
+    "query": "Cursor pagination with changing data",
+    "difficulty": "medium",
+    "experience_level": "intermediate",
+    "expected_subtopic": "rest"
+  },
+  {
+    "id": "analyst",
+    "role": "Data Analyst",
+    "topic": "Statistics",
+    "query": "Uncertain conversion lift with a wide interval",
+    "difficulty": "medium",
+    "experience_level": "intermediate",
+    "expected_subtopic": "statistics"
+  },
+  {
+    "id": "scientist",
+    "role": "Data Scientist",
+    "topic": "Statistics",
+    "query": "Repeated monitoring of an experiment",
+    "difficulty": "medium",
+    "experience_level": "intermediate",
+    "expected_subtopic": "statistics"
+  },
+  {
+    "id": "ml",
+    "role": "ML Engineer",
+    "topic": "Testing",
+    "query": "Isolated test of a failed dependency",
+    "difficulty": "medium",
+    "experience_level": "intermediate",
+    "expected_subtopic": "testing"
+  },
+  {
+    "id": "ai",
+    "role": "AI Engineer",
+    "topic": "Testing",
+    "query": "Deterministic fixtures for an AI application",
+    "difficulty": "medium",
+    "experience_level": "intermediate",
+    "expected_subtopic": "testing"
+  },
+  {
+    "id": "devops",
+    "role": "Cloud Engineer",
+    "topic": "CI/CD",
+    "query": "Deployment approval and backward compatible rollback",
+    "difficulty": "medium",
+    "experience_level": "intermediate",
+    "expected_subtopic": "cicd"
+  },
+  {
+    "id": "cyber",
+    "role": "SOC Analyst",
+    "topic": "Incident Response",
+    "query": "Preserve evidence while triaging unusual report downloads",
+    "difficulty": "medium",
+    "experience_level": "intermediate",
+    "expected_subtopic": "incident_response"
+  },
+  {
+    "id": "qa",
+    "role": "QA Automation Engineer",
+    "topic": "Test Automation",
+    "query": "A deferred response exposes a double-submit race",
+    "difficulty": "medium",
+    "experience_level": "intermediate",
+    "expected_subtopic": "test_automation"
+  },
+  {
+    "id": "python",
+    "role": "Python Developer",
+    "topic": "Git",
+    "query": "Revert a shared commit safely",
+    "difficulty": "medium",
+    "experience_level": "intermediate",
+    "expected_subtopic": "git"
+  },
+  {
+    "id": "cross-role-denied",
+    "role": "Frontend Developer",
+    "topic": "Incident Response",
+    "query": "Investigate token compromise",
+    "difficulty": "medium",
+    "experience_level": "intermediate",
+    "expected_subtopic": null
+  }
+]

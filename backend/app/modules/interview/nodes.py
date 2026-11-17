@@ -18,6 +18,7 @@ from app.modules.interview.calibration import (
     normalize_experience_level,
 )
 from app.modules.interview.deduplication import compute_question_fingerprint
+from app.modules.interview.difficulty_contract import opening_question_type
 from app.modules.interview.grader import grade_interview_answer
 from app.modules.interview.hr_generator import (
     generate_hr_follow_up,
@@ -83,9 +84,15 @@ class InterviewNodes:
         ctx.setdefault("projects", [])
         level = normalize_experience_level(state.get("experience_level"))
         interview_type = str(state.get("interview_type") or "technical").strip().lower()
-        progression_mode = str(state.get("progression_mode") or "adaptive").strip().lower()
+        progression_mode = (
+            str(state.get("progression_mode") or "adaptive").strip().lower()
+        )
         starting_diff = state.get("starting_difficulty")
-        initial_diff = state.get("current_difficulty") or starting_diff or starting_difficulty_for_level(level)
+        initial_diff = (
+            state.get("current_difficulty")
+            or starting_diff
+            or starting_difficulty_for_level(level)
+        )
 
         return {
             "candidate_context": ctx,
@@ -96,11 +103,17 @@ class InterviewNodes:
             "current_difficulty": initial_diff,
             "difficulty_history": list(state.get("difficulty_history") or []),
             "recent_scores": list(state.get("recent_scores") or []),
-            "consecutive_strong_answers": int(state.get("consecutive_strong_answers") or 0),
+            "consecutive_strong_answers": int(
+                state.get("consecutive_strong_answers") or 0
+            ),
             "consecutive_weak_answers": int(state.get("consecutive_weak_answers") or 0),
             "topic_performance": dict(state.get("topic_performance") or {}),
-            "asked_question_fingerprints": list(state.get("asked_question_fingerprints") or []),
-            "recent_cross_session_questions": list(state.get("recent_cross_session_questions") or []),
+            "asked_question_fingerprints": list(
+                state.get("asked_question_fingerprints") or []
+            ),
+            "recent_cross_session_questions": list(
+                state.get("recent_cross_session_questions") or []
+            ),
             "last_evaluation": state.get("last_evaluation"),
             "follow_up_reason": state.get("follow_up_reason"),
             "follow_up_type": state.get("follow_up_type"),
@@ -119,7 +132,11 @@ class InterviewNodes:
                 max_questions=state.get("max_questions", 8),
             )
             asked_topics.append(category)
-            cur_diff = state.get("current_difficulty") or state.get("starting_difficulty") or "medium"
+            cur_diff = (
+                state.get("current_difficulty")
+                or state.get("starting_difficulty")
+                or "medium"
+            )
             return {
                 "selected_topic": category,
                 "question_focus": "behavioral",
@@ -140,7 +157,9 @@ class InterviewNodes:
         asked_topics.append(topic)
 
         level = normalize_experience_level(state.get("experience_level"))
-        global_diff = state.get("current_difficulty") or starting_difficulty_for_level(level)
+        global_diff = state.get("current_difficulty") or starting_difficulty_for_level(
+            level
+        )
         adapted_diff = difficulty_for_next_topic(
             global_difficulty=global_diff,
             next_topic=topic,
@@ -157,7 +176,9 @@ class InterviewNodes:
             "asked_topics": asked_topics,
             "current_difficulty": adapted_diff,
             "current_question": {
-                "question_type": q_type,
+                "question_type": opening_question_type(
+                    adapted_diff, state["question_index"], state.get("session_id") or ""
+                ),
             },
         }
 
@@ -168,15 +189,30 @@ class InterviewNodes:
             return {"retrieved_context": "", "retrieved_sources": []}
 
         topic = state.get("selected_topic") or state["target_role"]
-        query = f"{state['target_role']} {topic}".strip()
+        recent = (state.get("conversation_history") or [])[-2:]
+        previous = " ".join(
+            f"{t.get('question_text','')} {t.get('answer_text') or ''}" for t in recent
+        )[-600:]
+        query = (
+            f"{state['target_role']} {topic}. Experience: {state.get('experience_level','fresher')}. "
+            f"Difficulty: {state.get('current_difficulty','medium')}. "
+            f"Question type: {(state.get('current_question') or {}).get('question_type','conceptual')}. "
+            f"Previous discussion: {previous}"
+        )
 
         try:
             chunks = await retrieve_chunks_async(
                 db=self.db,
                 query=query,
                 top_k=3,
+                topic=topic,
+                role=state["target_role"],
+                difficulty=state.get("current_difficulty"),
+                experience_level=state.get("experience_level"),
             )
-        except Exception as exc:  # pragma: no cover - fallback for empty/non-pgvector DB
+        except (
+            Exception
+        ) as exc:  # pragma: no cover - fallback for empty/non-pgvector DB
             logger.info(
                 "RAG retrieval skipped/fallback for topic '%s': %s",
                 topic,
@@ -216,7 +252,9 @@ class InterviewNodes:
             "question_type", "conceptual"
         )
         level = normalize_experience_level(state.get("experience_level"))
-        difficulty = state.get("current_difficulty") or starting_difficulty_for_level(level)
+        difficulty = state.get("current_difficulty") or starting_difficulty_for_level(
+            level
+        )
 
         session_questions = [
             turn["question_text"]
@@ -263,6 +301,8 @@ class InterviewNodes:
             )
 
         q_dict = question.model_dump()
+        if question.reasoning_family and question.reasoning_family not in fingerprints:
+            fingerprints.append(question.reasoning_family)
         fp = compute_question_fingerprint(q_dict["topic"], q_dict["question_text"])
         if fp not in fingerprints:
             fingerprints.append(fp)
@@ -309,7 +349,11 @@ class InterviewNodes:
         provider = _safe_get_provider(self.llm_provider)
         level = normalize_experience_level(state.get("experience_level"))
         topic = question.get("topic", state.get("selected_topic", ""))
-        cur_diff = question.get("difficulty") or state.get("current_difficulty") or starting_difficulty_for_level(level)
+        cur_diff = (
+            question.get("difficulty")
+            or state.get("current_difficulty")
+            or starting_difficulty_for_level(level)
+        )
         is_hr = str(state.get("interview_type") or "").strip().lower() == "hr"
 
         if is_hr:
@@ -356,7 +400,9 @@ class InterviewNodes:
             experience_level=level,
             evaluation=eval_dict,
             recent_scores=list(state.get("recent_scores") or []),
-            consecutive_strong_answers=int(state.get("consecutive_strong_answers") or 0),
+            consecutive_strong_answers=int(
+                state.get("consecutive_strong_answers") or 0
+            ),
             consecutive_weak_answers=int(state.get("consecutive_weak_answers") or 0),
             topic_performance=dict(state.get("topic_performance") or {}),
             topic=topic,
@@ -386,7 +432,9 @@ class InterviewNodes:
             question_index=state.get("question_index", 1),
             max_questions=state.get("max_questions", 8),
             question_type=question.get("question_type", "conceptual"),
-            current_difficulty=question.get("difficulty") or state.get("current_difficulty") or "medium",
+            current_difficulty=question.get("difficulty")
+            or state.get("current_difficulty")
+            or "medium",
         )
         return {
             "next_action": action,

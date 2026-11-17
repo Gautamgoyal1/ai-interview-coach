@@ -31,8 +31,9 @@ EXPERIENCE_GUIDANCE: dict[ExperienceLevel, str] = {
         "questions, real-world trade-offs, debugging, and moderate design choices."
     ),
     "experienced": (
-        "Candidate is experienced. Include deeper architectural trade-offs, "
-        "scalability, reliability, and production debugging where appropriate."
+        "Candidate is experienced. Ask for independent practical reasoning, "
+        "implementation choices, optimization and relevant trade-offs. Do not "
+        "automatically turn the question into distributed-system design."
     ),
 }
 

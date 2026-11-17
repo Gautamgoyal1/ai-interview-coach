@@ -26,7 +26,12 @@ from app.db.models.user import User
 from app.db.session import get_db
 from app.modules.interview.graph import clear_session_checkpoints
 from app.modules.resume.evidence import classify_skills_evidence
-from app.modules.resume.fingerprint import compute_analysis_fingerprint
+from app.modules.resume.fingerprint import (
+    compute_analysis_fingerprint,
+    get_taxonomy_digest,
+    SCORING_VERSION,
+)
+from app.modules.resume.catalog import load_catalog
 from app.modules.resume.parser import extract_resume_text
 from app.modules.resume.schemas import (
     AnalyzeResumeResponse,
@@ -66,11 +71,7 @@ def _get_analysis_lock(user_id: int, fingerprint: str) -> asyncio.Lock:
 
 def _sanitize_filename(original: str | None) -> str:
     raw = original or "resume.pdf"
-    name = (
-        PureWindowsPath(raw).name
-        if "\\" in raw
-        else PurePath(raw).name
-    )
+    name = PureWindowsPath(raw).name if "\\" in raw else PurePath(raw).name
     return name[:255] or "resume.pdf"
 
 
@@ -187,6 +188,12 @@ async def analyze_resume(
             filename = _sanitize_filename(file.filename)
 
             result_payload = result.model_dump(mode="json")
+            # Audit new analyses without changing the response schema or old records.
+            result_payload.update(
+                scoring_version=SCORING_VERSION,
+                taxonomy_version=load_catalog()["taxonomy_version"],
+                taxonomy_digest=get_taxonomy_digest(),
+            )
             if resume_text:
                 try:
                     taxonomy = load_skill_taxonomy()
@@ -205,7 +212,9 @@ async def analyze_resume(
                     .scalar()
                     or 0
                 )
-                next_version = existing.version + (1 if existing.status == "completed" else 0)
+                next_version = existing.version + (
+                    1 if existing.status == "completed" else 0
+                )
 
                 if dep_count == 0:
                     existing.job_role = request.job_role

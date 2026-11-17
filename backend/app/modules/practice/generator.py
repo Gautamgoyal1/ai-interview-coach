@@ -189,8 +189,10 @@ async def generate_practice_question(
                 db=db,
                 query=f"{topic} {weakness_context or ''}".strip(),
                 top_k=2,
-                topic=topic if len(topic.split()) <= 3 else None,
+                topic=topic,
                 role=target_role,
+                difficulty=difficulty,
+                experience_level=experience_level,
             )
             if chunks:
                 rag_context_text = "Knowledge base context:\n" + "\n".join(
@@ -208,7 +210,8 @@ async def generate_practice_question(
                     topic=topic,
                     experience_level_label=level_label,
                     difficulty=difficulty,
-                    weakness_context=weakness_context or "General topic practice and core concept reinforcement.",
+                    weakness_context=weakness_context
+                    or "General topic practice and core concept reinforcement.",
                     previous_questions=json.dumps(prev_q_list),
                     optional_rag_context=rag_context_text,
                 )
@@ -248,10 +251,18 @@ async def generate_practice_question(
                     difficulty=difficulty,
                     hints=hints,
                     reference_answer=parsed.reference_answer.strip(),
-                    reference_explanation=parsed.reference_explanation.strip() if parsed.reference_explanation else None,
+                    reference_explanation=(
+                        parsed.reference_explanation.strip()
+                        if parsed.reference_explanation
+                        else None
+                    ),
                 )
             except (LLMError, json.JSONDecodeError, ValidationError) as exc:
-                logger.warning("Practice question generation attempt %d failed: %s", attempt + 1, exc)
+                logger.warning(
+                    "Practice question generation attempt %d failed: %s",
+                    attempt + 1,
+                    exc,
+                )
 
     # Curated fallback
     fallback = _pick_curated_fallback(topic, interview_type, difficulty)

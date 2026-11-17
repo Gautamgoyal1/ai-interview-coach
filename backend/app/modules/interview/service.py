@@ -16,6 +16,7 @@ from app.modules.interview.adaptive import starting_difficulty_for_level
 from app.modules.interview.calibration import normalize_experience_level
 from app.modules.interview.deduplication import compute_question_fingerprint
 from app.modules.interview.graph import build_interview_graph, clear_session_checkpoints
+from app.modules.interview.generation_errors import QuestionGenerationUnavailable
 from app.modules.interview.repository import (
     create_interview_session,
     create_question_turn,
@@ -73,7 +74,8 @@ def _to_session_response(
 ) -> InterviewSessionResponse:
     turns = list_session_turns(db, session.id)
     active_q = None
-    if session.status == "in_progress":
+    pending_generation = bool((session.configuration or {}).get("pending_generation")) and session.status == "in_progress"
+    if session.status == "in_progress" and not pending_generation:
         active_q = _to_public_question(
             (session.graph_state or {}).get("current_question")
         )
@@ -116,6 +118,7 @@ def _to_session_response(
         follow_up_count=session.follow_up_count,
         max_follow_ups=session.max_follow_ups,
         current_question=active_q,
+        generation_unavailable=pending_generation,
         conversation_history=history,
         started_at=session.started_at,
         completed_at=session.completed_at,
@@ -248,7 +251,11 @@ class InterviewService:
             checkpointer=self.checkpointer,
         )
         config = {"configurable": {"thread_id": session_id}}
-        result_state = await graph.ainvoke(initial_state, config=config)
+        try:
+            result_state = await graph.ainvoke(initial_state, config=config)
+        except QuestionGenerationUnavailable as exc:
+            clear_session_checkpoints([session_id], self.checkpointer)
+            raise HTTPException(status_code=503, detail="No suitable question is available for these settings; no interview was started. " + exc.recovery_hint) from None
 
         stored_state = _clean_state_for_storage(dict(result_state))
         session = create_interview_session(
@@ -389,10 +396,27 @@ class InterviewService:
             )
             await graph.aupdate_state(config, stored_state, as_node=as_node)
 
-        result_state = await graph.ainvoke(
-            Command(resume=cleaned_answer),
-            config=config,
-        )
+        try:
+            result_state = await graph.ainvoke(
+                Command(resume=cleaned_answer),
+                config=config,
+            )
+        except QuestionGenerationUnavailable as exc:
+            # The last durable graph boundary contains the completed grade and
+            # next topic/difficulty. Persist it before returning a controlled
+            # failure; recovery resumes generation, never this answer's grading.
+            failed = await graph.aget_state(config)
+            pending = _clean_state_for_storage(dict(failed.values))
+            if not any(e.get("question_id") == request.question_id for e in pending.get("evaluation_history", [])):
+                raise RuntimeError("Generation failed without the submitted turn's evaluation history")
+            record_turn_answer(db=db, turn=turn, answer_text=cleaned_answer,
+                evaluation=_evaluation_for_turn(pending, request.question_id))
+            session.graph_state = pending
+            session.question_index = int(pending["question_index"])
+            session.follow_up_count = int(pending.get("follow_up_count", 0))
+            session.configuration = {**(session.configuration or {}), "pending_generation": True}
+            db.commit()
+            raise HTTPException(status_code=503, detail="Your answer was saved. " + exc.recovery_hint) from None
 
         updated_state = _clean_state_for_storage(dict(result_state))
         record_turn_answer(
@@ -428,6 +452,38 @@ class InterviewService:
         db.commit()
         db.refresh(session)
         return _to_session_response(db, session)
+
+    async def retry_question(self, db: Session, user_id: int, session_id: str) -> InterviewSessionResponse:
+        """Idempotent generation-only retry, including after backend restart."""
+        async with self._get_session_lock(session_id):
+            db.expire_all()
+            session = get_owned_session(db, session_id, user_id)
+            if session is None:
+                raise HTTPException(status_code=404, detail="Interview session not found.")
+            if session.status != "in_progress" or not (session.configuration or {}).get("pending_generation"):
+                return _to_session_response(db, session)
+            graph = build_interview_graph(db=db, llm_provider=self.llm_provider, checkpointer=self.checkpointer)
+            config = {"configurable": {"thread_id": session_id}}
+            # This is the existing retrieve->generate edge. No answer interrupt,
+            # evaluation, selection or adaptive transition is replayed.
+            await graph.aupdate_state(config, dict(session.graph_state), as_node="retrieve_knowledge")
+            try:
+                result = await graph.ainvoke(None, config=config)
+            except QuestionGenerationUnavailable as exc:
+                raise HTTPException(status_code=503, detail="Your saved answer is safe. " + exc.recovery_hint) from None
+            updated = _clean_state_for_storage(dict(result))
+            question = updated.get("current_question")
+            if not question:
+                raise RuntimeError("Generation retry completed without a question")
+            create_question_turn(db=db, session_id=session_id, question=question,
+                question_index=updated["question_index"], rag_sources=list(updated.get("retrieved_sources") or []))
+            session.graph_state = updated
+            session.configuration = {**(session.configuration or {}), "pending_generation": False}
+            session.question_index = int(updated["question_index"])
+            session.follow_up_count = int(updated.get("follow_up_count", 0))
+            db.commit()
+            db.refresh(session)
+            return _to_session_response(db, session)
 
     async def end_interview(
         self,
