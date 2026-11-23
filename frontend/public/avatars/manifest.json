@@ -1,0 +1,63 @@
+﻿{
+    "version":  1,
+    "generator":  "OpenAI built-in image generation",
+    "createdFor":  "PrepMate Voice Interview",
+    "syntheticIdentities":  true,
+    "referencePhotographsUsed":  false,
+    "thirdPartyPortraitsUsed":  false,
+    "usage":  "Original generated assets created for this project. Neither avatar is a camera feed or a portrait supplied by a real person. No claim of exclusive copyright is made.",
+    "format":  "WebP",
+    "frameWidth":  480,
+    "frameHeight":  600,
+    "framesPerIdentity":  [
+                              "neutral",
+                              "soft",
+                              "open",
+                              "blink"
+                          ],
+    "animation":  "Static neutral portraits with a separate local audio-activity indicator. Photographic expression frames are retained for provenance but are not loaded or animated; they are not registered facial layers or a rig.",
+    "generationPrompt":  "Use case: photorealistic-natural. Asset type: a single production 2D human avatar sprite sheet for a professional video interview app, NOT a screenshot or UI mockup. Create a perfectly regular 4-column x 2-row contact sheet, 8 rectangular tiles with NO margins, NO gutters, NO borders, NO text or labels. Every tile has the same 4:5 portrait aspect ratio, same head-and-shoulders framing, subject perfectly centered, head upright, eyes at exactly 34% of tile height, mouth at exactly 48% of tile height. Entire sheet aspect ratio 8:5. Row 1: the SAME entirely fictional professional woman age 35, medium warm brown skin, dark brown shoulder-length hair neatly tucked behind ears, charcoal blazer and light ivory blouse, approachable composed expression. Row 2: the SAME entirely fictional professional man age 28, warm olive skin, short dark brown textured hair, blue-grey collared shirt, composed expression, visually distinct from row 1. Nobody should resemble a known person. Same quiet slightly defocused professional office background in every tile, warm stone wall and a restrained plant off to the far side, natural daylight from the side, excellent natural skin texture, realistic hair, clear detailed eyes and eyebrows, premium editorial photography. Each row is one identity absolutely unchanged in all 4 tiles, camera, head position, body pose and lighting locked IDENTICALLY for animation: column 1 mouth gently closed and eyes open (neutral attentive listening); column 2 lips slightly parted as speaking a soft syllable, eyes open; column 3 mouth moderately open naturally mid-speech, eyes open, no exaggerated smile; column 4 mouth closed and eyes naturally fully closed mid blink. The only differences between frames within a row MUST be lips/jaw and eyelids. Do not move head, shoulders or camera between frames. No drawn/cartoon styling, no icons, no circular crop, no illustration, no neon, no glow, no exaggerated teeth, no accessories hiding the face, no logos, no watermarks. These original fictional portraits are for local web-app assets, not portraits of real people.",
+    "frames":  [
+                   {
+                       "file":  "candidate-blink.webp",
+                       "bytes":  23186,
+                       "sha256":  "09ee05239f0266dd133e4d7c0398d7f97d525b1e00f43f6216c7184f00e91742"
+                   },
+                   {
+                       "file":  "candidate-neutral.webp",
+                       "bytes":  23712,
+                       "sha256":  "e1f438ebf20f8b21494695a40e259719267c444f759115c074ceef7e8d3b6d4e"
+                   },
+                   {
+                       "file":  "candidate-open.webp",
+                       "bytes":  23814,
+                       "sha256":  "f198319c85f8dc4a3d2aafb026f9b66e36c541ffe642a376749f22eb1eea0cc7"
+                   },
+                   {
+                       "file":  "candidate-soft.webp",
+                       "bytes":  23730,
+                       "sha256":  "c25c30084d69a9c0433cf348743b5d6981baeb898780d5b4d2c8740373261900"
+                   },
+                   {
+                       "file":  "interviewer-blink.webp",
+                       "bytes":  20732,
+                       "sha256":  "4c3442450d37a72de08a62e92c0d93e25c890dec187dcdd3828fe0c7c6ed0f9c"
+                   },
+                   {
+                       "file":  "interviewer-neutral.webp",
+                       "bytes":  21190,
+                       "sha256":  "72daae4f6fc1278095afe841470b666e004497db7775e5264cd45e41c2419651"
+                   },
+                   {
+                       "file":  "interviewer-open.webp",
+                       "bytes":  21488,
+                       "sha256":  "baa754fad14fcc19df9755b532e76442c7c8bafb7a38fe68a286b0cee6911900"
+                   },
+                   {
+                       "file":  "interviewer-soft.webp",
+                       "bytes":  21290,
+                       "sha256":  "a52e0c3a4e35b32ad09282f94d5f269e88128b1229c3c4d86227edd431486c28"
+                   }
+               ],
+    "sourceSheetSha256":  "6a81e8f8f6aadeadc7ddc63a1dbcfd2424de3a584ffae46a8474749d1de1a143"
+}

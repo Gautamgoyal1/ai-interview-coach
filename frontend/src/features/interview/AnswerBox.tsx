@@ -92,11 +92,12 @@ export default function AnswerBox({
   return (
     <form
       className="iv-answer-panel"
+      data-voice-state={inputMode === "voice" ? voiceState : "text"}
       onSubmit={handleSubmit}
       aria-busy={submitting}
     >
       <div className="iv-response-heading">
-        <h2>Your response</h2>
+        <h2>{inputMode === "voice" ? "Your transcript" : "Your response"}</h2>
         <span>Draft - not saved until submitted</span>
       </div>
       {/* Header with Mode Toggle & Status Indicator */}
@@ -308,9 +309,9 @@ export default function AnswerBox({
       </div>
 
       <p id="interview-draft-note" className="iv-draft-note">
-        {isListening
+        {inputMode === "voice" && isListening
           ? "Recording in progress. Stop & Review to edit your answer."
-          : voiceState === "stopping"
+          : inputMode === "voice" && voiceState === "stopping"
             ? "Waiting for final speech segments. Your answer will be editable when ready."
             : "Your answer stays on this page only until you submit. Leaving or refreshing discards it."}
       </p>

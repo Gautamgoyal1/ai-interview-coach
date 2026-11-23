@@ -13,6 +13,7 @@ import {
 } from "../components/Icons";
 import ThemeToggle from "../components/ThemeToggle";
 import AnswerBox from "../features/interview/AnswerBox";
+import ActiveSpeakerStage from "../features/interview/ActiveSpeakerStage";
 import InterviewSetup from "../features/interview/InterviewSetup";
 import ProgressBar from "../features/interview/ProgressBar";
 import QuestionCard from "../features/interview/QuestionCard";
@@ -75,6 +76,8 @@ export default function InterviewRoom() {
     voiceError,
     setVoiceError,
     isAudioLoading,
+    microphoneActivity,
+    playbackActivity,
     replayQuestionAudio,
     stopQuestionAudio,
     startRecording,
@@ -233,7 +236,7 @@ export default function InterviewRoom() {
     session.interview_type === "hr" ? "Behavioral round" : "Technical round";
 
   return (
-    <div className="iv-shell iv-focused">
+    <div className={`iv-shell iv-focused${isInProgress && session.current_question ? " iv-compact" : ""}`}>
       {/* Top Header Bar matching conceptual preview */}
       <header className="iv-header">
         <div className="iv-header-inner">
@@ -254,13 +257,6 @@ export default function InterviewRoom() {
           </div>
 
           <div className="iv-header-right">
-            {isInProgress && (
-              <span className="iv-header-count tabular-nums">
-                Question{" "}
-                {Math.min(session.question_index, session.max_questions)} of{" "}
-                {session.max_questions}
-              </span>
-            )}
             <ThemeToggle className="iv-header-theme-toggle" />
             <Link to="/dashboard" className="btn btn-ghost iv-header-btn">
               Dashboard
@@ -311,32 +307,44 @@ export default function InterviewRoom() {
           </section>
         ) : isInProgress && session.current_question ? (
           <div className="iv-workspace">
-            {/* Subheader bar */}
-            <div className="iv-subheader">
-              <div className="iv-subheader-info">
-                <h1 className="iv-role-title">
-                  {session.target_role} Interview
-                </h1>
-                <p className="iv-role-meta">
-                  {roundTypeLabel} / {experienceLabel} /{" "}
-                  {session.progression_mode === "mock" ? "Mock" : "Adaptive"}
-                </p>
-              </div>
-
-              <div className="iv-status-pill">In progress</div>
-            </div>
-
-            {/* Full-width slim progress bar */}
-            <ProgressBar
-              questionIndex={session.question_index}
-              maxQuestions={session.max_questions}
-              isFollowUp={session.current_question.is_follow_up}
-              answeredCount={answeredTurns.length}
-            />
+            <div className={`iv-conversation-layout${inputMode === "voice" ? " iv-conversation-layout--voice" : ""}`}>
+            {inputMode === "voice" && (
+              <ActiveSpeakerStage
+                voiceState={voiceState}
+                isMuted={isMuted}
+                isAudioLoading={isAudioLoading}
+                processing={loading || submitting}
+                voiceError={voiceError}
+                microphoneActivity={microphoneActivity}
+                playbackActivity={playbackActivity}
+              />
+            )}
 
             {/* Split Grid: Left Question, Right Answer */}
             <div className="iv-split-grid">
               <QuestionCard
+                sessionHeader={
+                  <div className="iv-session-heading">
+                    <div className="iv-session-context">
+                      <div>
+                        <h1 className="iv-role-title">{session.target_role} Interview</h1>
+                        <p className="iv-role-meta">
+                          {roundTypeLabel} · {experienceLabel} · {session.progression_mode === "mock" ? "Mock" : "Adaptive"}
+                        </p>
+                      </div>
+                      <div className="iv-session-progress">
+                        <span className="tabular-nums">Question {Math.min(session.question_index, session.max_questions)} of {session.max_questions}</span>
+                        <span>{session.current_question.is_follow_up ? "Follow-up" : "In progress"}</span>
+                      </div>
+                    </div>
+                    <ProgressBar
+                      questionIndex={session.question_index}
+                      maxQuestions={session.max_questions}
+                      isFollowUp={session.current_question.is_follow_up}
+                      answeredCount={answeredTurns.length}
+                    />
+                  </div>
+                }
                 question={session.current_question}
                 questionIndex={session.question_index}
                 maxQuestions={session.max_questions}
@@ -370,6 +378,7 @@ export default function InterviewRoom() {
                 onStartRecording={() => void startRecording()}
                 onStopRecording={stopRecording}
               />
+            </div>
             </div>
           </div>
         ) : (

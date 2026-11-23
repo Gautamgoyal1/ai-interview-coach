@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useVoiceInterview } from "../src/features/interview/useVoiceInterview";
 import AnswerBox from "../src/features/interview/AnswerBox";
 
-const mocks = vi.hoisted(() => ({ token: vi.fn(), invalidate: vi.fn(), synthesize: vi.fn(), startPending: false, startFailure: false, instances: [] as any[], configs: [] as any[] }));
+const mocks = vi.hoisted(() => ({ token: vi.fn(), invalidate: vi.fn(), synthesize: vi.fn(), observeMic: vi.fn(), observePlayback: vi.fn(), playPending: false, startPending: false, startFailure: false, instances: [] as any[], configs: [] as any[] }));
+vi.mock("../src/features/interview/audioActivity", () => ({ observeMicrophoneActivity: mocks.observeMic, observePlaybackActivity: mocks.observePlayback }));
 vi.mock("../src/services/speech.service", () => ({
   getSpeechToken: mocks.token, invalidateSpeechToken: mocks.invalidate, synthesizeSpeechAudio: mocks.synthesize,
 }));
@@ -42,7 +43,9 @@ let mic: ReturnType<typeof vi.fn>;
 let track: { stop: ReturnType<typeof vi.fn> };
 let stream: any;
 let players: any[];
+let hookRenders: number;
 function Harness({ opts }: { opts: any }) {
+  hookRenders++;
   const [answer, setAnswer] = useState("");
   api = useVoiceInterview({ initialMode: "voice", ...opts, answerText: answer, onAnswerChange: setAnswer });
   return <span>{answer}</span>;
@@ -62,9 +65,12 @@ beforeEach(() => {
   vi.useFakeTimers();
   mocks.instances.length = mocks.configs.length = 0;
   mocks.startPending = mocks.startFailure = false;
+  mocks.playPending = false; hookRenders = 0;
   mocks.token.mockReset().mockResolvedValue({ token: "token-one", region: "eastasia", expires_in: 600 });
   mocks.invalidate.mockReset();
   mocks.synthesize.mockReset().mockResolvedValue(new Blob(["mp3"]));
+  mocks.observeMic.mockReset().mockImplementation(() => vi.fn());
+  mocks.observePlayback.mockReset().mockImplementation(() => vi.fn());
   track = { stop: vi.fn() };
   stream = { getTracks: () => [track] };
   mic = vi.fn().mockResolvedValue(stream);
@@ -73,7 +79,11 @@ beforeEach(() => {
   vi.stubGlobal("Audio", class {
     onplay: any; onended: any; onerror: any;
     pause = vi.fn(); load = vi.fn(); removeAttribute = vi.fn();
-    play = vi.fn(async () => { this.onplay?.(); });
+    play = vi.fn(() => {
+      this.onplay?.();
+      if (mocks.playPending) return new Promise<void>(done => { (this as any).finishPlay = () => { (this as any).onplaying?.(); done(); }; });
+      (this as any).onplaying?.(); return Promise.resolve();
+    });
     constructor(public src: string) { players.push(this); }
   });
   vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:offline");
@@ -86,6 +96,72 @@ afterEach(async () => {
 });
 
 describe("recognition lifecycle", () => {
+  it("observes the existing stream without extra permissions and rejects late activity after review", async () => {
+    let report!: (level: number) => void;
+    const stopActivity = vi.fn();
+    mocks.observeMic.mockImplementation((_stream, callback) => { report = callback; return stopActivity; });
+    await mount(); const rec = await start();
+    expect(mocks.observeMic).toHaveBeenCalledWith(stream, expect.any(Function));
+    act(() => report(0.5)); expect(api.microphoneLevel).toBe(0.5);
+    act(() => report(0)); expect(api.microphoneLevel).toBe(0);
+    let completion!: Promise<void>;
+    act(() => { completion = api.stopRecording(); });
+    expect(stopActivity).toHaveBeenCalledTimes(1);
+    expect(api.microphoneLevel).toBeNull();
+    expect(rec.close).not.toHaveBeenCalled(); expect(track.stop).not.toHaveBeenCalled();
+    await act(async () => { final(rec, "The final words still arrive."); rec.stopSuccess(); await completion; });
+    expect(api.voiceState).toBe("review");
+    expect(track.stop).toHaveBeenCalledTimes(1);
+    act(() => report(1)); expect(api.microphoneLevel).toBeNull();
+    expect(mic).toHaveBeenCalledTimes(1);
+  });
+
+  it("clears visual playback activity on pause, mute and stale callbacks", async () => {
+    let report!: (level: number) => void;
+    const stopActivity = vi.fn();
+    mocks.observePlayback.mockImplementation((_audio, _blob, callback) => { report = callback; return stopActivity; });
+    await mount({ questionText: "A question", questionId: "q1" });
+    expect(api.voiceState).toBe("ai_speaking");
+    act(() => report(0.5)); expect(api.playbackLevel).toBe(0.5);
+    act(() => players[0].onpause());
+    expect(api.voiceState).toBe("ready"); expect(api.playbackLevel).toBe(0);
+    act(() => players[0].onplaying()); expect(api.voiceState).toBe("ai_speaking");
+    act(() => api.toggleMute());
+    expect(api.playbackLevel).toBeNull();
+    expect(stopActivity).toHaveBeenCalledTimes(1);
+    act(() => report(1)); expect(api.playbackLevel).toBeNull();
+    expect(players[0].onplaying).toBeNull();
+  });
+
+  it("waits for actual playing and handles buffering, completion and error without a frozen mouth", async () => {
+    mocks.playPending = true;
+    await mount({ questionText: "Question?", questionId: "q1" });
+    expect(api.voiceState).toBe("ready"); expect(api.isAudioLoading).toBe(true);
+    act(() => players[0].onwaiting()); expect(api.voiceState).toBe("ready");
+    await act(async () => { players[0].finishPlay(); });
+    expect(api.voiceState).toBe("ai_speaking"); expect(api.isAudioLoading).toBe(false);
+    act(() => players[0].onwaiting());
+    expect(api.voiceState).toBe("ready"); expect(api.playbackLevel).toBe(0); expect(api.isAudioLoading).toBe(true);
+    act(() => { players[0].paused = true; players[0].onseeking(); players[0].onseeked(); });
+    expect(api.isAudioLoading).toBe(false); expect(api.voiceState).toBe("ready");
+    players[0].paused = false;
+    act(() => players[0].onplaying()); expect(api.voiceState).toBe("ai_speaking");
+    act(() => players[0].onended()); expect(api.playbackLevel).toBeNull(); expect(api.voiceState).toBe("ready");
+    mocks.playPending = false;
+    await act(async () => { await api.replayQuestionAudio(); });
+    act(() => players.at(-1).onerror()); expect(api.voiceError).toContain("Unable to play");
+    expect(api.playbackLevel).toBeNull(); expect(api.voiceState).toBe("ready");
+  });
+
+  it("does not rerender the interview hook host for high-frequency amplitude changes", async () => {
+    let report!: (level: number) => void;
+    mocks.observePlayback.mockImplementation((_audio, _blob, callback) => { report = callback; return vi.fn(); });
+    await mount({ questionText: "Question?", questionId: "q1" });
+    const count = hookRenders;
+    act(() => { for (let i = 0; i < 120; i++) report((i % 60) / 60); });
+    expect(hookRenders).toBe(count);
+    expect(api.playbackActivity.getLevel()).toBeGreaterThan(.9);
+  });
   it("releases the one stream on SDK startup failure", async () => {
     mocks.startFailure = true;
     await mount(); const rec = await start();
