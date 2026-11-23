@@ -88,7 +88,7 @@ def test_dedup_reuse_different_filename_role_jd_content_and_user_isolation(phase
     SessionLocal, uid_a, uid_b, active_uid = phase395_env
     llm_calls = {"count": 0}
 
-    async def fake_analyze(pdf_bytes, request):
+    async def fake_analyze(pdf_bytes, request, *, resume_text=None):
         await asyncio.sleep(0.02)
         llm_calls["count"] += 1
         return ResumeAnalysisResult(
@@ -191,7 +191,7 @@ def test_concurrent_duplicate_analysis_and_forced_reanalysis_and_processing(phas
     active_uid["id"] = uid_a
     llm_calls = {"count": 0}
 
-    async def fake_analyze(pdf_bytes, request):
+    async def fake_analyze(pdf_bytes, request, *, resume_text=None):
         await asyncio.sleep(0.05)
         llm_calls["count"] += 1
         return ResumeAnalysisResult(

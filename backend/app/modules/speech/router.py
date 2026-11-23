@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Response, status
 
-from app.api.dependencies import get_current_user
+from app.api.dependencies import get_current_user, get_ai_user
 from app.db.models.user import User
 from app.modules.speech.schemas import (
     SpeechSynthesisRequest,
@@ -21,7 +21,7 @@ speech_service = SpeechService()
 )
 async def get_speech_token(
     response: Response,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
 ) -> SpeechTokenResponse:
     """Issue a 10-minute Azure Speech authorization token for browser client SDK.
 
@@ -39,7 +39,7 @@ async def get_speech_token(
 )
 async def get_speech_token_get(
     response: Response,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
 ) -> SpeechTokenResponse:
     """Alternative GET endpoint for fetching the short-lived Azure Speech authorization token."""
     response.headers["Cache-Control"] = "private, no-store"
@@ -52,7 +52,7 @@ async def get_speech_token_get(
 )
 async def synthesize_speech(
     request: SpeechSynthesisRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
 ) -> Response:
     """Synthesize text into high-fidelity neural MP3 audio on the server.
 

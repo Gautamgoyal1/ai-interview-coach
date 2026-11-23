@@ -15,11 +15,12 @@ from fastapi import (
     UploadFile,
     status,
 )
+from starlette.concurrency import run_in_threadpool
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app.api.dependencies import get_current_user
+from app.api.dependencies import get_current_user, get_ai_user
 from app.db.models.interview_session import InterviewSession
 from app.db.models.resume import Resume, ResumeAnalysis
 from app.db.models.user import User
@@ -121,7 +122,7 @@ async def analyze_resume(
         max_length=15000,
     ),
     force_reanalyze: bool = Form(default=False),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
     db: Session = Depends(get_db),
 ) -> AnalyzeResumeResponse:
     """Analyze a PDF, reusing an identical active analysis unless forced."""
@@ -153,15 +154,11 @@ async def analyze_resume(
         )
 
         try:
-            resume_text: str | None = extract_resume_text(pdf_bytes)
-        except ValueError:
-            resume_text = None
+            resume_text = await run_in_threadpool(extract_resume_text, pdf_bytes)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from None
 
-        fingerprint_source = (
-            resume_text
-            if resume_text is not None
-            else pdf_bytes.decode("latin-1", errors="ignore")
-        )
+        fingerprint_source = resume_text
         resume_hash, fingerprint = compute_analysis_fingerprint(
             resume_text=fingerprint_source,
             job_role=request.job_role,
@@ -184,7 +181,7 @@ async def analyze_resume(
                     return _hydrating_analyze_response(existing, reused=True)
 
             # Run AI/scoring before mutating DB so we never hold DB write locks during LLM calls.
-            result = await service.analyze(pdf_bytes, request)
+            result = await service.analyze(pdf_bytes, request, resume_text=resume_text)
             filename = _sanitize_filename(file.filename)
 
             result_payload = result.model_dump(mode="json")

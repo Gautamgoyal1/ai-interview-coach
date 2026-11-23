@@ -450,6 +450,8 @@ class InterviewService:
             session.completed_at = datetime.now(timezone.utc)
 
         db.commit()
+        if session.status == "completed":
+            clear_session_checkpoints([session_id], checkpointer=self.checkpointer)
         db.refresh(session)
         return _to_session_response(db, session)
 
@@ -510,6 +512,7 @@ class InterviewService:
                 db.commit()
                 db.refresh(session)
 
+            clear_session_checkpoints([session_id], checkpointer=self.checkpointer)
             return _to_session_response(db, session)
 
     async def delete_interview(

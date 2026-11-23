@@ -15,6 +15,7 @@ from app.db.session import get_db
 from app.main import app
 from app.modules.resume.router import service
 from app.modules.resume.schemas import ResumeAnalysisResult
+from tests.unit.test_parser import create_text_pdf
 
 
 @pytest.fixture
@@ -102,7 +103,7 @@ def test_user_isolation_and_history_persistence(isolated_client: TestClient):
     analyze_res = isolated_client.post(
         "/resume/analyze",
         headers=headers_a,
-        files={"file": ("alice_cv.pdf", b"%PDF-1.4 sample", "application/pdf")},
+        files={"file": ("alice_cv.pdf", create_text_pdf("Python developer experience"), "application/pdf")},
         data={"job_role": "Machine Learning Engineer"},
     )
     assert analyze_res.status_code == 200

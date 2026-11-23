@@ -32,10 +32,11 @@ def main():
     parser.add_argument(
         "--output", type=Path, default=ROOT / "storage/repository-sync/backend-tests"
     )
+    parser.add_argument("--image", help="Explicit built image/tag; avoids testing a stale running Compose container image")
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
-    image = (
+    image = [args.image] if args.image else (
         run(["docker", "compose", "images", "-q", "backend"], capture=True)
         .stdout.strip()
         .splitlines()

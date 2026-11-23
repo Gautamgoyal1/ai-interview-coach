@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.api.dependencies import get_current_user
+from app.api.dependencies import get_current_user, get_ai_user
 from app.db.models.user import User
 from app.db.session import get_db
 from app.modules.reports.schemas import (
@@ -22,7 +22,7 @@ service = ReportService()
 )
 async def generate_interview_report(
     session_id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
     db: Session = Depends(get_db),
 ) -> InterviewReportResponse:
     """Generate or retrieve an idempotent report for a completed interview."""

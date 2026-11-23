@@ -15,10 +15,12 @@ import type {
 } from "../types/auth";
 import * as authService from "../services/auth.service";
 import { getAccessToken } from "../utils/storage";
+import { ApiError } from "../services/api";
 
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
+  sessionError: string | null;
   login: (credentials: AuthCredentials) => Promise<User>;
   register: (credentials: RegisterCredentials) => Promise<User>;
   logout: () => void;
@@ -32,6 +34,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionError, setSessionError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,11 +53,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!cancelled) {
           setUser(authenticatedUser);
         }
-      } catch {
-        authService.logout();
-
+      } catch (error) {
         if (!cancelled) {
           setUser(null);
+          if (error instanceof ApiError && error.status === 401) {
+            authService.logout();
+          } else {
+            // A sleeping backend/network failure does not invalidate a token.
+            setSessionError("We could not restore your session. Check your connection and retry.");
+          }
         }
       } finally {
         if (!cancelled) {
@@ -74,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const authenticatedUser = await authService.login(credentials);
+      setSessionError(null);
       setUser(authenticatedUser);
       return authenticatedUser;
     } finally {
@@ -93,6 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     authService.logout();
     setUser(null);
+    setSessionError(null);
   }, []);
 
   const updateUser = useCallback((updatedUser: User) => {
@@ -114,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         loading,
+        sessionError,
         login,
         register,
         logout,

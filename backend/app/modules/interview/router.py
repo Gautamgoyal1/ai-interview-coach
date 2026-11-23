@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from app.api.dependencies import get_current_user
+from app.api.dependencies import get_current_user, get_ai_user
 from app.db.models.user import User
 from app.db.session import get_db
 from app.modules.interview.schemas import (
@@ -24,7 +24,7 @@ service = InterviewService()
 )
 async def start_interview(
     request: StartInterviewRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
     db: Session = Depends(get_db),
 ) -> InterviewSessionResponse:
     """Start a personalized AI interview session from a saved resume analysis."""
@@ -59,7 +59,7 @@ def get_interview_session(
 async def submit_interview_answer(
     session_id: str,
     request: SubmitAnswerRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
     db: Session = Depends(get_db),
 ) -> InterviewSessionResponse:
     """Submit an answer to the active question and advance the LangGraph flow."""
@@ -77,7 +77,7 @@ async def submit_interview_answer(
 )
 async def end_interview_session(
     session_id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
     db: Session = Depends(get_db),
 ) -> InterviewSessionResponse:
     """Safely end an active interview session."""
@@ -91,7 +91,7 @@ async def end_interview_session(
 @router.post("/{session_id}/retry-question", response_model=InterviewSessionResponse)
 async def retry_question(
     session_id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
     db: Session = Depends(get_db),
 ) -> InterviewSessionResponse:
     """Resume pending generation without resubmitting or regrading an answer."""
