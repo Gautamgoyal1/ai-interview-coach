@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { InterviewQuestion } from "../../types/interview";
 import {
   RotateCcwIcon,
@@ -21,6 +22,7 @@ interface QuestionCardProps {
   maxQuestions: number;
   audioProps?: QuestionAudioProps;
   voiceMode?: boolean;
+  sessionHeader?: ReactNode;
 }
 
 function formatQuestionNumber(index: number, total: number): string {
@@ -38,6 +40,7 @@ export default function QuestionCard({
   questionIndex,
   maxQuestions,
   audioProps,
+  sessionHeader,
 }: QuestionCardProps) {
   const typeLabel = question.is_follow_up
     ? "Follow-up"
@@ -46,18 +49,20 @@ export default function QuestionCard({
 
   return (
     <section className="iv-question-panel" aria-live="polite">
+      {sessionHeader}
       <div className="iv-question-body">
+        {!sessionHeader && <p className="iv-speaker-label">Interviewer</p>}
         <div className="iv-question-meta">
-          <span className="iv-qnum-pill tabular-nums">
+          {sessionHeader ? <span className="iv-speaker-label">Interviewer</span> : <span className="iv-qnum-pill tabular-nums">
             {formatQuestionNumber(questionIndex, maxQuestions)}
-          </span>
+          </span>}
           <span className="iv-meta-topic">{question.topic}</span>
           {difficultyLabel && (
             <>
               <span className="iv-meta-dot" aria-hidden="true">
                 ·
               </span>
-              <span className="iv-meta-difficulty">{difficultyLabel}</span>
+              <span className="iv-meta-difficulty" data-difficulty={question.difficulty}>{difficultyLabel}</span>
             </>
           )}
           {typeLabel && typeLabel !== difficultyLabel && (

@@ -1,0 +1,51 @@
+.iv-avatar-stage {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  min-width: 0;
+}
+.iv-speaker-stage-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+.iv-speaker-stage-heading span:last-child { color: var(--text-secondary); font-size: 11px; font-weight: 400; }
+.iv-avatar-person { min-width: 0; }
+.iv-avatar-person[data-prominence="main"] { text-align: center; }
+.iv-avatar-frame { position: relative; width: 100%; aspect-ratio: 4 / 5; background: var(--bg-secondary); overflow: hidden; }
+.iv-human-portrait { position: absolute; inset: 0; }
+.iv-human-still { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
+.iv-human-fallback { display: grid; place-items: center; height: 100%; font-family: var(--font-editorial); font-size: 24px; color: var(--text-primary); }
+.iv-avatar-copy { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 16px 18px; }
+.iv-avatar-name { font-size: 16px; font-weight: 650; color: var(--text-primary); }
+.iv-avatar-status { font-size: 12px; line-height: 1.5; color: var(--text-secondary); overflow-wrap: anywhere; }
+.iv-avatar-person[data-state="error"] .iv-avatar-status { color: var(--danger); }
+.iv-avatar-person[data-state="thinking"] .iv-avatar-status { color: var(--info); }
+.iv-avatar-meter { display: flex; align-items: center; gap: 3px; height: 12px; margin-top: 3px; }
+.iv-avatar-meter i { width: 3px; height: 5px; background: var(--border-strong); border-radius: 1px; transition: height 80ms ease, background-color 80ms ease; }
+.iv-avatar-meter i:nth-child(2), .iv-avatar-meter i:nth-child(4) { height: 8px; }
+.iv-avatar-meter i:nth-child(3) { height: 11px; }
+.iv-avatar-meter i[data-lit="true"] { background: var(--accent); }
+.iv-speaker-stage-secondary { padding: 12px 18px; background: var(--bg-canvas); border-top: 1px solid var(--border); }
+.iv-avatar-person[data-prominence="secondary"] { display: flex; align-items: center; gap: 12px; }
+.iv-avatar-person[data-prominence="secondary"] .iv-avatar-frame { width: 46px; height: 52px; aspect-ratio: auto; flex: 0 0 auto; border-radius: var(--radius-sm); }
+.iv-avatar-person[data-prominence="secondary"] .iv-human-still { object-fit: cover; }
+.iv-avatar-person[data-prominence="secondary"] .iv-avatar-copy { align-items: flex-start; gap: 2px; padding: 0; }
+.iv-avatar-person[data-prominence="secondary"] .iv-avatar-name { font-size: 12px; }
+.iv-avatar-person[data-prominence="secondary"] .iv-avatar-status { font-size: 11px; }
+.iv-speaker-stage-caption { margin: 0; padding: 0 18px 12px; background: var(--bg-canvas); color: var(--text-muted); font-size: 10px; line-height: 1.5; }
+@media (max-width: 999px) {
+  .iv-avatar-person[data-prominence="main"] .iv-avatar-frame { aspect-ratio: auto; height: 280px; }
+  .iv-avatar-copy { padding: 12px 16px; }
+  .iv-speaker-stage-heading { padding: 12px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .iv-avatar-meter i { transition: none; }
+}

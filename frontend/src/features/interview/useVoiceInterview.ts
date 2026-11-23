@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import * as SpeechSDK from "microsoft-cognitiveservices-speech-sdk";
 import type { InterviewInputMode, VoiceInterviewState } from "../../types/speech";
 import { getSpeechToken, invalidateSpeechToken, synthesizeSpeechAudio } from "../../services/speech.service";
+import { observeMicrophoneActivity, observePlaybackActivity } from "./audioActivity";
+import { createVoiceActivity } from "./voiceActivity";
 
 interface UseVoiceInterviewOptions {
   questionText?: string;
@@ -24,6 +26,14 @@ interface Recording {
   expiryTimer?: ReturnType<typeof setTimeout>;
   stopTimer?: ReturnType<typeof setTimeout>;
   startTimer?: ReturnType<typeof setTimeout>;
+  stopActivity?: () => void;
+}
+
+interface Playback {
+  abort: AbortController;
+  audio?: HTMLAudioElement;
+  url?: string;
+  stopActivity?: () => void;
 }
 
 export function useVoiceInterview({ questionText, questionId, interviewType = "technical",
@@ -35,8 +45,10 @@ export function useVoiceInterview({ questionText, questionId, interviewType = "t
   const [micPermission, setMicPermission] = useState<"prompt" | "granted" | "denied">("prompt");
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [isAudioLoading, setIsAudioLoading] = useState(false);
+  const [microphoneActivity] = useState(createVoiceActivity);
+  const [playbackActivity] = useState(createVoiceActivity);
   const recording = useRef<Recording | null>(null);
-  const playback = useRef<{ abort: AbortController; audio?: HTMLAudioElement; url?: string } | null>(null);
+  const playback = useRef<Playback | null>(null);
   const modeRef = useRef(inputMode);
   const mutedRef = useRef(isMuted);
   const mounted = useRef(true);
@@ -51,8 +63,9 @@ export function useVoiceInterview({ questionText, questionId, interviewType = "t
     const old = playback.current;
     playback.current = null; // Invalidate callbacks before releasing resources.
     old?.abort.abort();
+    old?.stopActivity?.();
     if (old?.audio) {
-      old.audio.onplay = old.audio.onended = old.audio.onerror = null;
+      old.audio.onplay = old.audio.onplaying = old.audio.onpause = old.audio.onwaiting = old.audio.onseeking = old.audio.onseeked = old.audio.onended = old.audio.onerror = null;
       old.audio.pause();
       old.audio.removeAttribute("src");
       old.audio.load();
@@ -60,12 +73,16 @@ export function useVoiceInterview({ questionText, questionId, interviewType = "t
     if (old?.url) URL.revokeObjectURL(old.url);
     if (mounted.current) {
       setIsAudioLoading(false);
+      playbackActivity.setLevel(null, "unavailable");
       setVoiceState(prev => prev === "ai_speaking" ? "ready" : prev);
     }
-  }, []);
+  }, [playbackActivity]);
 
   const releaseRecording = useCallback((session: Recording) => {
-    if (recording.current === session) recording.current = null;
+    const wasCurrent = recording.current === session;
+    if (wasCurrent) recording.current = null;
+    session.stopActivity?.();
+    if (wasCurrent) microphoneActivity.setLevel(null, "unavailable");
     session.abort.abort();
     clearTimeout(session.refreshTimer);
     clearTimeout(session.expiryTimer);
@@ -76,7 +93,7 @@ export function useVoiceInterview({ questionText, questionId, interviewType = "t
     try { session.audio?.close(); } catch { /* Already closed by SDK. */ }
     session.stream?.getTracks().forEach(track => track.stop());
     session.resolveStop?.();
-  }, []);
+  }, [microphoneActivity]);
 
   const finishRecording = useCallback((session: Recording, error?: string) => {
     if (recording.current !== session) return;
@@ -98,6 +115,10 @@ export function useVoiceInterview({ questionText, questionId, interviewType = "t
       return Promise.resolve();
     }
     setVoiceState("stopping");
+    // Animation analysis can finish immediately; recognition still drains its
+    // original stream and final segments before editable review.
+    session.stopActivity?.(); session.stopActivity = undefined;
+    microphoneActivity.setLevel(null, "unavailable");
     session.stopping = new Promise(resolve => { session.resolveStop = resolve; });
     const completion = session.stopping;
     session.stopTimer = setTimeout(() => finishRecording(session,
@@ -113,12 +134,12 @@ export function useVoiceInterview({ questionText, questionId, interviewType = "t
       finishRecording(session, "Speech could not finish. Review your answer before submitting.");
     }
     return completion;
-  }, [finishRecording]);
+  }, [finishRecording, microphoneActivity]);
 
   const playQuestionAudio = useCallback(async (_force = false) => {
     if (!questionText || modeRef.current !== "voice" || mutedRef.current || recording.current || submittingRef.current) return;
     stopQuestionAudio();
-    const request = { abort: new AbortController(), audio: undefined as HTMLAudioElement | undefined, url: undefined as string | undefined };
+    const request: Playback = { abort: new AbortController() };
     playback.current = request;
     setIsAudioLoading(true);
     setVoiceError(null);
@@ -127,8 +148,34 @@ export function useVoiceInterview({ questionText, questionId, interviewType = "t
       if (playback.current !== request || !mounted.current) return;
       request.url = URL.createObjectURL(blob);
       request.audio = new Audio(request.url);
-      request.audio.onplay = () => {
-        if (playback.current === request) setVoiceState("ai_speaking");
+      request.stopActivity = observePlaybackActivity(request.audio, blob, (level, source) => {
+        if (playback.current === request && mounted.current) playbackActivity.setLevel(level, source);
+      });
+      request.audio.onplaying = () => {
+        if (playback.current === request && mounted.current) {
+          setIsAudioLoading(false);
+          setVoiceState("ai_speaking");
+        }
+      };
+      request.audio.onpause = () => {
+        if (playback.current === request && mounted.current) {
+          setIsAudioLoading(false);
+          playbackActivity.setLevel(0);
+          setVoiceState(prev => prev === "ai_speaking" ? "ready" : prev);
+        }
+      };
+      request.audio.onwaiting = request.audio.onseeking = () => {
+        if (playback.current === request && mounted.current) {
+          playbackActivity.setLevel(0);
+          setIsAudioLoading(true);
+          setVoiceState(prev => prev === "ai_speaking" ? "ready" : prev);
+        }
+      };
+      request.audio.onseeked = () => {
+        if (playback.current === request && mounted.current && request.audio?.paused) {
+          playbackActivity.setLevel(0);
+          setIsAudioLoading(false);
+        }
       };
       request.audio.onended = () => { if (playback.current === request) stopQuestionAudio(); };
       request.audio.onerror = () => {
@@ -145,7 +192,7 @@ export function useVoiceInterview({ questionText, questionId, interviewType = "t
     } finally {
       if (playback.current === request && mounted.current) setIsAudioLoading(false);
     }
-  }, [questionText, interviewType, stopQuestionAudio]);
+  }, [questionText, interviewType, stopQuestionAudio, playbackActivity]);
 
   const startRecording = useCallback(async () => {
     if (recording.current || modeRef.current !== "voice" || submittingRef.current) return;
@@ -167,6 +214,9 @@ export function useVoiceInterview({ questionText, questionId, interviewType = "t
         return;
       }
       session.stream = stream;
+      session.stopActivity = observeMicrophoneActivity(stream, (level, source) => {
+        if (current()) microphoneActivity.setLevel(level, source);
+      });
       setMicPermission("granted");
       if ((Date.now() - tokenReceivedAt) / 1000 >= token.expires_in - 60) {
         token = await getSpeechToken(session.abort.signal);
@@ -241,7 +291,7 @@ export function useVoiceInterview({ questionText, questionId, interviewType = "t
         ? "Microphone access was denied. Allow microphone access or switch to Text Mode."
         : "Speech is unavailable. Check your microphone and connection, or switch to Text Mode.");
     }
-  }, [stopQuestionAudio, finishRecording]);
+  }, [stopQuestionAudio, finishRecording, microphoneActivity]);
 
   const switchInputMode = useCallback((mode: InterviewInputMode) => {
     if (mode === modeRef.current) return;
@@ -293,6 +343,9 @@ export function useVoiceInterview({ questionText, questionId, interviewType = "t
 
   return { inputMode, switchInputMode, voiceState: submitting ? "submitting" as const : voiceState,
     interimText, isMuted, toggleMute, micPermission, voiceError, setVoiceError, isAudioLoading,
+    microphoneActivity, playbackActivity,
+    get microphoneLevel() { return microphoneActivity.getLevel(); },
+    get playbackLevel() { return playbackActivity.getLevel(); },
     playQuestionAudio, replayQuestionAudio: playQuestionAudio, stopQuestionAudio,
     startRecording, stopRecording, prepareSubmission };
 }
