@@ -152,7 +152,10 @@ export default function Layout() {
               <strong title={user?.full_name?.trim() || user?.email || "User"}>
                 {user?.full_name?.trim() || user?.email || "User"}
               </strong>
-              <span>{user?.target_role || user?.email || "Personal workspace"}</span>
+              <span
+                className={!user?.target_role && user?.email ? "profile-email" : undefined}
+                title={!user?.target_role ? user?.email : undefined}
+              >{user?.target_role || user?.email || "Personal workspace"}</span>
             </div>
           </NavLink>
           <div className="sidebar-user-action"><ThemeToggle className="sidebar-theme-toggle" /></div>

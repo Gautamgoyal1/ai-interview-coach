@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError } from "../../services/api";
 import {
   endInterviewSession,
@@ -32,6 +32,8 @@ export function useInterview() {
   const [error, setError] = useState<string | null>(null);
   const [unauthorized, setUnauthorized] = useState(false);
   const inFlightRef = useRef(false);
+  const loadRequestRef = useRef(0);
+  useEffect(() => () => { loadRequestRef.current++; }, []);
 
   const handleError = useCallback((err: unknown, fallback: string) => {
     if (err instanceof ApiError && err.status === 401) {
@@ -76,19 +78,21 @@ export function useInterview() {
 
   const loadSession = useCallback(
     async (sessionId: string): Promise<InterviewSession | null> => {
+      const request = ++loadRequestRef.current;
       setLoading(true);
       setError(null);
       setUnauthorized(false);
 
       try {
         const loaded = await getInterviewSession(sessionId);
+        if (request !== loadRequestRef.current) return null;
         setSession(loaded);
         return loaded;
       } catch (err) {
-        handleError(err, "Could not load the interview session.");
+        if (request === loadRequestRef.current) handleError(err, "Could not load the interview session.");
         return null;
       } finally {
-        setLoading(false);
+        if (request === loadRequestRef.current) setLoading(false);
       }
     },
     [handleError],

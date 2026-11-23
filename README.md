@@ -72,8 +72,9 @@ Gemini embeddings need a Gemini key even when generation uses Azure OpenAI.
 
 LangGraph uses an in-memory checkpointer, with database session state for recovery.
 Interview locks, speech limits and some caches are process-local: use **one backend
-worker**. The provided Compose/Docker commands are development configurations,
-including reload servers, not a supported production deployment profile.
+worker**. Compose's frontend is a development server. The backend image uses one
+non-reloading worker. See the [deployment runbook](docs/deployment.md) for cloud
+configuration, database isolation requirements and launch gates.
 
 ## Repository structure
 
@@ -109,13 +110,14 @@ See [architecture](docs/architecture.md), [API guide](docs/api.md),
 
 - Git and a Docker installation with Compose supporting `docker compose` and `up --wait`.
 - For native backend development: Python **3.12**, matching the backend image.
-- For native frontend development: Node.js **20+** compatible with the lockfile, and npm. The provided frontend image uses Node 20; local verification used Node 20.18.0/npm 10.8.2.
+- For frontend development: Node.js **24 LTS** is recommended (the frontend image uses Node 24), and npm. This audit's native checks used Node 26; use a runtime compatible with the lockfile.
 - A PostgreSQL instance with the **vector** extension. Compose provides `pgvector/pgvector:pg16`.
 - Account access to the generation/embedding models you configure. Azure Speech is optional for Text Mode.
 
-Backend requirements are not fully version-pinned. The frontend has a lockfile;
-use `npm ci`. A fully reproducible backend lock and image/runtime upgrades remain
-maintenance follow-ups; this README does not claim all newer runtimes are tested.
+The backend image installs `backend/requirements-linux.lock`, a tested Linux /
+Python 3.12 snapshot. `requirements.txt` remains the native-development source
+constraints. The frontend has a lockfile; use `npm ci`. Regenerate and audit the
+Linux lock deliberately during dependency upgrades; it is not a Windows lock.
 
 ## Configuration
 
@@ -131,6 +133,8 @@ On POSIX shells use `cp .env.example .env`. Do not commit the populated file.
 |---|---|
 | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | Compose database initialization; replace development placeholders |
 | `DATABASE_URL` | SQLAlchemy `postgresql+psycopg` URL; host `db` inside Compose, `127.0.0.1` for a native backend |
+| `APP_ENV`, `CORS_ORIGINS` | Runtime environment and JSON list of exact frontend origins; production requires public HTTPS origins and TLS PostgreSQL |
+| `DB_POOL_SIZE`, `DB_MAX_OVERFLOW`, `DB_POOL_TIMEOUT`, `DB_CONNECT_TIMEOUT` | Bounded pool (default 5 + 5) and 10-second pool/connect deadlines |
 | `JWT_SECRET_KEY` | Required non-placeholder secret of at least 32 bytes; startup rejects an empty/weak placeholder |
 | `JWT_ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES` | Current JWT configuration: HS256; template expiry is 15 minutes |
 | `LLM_PROVIDER` | `azure_openai` or `gemini` |
@@ -171,6 +175,7 @@ in an existing PostgreSQL volume.
 
 - Frontend: [localhost:5173](http://localhost:5173)
 - Backend health: [localhost:8000/health](http://localhost:8000/health)
+- Database readiness: [localhost:8000/health/ready](http://localhost:8000/health/ready)
 - Interactive OpenAPI: [localhost:8000/docs](http://localhost:8000/docs)
 
 Register an account, upload a PDF for a target role, and start a Technical or HR
@@ -224,7 +229,7 @@ npm run dev
 POSIX equivalents use `python3.12 -m venv .venv` and `.venv/bin/python` (or
 `../.venv/bin/python` from `backend`). Keep one serving backend worker. The current
 CORS list permits `localhost:5173` and `127.0.0.1:5173`; other origins require an
-intentional configuration/code change.
+explicit `CORS_ORIGINS` configuration.
 
 ## Tests and build
 
@@ -234,7 +239,7 @@ the backend image. It needs no private database backup or paid API calls:
 
 ```powershell
 docker compose build backend
-.\.venv\Scripts\python.exe scripts/test_backend_isolated.py
+.\.venv\Scripts\python.exe scripts/test_backend_isolated.py --image ai-interview-coach-backend:latest
 ```
 
 The runner creates its own PostgreSQL container/network with synthetic credentials,

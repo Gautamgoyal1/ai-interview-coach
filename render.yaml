@@ -1,0 +1,62 @@
+# Prepared configuration only. Do not create/deploy resources until launch gates
+# in docs/deployment.md are complete. Database migrations are an explicit step.
+services:
+  - type: web
+    name: prepmate-api
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    autoDeployTrigger: "off"
+    healthCheckPath: /health
+    maxShutdownDelaySeconds: 60
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: STAGING_ENABLED
+        value: "true"
+      - key: STAGING_ALLOWED_EMAILS
+        sync: false
+      - key: STAGING_REGISTRATION_ENABLED
+        value: "false"
+      - key: AI_ENABLED
+        value: "false"
+      - key: SPEECH_ENABLED
+        value: "false"
+      - key: AI_GLOBAL_CONCURRENCY
+        value: "2"
+      - key: STAGING_AI_USER_DAILY_LIMIT
+        value: "30"
+      - key: STAGING_AI_GLOBAL_DAILY_LIMIT
+        value: "100"
+      - key: FORWARDED_ALLOW_IPS
+        value: ""
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: LLM_PROVIDER
+        value: azure_openai
+      - key: AZURE_OPENAI_API_KEY
+        sync: false
+      - key: AZURE_OPENAI_ENDPOINT
+        sync: false
+      - key: AZURE_OPENAI_MODEL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: EMBEDDING_MODEL
+        value: gemini-embedding-001
+      - key: EMBEDDING_DIMENSIONS
+        value: "768"
+      - key: DB_POOL_SIZE
+        value: "4"
+      - key: DB_MAX_OVERFLOW
+        value: "2"
+      - key: DB_POOL_TIMEOUT
+        value: "10"
+      - key: DB_CONNECT_TIMEOUT
+        value: "10"

@@ -43,7 +43,7 @@ def main():
     from alembic import command
 
     command.upgrade(Config("/app/alembic.ini"), "head")
-    os.environ.update(PREPMATE_VECTOR_POSTGRES="1", PREPMATE_KNOWLEDGE_POSTGRES="1")
+    os.environ.update(PREPMATE_VECTOR_POSTGRES="1", PREPMATE_KNOWLEDGE_POSTGRES="1", PREPMATE_PERSISTENCE_POSTGRES="1", PREPMATE_STAGING_POSTGRES="1")
     import pytest
 
     code = pytest.main(

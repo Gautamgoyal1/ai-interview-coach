@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_current_user
+from app.core.staging_access import require_registration, require_staging_tester
 from app.core.security import (
     create_access_token,
     hash_password,
@@ -14,6 +15,9 @@ from app.core.rate_limit import (
     check_login_rate_limit,
     clear_login_attempts,
     record_failed_login,
+    admit_login,
+    admit_registration,
+    request_limiter,
 )
 from app.db.models.user import User
 from app.db.session import get_db
@@ -37,8 +41,11 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 )
 def register(
     request: RegisterRequest,
+    http_request: Request,
     db: Session = Depends(get_db),
 ) -> UserResponse:
+    admit_registration(http_request.client.host if http_request.client else "unknown")
+    require_registration(request.email)
     existing_user = db.scalar(
         select(User).where(User.email == request.email)
     )
@@ -87,6 +94,8 @@ def login(
         else "unknown"
     )
 
+    admit_login(client_ip, request.email)
+    require_staging_tester(request.email)
     check_login_rate_limit(client_ip)
 
     user = db.scalar(
@@ -145,6 +154,7 @@ def change_password(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> MessageResponse:
+    request_limiter.consume([(f"password:user:{current_user.id}", 5, 60)])
     current_pw = request.current_password.get_secret_value()
     new_pw = request.new_password.get_secret_value()
 

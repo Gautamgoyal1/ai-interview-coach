@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
-from app.api.dependencies import get_current_user
+from app.api.dependencies import get_current_user, get_ai_user
 from app.db.models.user import User
 from app.db.session import get_db
 from app.modules.practice.schemas import (
@@ -31,7 +31,7 @@ service = PracticeService()
 )
 async def create_practice_session(
     request: CreatePracticeSessionRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
     db: Session = Depends(get_db),
 ) -> PracticeSessionDetailResponse:
     """Create a new targeted practice session and generate its first question."""
@@ -103,7 +103,7 @@ def delete_practice_session(
 async def generate_next_question(
     session_id: str,
     request: GeneratePracticeQuestionRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
     db: Session = Depends(get_db),
 ) -> PracticeQuestionResponse:
     """Generate another practice question (e.g. similar question or variation) in this session."""
@@ -159,7 +159,7 @@ def reveal_reference_answer(
 async def submit_practice_attempt(
     question_id: str,
     request: SubmitPracticeAttemptRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_ai_user),
     db: Session = Depends(get_db),
 ) -> PracticeAttemptResponse:
     """Submit candidate answer for coaching, evaluate against reference, and persist attempt."""

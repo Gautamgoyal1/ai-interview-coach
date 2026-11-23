@@ -11,6 +11,13 @@
 *.pfx
 credentials.json
 service-account*.json
+# Operator-only libpq credentials/services and encrypted database archives.
+.pgpass
+.pg_service.conf
+pgpass.conf
+pg_service.conf
+*.dump.age
+*.backup.age
 
 # Runtime/private storage and reviewed local experiment output.
 # Do not ignore storage wholesale: source/fixtures require deliberate review.
@@ -30,6 +37,7 @@ service-account*.json
 /storage/ui-phase2/
 /storage/ui-phase3/
 /storage/ui-ux-audit/
+/storage/ui-identity/
 /storage/voice-acceptance/
 /storage/voice-release-regression/
 /storage/repository-sync/
@@ -76,3 +84,6 @@ coverage/
 Thumbs.db
 .idea/
 .vscode/
+
+# Private security scan tools and local audit evidence.
+/storage/security-audit/

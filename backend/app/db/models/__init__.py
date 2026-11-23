@@ -5,3 +5,4 @@ from .report import InterviewReport  # noqa: F401
 from .resume import Resume, ResumeAnalysis  # noqa: F401
 from .turn import InterviewTurn  # noqa: F401
 from .user import User  # noqa: F401
+from .staging_usage import StagingAIUsage  # noqa: F401

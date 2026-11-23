@@ -609,8 +609,8 @@ export default function Profile() {
           <div className="profile-card-titles">
             <h2>Workspace Appearance</h2>
             <p>
-              Choose how PrepMate looks to you. Seamlessly switch between Warm
-              Editorial Cream and Nighttime Charcoal.
+              Choose a light or dark workspace. Both use the same quiet neutrals
+              and consistent accent.
             </p>
           </div>
         </div>
@@ -621,6 +621,7 @@ export default function Profile() {
             className={`theme-card-option ${theme === "light" ? "active" : ""}`}
             onClick={() => setTheme("light")}
             role="button"
+            aria-pressed={theme === "light"}
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") setTheme("light");
@@ -630,24 +631,24 @@ export default function Profile() {
               <div className="theme-mini-row">
                 <span
                   className="theme-mini-dot"
-                  style={{ background: "#C65D3B" }}
+                  style={{ background: "var(--preview-light-accent)" }}
                 />
                 <span
                   className="theme-mini-dot"
-                  style={{ background: "#202C39" }}
+                  style={{ background: "var(--preview-light-text)" }}
                 />
               </div>
               <div
                 className="theme-mini-bar"
-                style={{ background: "#E8E0D3" }}
+                style={{ background: "var(--preview-light-surface)" }}
               />
             </div>
             <div className="theme-card-label">
               <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                 <SunIcon size={16} />
-                <span>Warm Editorial (Light)</span>
+                <span>Light Studio</span>
               </div>
-              {theme === "light" && <CheckIcon size={15} color="var(--accent)" />}
+              {theme === "light" && <CheckIcon size={15} color="var(--accent-ink)" />}
             </div>
           </div>
 
@@ -656,6 +657,7 @@ export default function Profile() {
             className={`theme-card-option ${theme === "dark" ? "active" : ""}`}
             onClick={() => setTheme("dark")}
             role="button"
+            aria-pressed={theme === "dark"}
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") setTheme("dark");
@@ -665,24 +667,24 @@ export default function Profile() {
               <div className="theme-mini-row">
                 <span
                   className="theme-mini-dot"
-                  style={{ background: "#D97757" }}
+                  style={{ background: "var(--preview-dark-accent)" }}
                 />
                 <span
                   className="theme-mini-dot"
-                  style={{ background: "#F0EAE1" }}
+                  style={{ background: "var(--preview-dark-text)" }}
                 />
               </div>
               <div
                 className="theme-mini-bar"
-                style={{ background: "#2E2E2E" }}
+                style={{ background: "var(--preview-dark-surface)" }}
               />
             </div>
             <div className="theme-card-label">
               <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                 <MoonIcon size={16} />
-                <span>Espresso Charcoal (Dark)</span>
+                <span>Dark Studio</span>
               </div>
-              {theme === "dark" && <CheckIcon size={15} color="var(--accent)" />}
+              {theme === "dark" && <CheckIcon size={15} color="var(--accent-ink)" />}
             </div>
           </div>
         </div>

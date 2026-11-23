@@ -17,10 +17,16 @@ def clear_session_checkpoints(
     session_ids: list[str],
     checkpointer: MemorySaver | None = None,
 ) -> None:
-    """Remove in-memory LangGraph checkpoints for deleted interview sessions."""
+    """Release transient state after durable completion/deletion, including blobs."""
     cp = checkpointer or _SHARED_CHECKPOINTER
+    delete_thread = getattr(cp, "delete_thread", None)
+    if callable(delete_thread):
+        for sid in session_ids:
+            delete_thread(sid)
+        return
     storage = getattr(cp, "storage", None)
     writes = getattr(cp, "writes", None)
+    blobs = getattr(cp, "blobs", None)
     for sid in session_ids:
         if isinstance(storage, dict):
             storage.pop(sid, None)
@@ -28,6 +34,9 @@ def clear_session_checkpoints(
             stale_keys = [k for k in writes if isinstance(k, tuple) and k and k[0] == sid]
             for k in stale_keys:
                 writes.pop(k, None)
+        if isinstance(blobs, dict):
+            for key in [key for key in blobs if isinstance(key, tuple) and key and key[0] == sid]:
+                blobs.pop(key, None)
 
 
 def _route_after_decision(state: InterviewState) -> str:

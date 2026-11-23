@@ -1,10 +1,14 @@
 
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.core.security import decode_access_token
+from app.core.rate_limit import admit_ai, request_limiter
+from app.core.config import settings
+from app.core.staging_access import require_staging_tester
+from app.core.staging_budget import reserve_staging_request
 from app.db.models.user import User
 from app.db.session import get_db
 
@@ -40,4 +44,21 @@ def get_current_user(
     if user is None:
         raise unauthorized
 
+    require_staging_tester(user.email)
     return user
+
+
+def get_ai_user(request: Request, user: User = Depends(get_current_user)):
+    """Authenticate before reserving shared paid-provider request capacity."""
+    route = getattr(request.scope.get("route"), "path", "")
+    ending = route == "/interview/{session_id}/end"
+    if not settings.ai_enabled and not ending:
+        raise HTTPException(503, "AI requests are temporarily disabled.")
+    if request.url.path.startswith("/speech/") and not settings.speech_enabled:
+        raise HTTPException(503, "Voice services are disabled. Use Text Mode.")
+    ip = request.client.host if request.client else "unknown"
+    admit_ai(user.id, ip)
+    with request_limiter.slots([(f"ai:user:{user.id}", 2), (f"ai:ip:{ip}", 4), ("ai:global", settings.ai_global_concurrency)]):
+        if settings.staging_enabled and not ending:
+            reserve_staging_request(user.id)
+        yield user

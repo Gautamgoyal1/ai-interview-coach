@@ -35,7 +35,17 @@ class ResumeAnalysisError(Exception):
 
 class ResumeAnalysisService:
     def __init__(self, llm=None):
-        self.llm = llm if llm is not None else get_llm_provider()
+        self._llm = llm
+
+    @property
+    def llm(self):
+        if self._llm is None:
+            self._llm = get_llm_provider()
+        return self._llm
+
+    @llm.setter
+    def llm(self, value):
+        self._llm = value
 
     async def analyze(
         self,

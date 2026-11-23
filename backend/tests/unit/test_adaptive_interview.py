@@ -1,6 +1,7 @@
 """Deterministic tests for Phase 3.5 Adaptive AI Interview Intelligence."""
 
 import json
+import re
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
@@ -252,7 +253,24 @@ def test_cross_session_deduplication_and_user_isolation():
         db.commit()
 
         async def scenario():
-            svc = InterviewService(llm_provider=None, checkpointer=MemorySaver())
+            class OfflineQuestionProvider:
+                """Exercise the real dedup/retry path without depending on a cloud service."""
+
+                def __init__(self):
+                    self.calls = 0
+
+                async def generate(self, prompt, system=None, json_mode=False):
+                    self.calls += 1
+                    topic = re.search(r"Selected topic: ([^\n]+)", prompt).group(1).strip()
+                    text = (
+                        f"A {topic} routine receives duplicate user IDs. How would you remove duplicates while preserving their original order?"
+                        if self.calls <= 2 else
+                        f"A {topic} function unexpectedly changes a list supplied by its caller. How would you diagnose and prevent that mutation?"
+                    )
+                    return json.dumps({"topic": topic, "difficulty": "medium", "question_type": "applied", "question_text": text})
+
+            provider = OfflineQuestionProvider()
+            svc = InterviewService(llm_provider=provider, checkpointer=MemorySaver())
             s1 = await svc.start_interview(
                 db, u1.id, StartInterviewRequest(analysis_id=a1.id, max_questions=3, max_follow_ups=0)
             )
@@ -263,6 +281,7 @@ def test_cross_session_deduplication_and_user_isolation():
                 db, u1.id, StartInterviewRequest(analysis_id=a1.id, max_questions=3, max_follow_ups=0)
             )
             assert s2.current_question.question_text != q1_text
+            assert provider.calls == 3  # The repeated second draft was rejected and retried.
 
             # User isolation: u2's recent questions must not include u1's questions
             u2_recent = list_recent_user_questions(db, u2.id, target_role="Python Developer")

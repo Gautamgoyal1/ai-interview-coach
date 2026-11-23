@@ -15,11 +15,14 @@ class GeminiProvider(LLMProvider):
             "https://generativelanguage.googleapis.com/v1beta/models/"
             f"{settings.gemini_model}:generateContent"
         )
-        body = {"contents": [{"role": "user", "parts": [{"text": prompt}]}]}
+        body = {
+            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {"maxOutputTokens": 4000},
+        }
         if system:
             body["systemInstruction"] = {"parts": [{"text": system}]}
         if json_mode:
-            body["generationConfig"] = {"responseMimeType": "application/json"}
+            body["generationConfig"]["responseMimeType"] = "application/json"
 
         try:
             async with httpx.AsyncClient(timeout=settings.llm_timeout_seconds) as client:

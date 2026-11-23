@@ -12,6 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.api.dependencies import get_current_user
 from app.db.models.resume import Resume, ResumeAnalysis
 from app.db.session import get_db
+from tests.unit.test_parser import create_text_pdf
 from app.main import app
 from app.modules.resume.router import service
 from app.modules.resume.schemas import ResumeAnalysisResult
@@ -191,7 +192,7 @@ def test_valid_pdf_saves_resume_and_analysis(
     mock_analysis,
     fake_db,
 ):
-    pdf_content = b"%PDF-1.4\nMock PDF content"
+    pdf_content = create_text_pdf("Python developer experience")
 
     response = authenticated_client.post(
         "/resume/analyze",
@@ -256,7 +257,7 @@ def test_database_failure_rolls_back(
         files={
             "file": (
                 "resume.pdf",
-                b"%PDF-1.4\nMock PDF content",
+                create_text_pdf("Python developer experience"),
                 "application/pdf",
             )
         },

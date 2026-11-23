@@ -1,0 +1,238 @@
+/* Dark-only presentation. Keep all selectors scoped so light mode is unchanged. */
+html[data-theme="dark"] {
+  scrollbar-color: var(--border-strong) var(--bg);
+}
+
+html[data-theme="dark"] ::selection {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+/* Flat depth: canvas -> cards -> elevated controls. */
+html[data-theme="dark"] :is(.pm-card, .resume-form, .setup-configuration,
+  .setup-launch, .command-next, .command-evidence, .practice-featured-topic,
+  .profile-card, .profile-hero-card, .auth-card, .auth-identity,
+  .learning-main, .learning-coach, .report-overall-box),
+html[data-theme="dark"] .iv-focused .iv-split-grid {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+
+html[data-theme="dark"] :is(.command-evidence article, .command-evidence article + article,
+  .landing-eyebrow-pill, .practice-start-section, .learning-comparison, .practice-comparison,
+  .hero-question-panel, .diff-tag.ref, .gap-alert-item, .showcase-q-box,
+  .practice-question-card, .coach-card-structure, .iv-question-guidance) {
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .reuse-banner {
+  border: 1px solid var(--border);
+}
+
+html[data-theme="dark"] :is(.form-heading, .form-footer-row, .profile-card-header,
+  .learning-header, .learning-next, .learning-editor, .setup-advanced,
+  .practice-topic-divider, .auth-identity-steps li) {
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .sidebar {
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+}
+
+html[data-theme="dark"] .sidebar-link.active .nav-icon {
+  color: var(--focus-color);
+}
+
+html[data-theme="dark"] .sidebar-link.active {
+  background: var(--accent-soft);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .sidebar-link:hover:not(.active) {
+  background: var(--elevated);
+}
+
+/* One solid primary action; other actions retain their existing behavior. */
+html[data-theme="dark"] :is(.btn-primary, .auth-submit, .iv-submit-btn) {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+
+html[data-theme="dark"] :is(.btn-primary, .auth-submit, .iv-submit-btn):hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+html[data-theme="dark"] :is(.btn-primary, .auth-submit, .iv-submit-btn):active:not(:disabled) {
+  background: var(--accent-pressed);
+  border-color: var(--accent-pressed);
+}
+
+html[data-theme="dark"] .btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+html[data-theme="dark"] :is(.btn-secondary, .btn-ghost):hover:not(:disabled) {
+  background: var(--elevated);
+  color: var(--text);
+}
+
+html[data-theme="dark"] :is(.landing-nav-actions, .landing-mobile-cta,
+  .history-mobile-actions, .table-actions) .btn-primary,
+html[data-theme="dark"] .practice-page:has(.practice-featured-topic) .practice-start-form .btn-primary,
+html[data-theme="dark"] .resume-page:has(.results) .resume-form .btn-primary,
+html[data-theme="dark"] .practice-learning:has(.practice-textarea:not(:placeholder-shown)) .learning-coach > .btn-primary {
+  background: transparent;
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+html[data-theme="dark"] :is(.landing-nav-actions, .landing-mobile-cta,
+  .history-mobile-actions, .table-actions) .btn-primary:hover,
+html[data-theme="dark"] .practice-page:has(.practice-featured-topic) .practice-start-form .btn-primary:hover,
+html[data-theme="dark"] .resume-page:has(.results) .resume-form .btn-primary:hover,
+html[data-theme="dark"] .practice-learning:has(.practice-textarea:not(:placeholder-shown)) .learning-coach > .btn-primary:hover {
+  background: var(--elevated);
+}
+
+html[data-theme="dark"] :is(.btn, .auth-submit):disabled {
+  background: var(--elevated);
+  color: var(--text-muted);
+  border-color: var(--border);
+  opacity: 1;
+}
+
+/* Exclude hidden upload inputs and native check/radio controls. */
+html[data-theme="dark"] :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+  textarea, select) {
+  color: var(--text);
+  background-color: var(--elevated);
+  border: 1px solid var(--border-strong);
+  box-shadow: none;
+}
+
+html[data-theme="dark"] select {
+  appearance: auto;
+  background-image: none;
+}
+
+html[data-theme="dark"] :is(input, textarea)::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+html[data-theme="dark"] :is(input, textarea, select):focus {
+  border-color: var(--focus-color);
+  background-color: var(--elevated);
+}
+
+html[data-theme="dark"] :focus-visible,
+html[data-theme="dark"] :is(input, textarea, select):focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+html[data-theme="dark"] :is(input, textarea, select)[aria-invalid="true"],
+html[data-theme="dark"] .auth-form input:user-invalid {
+  border-color: var(--danger);
+}
+
+html[data-theme="dark"] .upload-dropzone {
+  background: var(--elevated);
+  border: 1px dashed var(--border-strong);
+}
+
+html[data-theme="dark"] .upload-dropzone:is(:hover, :focus-within, .is-dragging) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+html[data-theme="dark"] .upload-dropzone.has-file {
+  background: var(--elevated);
+  border: 1px solid var(--border-strong);
+}
+
+html[data-theme="dark"] .upload-dropzone.has-file .upload-icon-box {
+  background: var(--success-bg);
+  border-color: var(--success-border);
+  color: var(--success);
+}
+
+html[data-theme="dark"] .upload-dropzone.has-error {
+  background: var(--elevated);
+  border-color: var(--danger);
+}
+
+/* Badges never borrow the primary action tint; status semantics remain unchanged. */
+html[data-theme="dark"] :is(.badge, .badge-neutral, .badge-accent, .landing-brand-badge,
+  .iv-meta-tag, .iv-qnum-pill, .insight-number) {
+  background: var(--elevated);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] :is(.badge-success, .chip-success, .skill-chip-demonstrated) {
+  background: var(--success-bg);
+  border-color: var(--success-border);
+  color: var(--success);
+}
+
+html[data-theme="dark"] :is(.badge-warning, .skill-chip-missing) {
+  background: var(--warning-bg);
+  border-color: var(--warning-border);
+  color: var(--warning);
+}
+
+html[data-theme="dark"] .badge-danger {
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+  color: var(--danger);
+}
+
+html[data-theme="dark"] :is(.setup-choice, .experience-level-card, .theme-card-option).selected,
+html[data-theme="dark"] :is(.experience-level-card, .theme-card-option).active,
+html[data-theme="dark"] .setup-choice:has(input:checked),
+html[data-theme="dark"] :is(.skill-filter-tab.active, .showcase-tab.active) {
+  background: var(--accent-soft);
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+html[data-theme="dark"] :is(.pm-eyebrow, .practice-hub-eyebrow) {
+  color: var(--focus-color);
+}
+
+html[data-theme="dark"] :is(.pm-menu-dropdown, .pm-dialog, [role="tooltip"]) {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+html[data-theme="dark"] :is(.pm-menu-dropdown, .pm-dialog) {
+  box-shadow: var(--shadow-floating);
+}
+
+html[data-theme="dark"] :is(thead, th, .pm-skeleton, pre, code, .password-requirements) {
+  background: var(--elevated);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] :is(.iv-progress-track, .meter-track, .rubric-track) {
+  background: var(--chart-track);
+}
+
+html[data-theme="dark"] :is(.iv-progress-fill, .meter-fill, .rubric-fill, .rubric-mini-fill) {
+  background: var(--progress-fill);
+}
+
+html[data-theme="dark"] .iv-focused .iv-answer-panel[data-voice-state="review"] .iv-voice-state-indicator .badge {
+  background: var(--success-bg);
+  border-color: var(--success-border);
+  color: var(--success);
+}

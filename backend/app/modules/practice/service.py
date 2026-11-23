@@ -6,6 +6,7 @@ from typing import Any
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+from app.db.models.report import InterviewReport
 
 from app.integrations.llm.base import LLMProvider
 from app.integrations.llm.factory import get_llm_provider
@@ -126,6 +127,17 @@ class PracticeService:
         user_id: int,
         request: CreatePracticeSessionRequest,
     ) -> PracticeSessionDetailResponse:
+        # Never create a foreign-key association to another user's report, or
+        # consume paid generation before checking report provenance.
+        if request.source_report_id is not None:
+            report = db.query(InterviewReport).filter(
+                InterviewReport.id == request.source_report_id,
+                InterviewReport.user_id == user_id,
+            ).first()
+            if report is None:
+                raise HTTPException(status_code=404, detail="Source report not found.")
+            if report.interview_type != request.interview_type:
+                raise HTTPException(status_code=422, detail="Practice track must match the source report.")
         provider = self._get_provider()
 
         # 1. Create session entity
