@@ -3,6 +3,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import ThemeToggle from "../components/ThemeToggle";
+import AuthIdentity from "../components/AuthIdentity";
 
 export default function Register() {
   const { register, loading } = useAuth();
@@ -52,6 +53,7 @@ export default function Register() {
       <div className="auth-theme-corner">
         <ThemeToggle />
       </div>
+      <AuthIdentity />
       <section className="auth-card">
         <Link to="/" className="auth-brand">
           <span className="auth-brand-mark">P</span>

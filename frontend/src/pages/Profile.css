@@ -17,11 +17,11 @@
    ------------------------------------------------------------ */
 .profile-hero-card {
   position: relative;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  background: var(--surface-soft);
+  border: 0;
+  border-radius: 0;
   padding: 32px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -36,7 +36,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent) 0%, #d97757 50%, var(--accent-light) 100%);
+  background: var(--secondary);
 }
 
 .profile-hero-left {
@@ -49,18 +49,18 @@
 .profile-hero-avatar {
   width: 76px;
   height: 76px;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, var(--accent) 0%, #9e4326 100%);
-  color: #ffffff;
+  border-radius: 50%;
+  background: var(--secondary);
+  color: var(--on-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 32px;
   font-weight: 700;
   letter-spacing: -0.03em;
-  box-shadow: 0 4px 14px rgba(198, 93, 59, 0.28);
+  box-shadow: none;
   flex-shrink: 0;
-  border: 3px solid var(--bg-surface);
+  border: 0;
 }
 
 .profile-hero-meta {
@@ -72,13 +72,14 @@
 
 .profile-hero-name {
   margin: 0;
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 30px;
+  font-weight: 500;
   color: var(--text-primary);
   letter-spacing: -0.025em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: var(--font-display);
 }
 
 .profile-hero-tags {
@@ -121,8 +122,8 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  background: var(--success);
+  box-shadow: none;
 }
 
 /* ------------------------------------------------------------
@@ -137,14 +138,15 @@
 
 .profile-card {
   background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border: 0;
+  border-radius: 0;
   padding: 28px;
-  box-shadow: var(--shadow-xs);
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   gap: 22px;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  border-top: 1px solid var(--border);
 }
 
 .profile-card:hover {
@@ -163,8 +165,8 @@
   width: 40px;
   height: 40px;
   border-radius: var(--radius-md);
-  background: var(--accent-light);
-  color: var(--accent);
+  background: var(--surface-muted);
+  color: var(--secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -244,7 +246,6 @@
   background: var(--bg-surface);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
-  outline: none;
   transition: all var(--transition-fast);
 }
 
@@ -257,8 +258,8 @@
 }
 
 .profile-input:focus {
-  border-color: var(--accent);
-  box-shadow: var(--focus-ring);
+  border-color: var(--focus-color);
+  box-shadow: none;
   background: var(--bg-surface);
 }
 
@@ -321,13 +322,13 @@
 .profile-role-chip:hover {
   background: var(--bg-secondary);
   border-color: var(--accent-border);
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 
 .profile-role-chip.active {
   background: var(--accent-light);
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--accent-ink);
   font-weight: 600;
 }
 
@@ -360,7 +361,7 @@
 .experience-level-card.selected {
   border-color: var(--accent);
   background: var(--accent-light);
-  box-shadow: 0 0 0 1px var(--accent);
+  box-shadow: none;
 }
 
 .experience-level-title {
@@ -379,7 +380,7 @@
 }
 
 .experience-selected-check {
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 
 /* Password Requirements Checklist */
@@ -412,7 +413,7 @@
 }
 
 .password-req-item.met {
-  color: #10b981;
+  color: var(--success);
   font-weight: 500;
 }
 
@@ -435,15 +436,9 @@
 }
 
 .profile-alert-success {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #047857;
-}
-
-[data-theme="dark"] .profile-alert-success {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: rgba(16, 185, 129, 0.35);
-  color: #34d399;
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  color: var(--success);
 }
 
 .profile-alert-error {
@@ -493,7 +488,7 @@
 .theme-card-option.active {
   border-color: var(--accent);
   background: var(--accent-light);
-  box-shadow: 0 0 0 1px var(--accent);
+  box-shadow: none;
 }
 
 .theme-preview-box {
@@ -503,18 +498,18 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
 }
 
 .theme-preview-box.light-mode-preview {
-  background: #F5F3EE;
-  color: #202C39;
+  background: var(--preview-light-bg);
+  color: var(--preview-light-text);
 }
 
 .theme-preview-box.dark-mode-preview {
-  background: #151515;
-  color: #F0EAE1;
-  border-color: #2E2E2E;
+  background: var(--preview-dark-bg);
+  color: var(--preview-dark-text);
+  border-color: var(--border);
 }
 
 .theme-mini-row {

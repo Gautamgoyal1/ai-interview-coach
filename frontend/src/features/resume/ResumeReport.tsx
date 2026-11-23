@@ -1,4 +1,4 @@
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import type { ResumeAnalysisResult } from "../../types/resume";
 import "../../pages/ResumeAnalysis.css";
@@ -148,9 +148,13 @@ export default function ResumeReport({
         <div className="score-card-right">
           <div
             className="score-ring"
-            style={{ "--score": `${score * 3.6}deg` } as CSSProperties}
             aria-label={`${score.toFixed(1)} percent match`}
           >
+            <svg viewBox="0 0 108 108" aria-hidden="true" className="score-ring-graphic">
+              <circle className="score-ring-track" cx="54" cy="54" r="48" fill="none" strokeWidth="10" />
+              <circle className="score-ring-outline" cx="54" cy="54" r="48" fill="none" strokeWidth="10" pathLength="100" strokeDasharray={`${score} 100`} />
+              <circle className="score-ring-progress" cx="54" cy="54" r="48" fill="none" strokeWidth="8" pathLength="100" strokeDasharray={`${score} 100`} />
+            </svg>
             <div>
               <strong className="tabular-nums">{Math.round(score)}</strong>
               <span>/ 100</span>

@@ -470,7 +470,7 @@ export default function PracticeWorkspace() {
                 ? "Loading practice session..."
                 : "Loading practice hub..."}
           </h2>
-          <p style={{ color: "#94a3b8" }}>
+          <p style={{ color: "var(--text-secondary)" }}>
             Your saved questions and attempts will appear here.
           </p>
         </div>
@@ -482,8 +482,8 @@ export default function PracticeWorkspace() {
     return (
       <div className="practice-page">
         <div className="pm-card" role="alert" style={{ padding: "2rem" }}>
-          <h2 style={{ color: "#ef4444" }}>Could Not Load Practice</h2>
-          <p style={{ color: "#94a3b8", marginBottom: "1.5rem" }}>{error}</p>
+          <h2 style={{ color: "var(--danger)" }}>Could Not Load Practice</h2>
+          <p style={{ color: "var(--text-secondary)", marginBottom: "1.5rem" }}>{error}</p>
           <button
             className="btn btn-secondary"
             onClick={() => void loadSession(sessionId)}

@@ -35,6 +35,14 @@ it("missing evidence metadata never promotes a matched skill to demonstrated", (
  act(()=>skill.props.onClick());
  expect(JSON.stringify(tree.toJSON())).toContain("A skill match alone does not establish practical experience.");
 });
+it.each([0, 37.5, 100])("keeps the SVG score ring and accessible score aligned at %s percent", (score) => {
+ const tree=render(<ResumeReport result={{job_role:"Engineer",match_score:score,resume_skills:[],matched_skills:[],missing_skills:[],strengths:[],improvement_suggestions:[],likely_interview_questions:[]}}/>);
+ expect(tree.root.findByProps({role:"progressbar"}).props["aria-valuenow"]).toBe(score);
+ expect(tree.root.findByProps({className:"score-ring"}).props["aria-label"]).toBe(`${score.toFixed(1)} percent match`);
+ const arc=tree.root.findByProps({className:"score-ring-progress"});
+ expect(arc.props.pathLength).toBe("100");
+ expect(arc.props.strokeDasharray).toBe(`${score} 100`);
+});
 it("one dashboard failure preserves other panels and does not turn unavailable history into zero", async () => {
  mocks.analyses.mockRejectedValue(new Error("offline"));mocks.recommendations.mockResolvedValue([]);
  mocks.reports.mockResolvedValue([{id:7,session_id:"uuid",target_role:"Engineer",interview_date:"2026-11-14T09:30:00Z",status:"completed",overall_score:72}]);

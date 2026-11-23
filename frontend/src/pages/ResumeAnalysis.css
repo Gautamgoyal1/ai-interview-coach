@@ -13,9 +13,10 @@
   display: grid;
   gap: 24px;
   background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-top: 1px solid var(--secondary);
 }
 
 .form-heading {
@@ -30,10 +31,11 @@
 
 .form-heading h2 {
   margin: 0 0 6px;
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 27px;
+  font-weight: 500;
   color: var(--text-primary);
   letter-spacing: -0.015em;
+  font-family: var(--font-display);
 }
 
 .form-heading p {
@@ -117,16 +119,16 @@
   padding: 36px 24px;
   min-height: 240px;
   height: 100%;
-  border: 2px dashed var(--border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--bg-subtle);
+  border: 1px dashed var(--secondary);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .upload-dropzone:hover,
 .upload-dropzone:focus-within {
-  border-color: var(--accent);
+  border-color: var(--focus-color);
   background: var(--accent-light);
 }
 
@@ -163,8 +165,8 @@
   border-radius: var(--radius-md);
   background: var(--bg-surface);
   border: 1px solid var(--border);
-  color: var(--accent);
-  box-shadow: var(--shadow-xs);
+  color: var(--accent-ink);
+  box-shadow: none;
 }
 
 .upload-dropzone.has-file .upload-icon-box {
@@ -226,8 +228,12 @@
 
 .results {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+  width: 100%;
   gap: 24px;
 }
+.results-heading > div { min-width: 0; overflow-wrap: anywhere; }
 
 .results-heading {
   display: flex;
@@ -251,7 +257,7 @@
   color: var(--text-secondary);
 }
 
-.score-card {
+.pm-card.score-card {
   padding: 32px 34px;
   display: flex;
   flex-wrap: wrap;
@@ -259,14 +265,17 @@
   justify-content: space-between;
   gap: 28px;
   background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  border: 0;
+  border-top: 1px solid var(--secondary);
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .score-copy {
-  flex: 1;
-  min-width: 260px;
+  flex: 1 1 240px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .score-copy h3 {
@@ -274,7 +283,7 @@
   font-size: 34px;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 
 .score-copy p {
@@ -287,7 +296,7 @@
 .score-track {
   height: 8px;
   border-radius: 999px;
-  background: var(--border-subtle);
+  background: var(--chart-track);
   overflow: hidden;
 }
 
@@ -295,7 +304,8 @@
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--progress-fill);
+  border: 1px solid var(--progress-outline);
 }
 
 .score-ring {
@@ -304,10 +314,14 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: conic-gradient(var(--accent) var(--score, 0deg), var(--border-subtle) 0deg);
+  position: relative;
   flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
+.score-ring-graphic { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.score-ring-track { stroke: var(--chart-track); }
+.score-ring-outline { stroke: var(--progress-outline); }
+.score-ring-progress { stroke: var(--progress-fill); }
 
 .score-ring > div {
   width: 86px;
@@ -346,7 +360,7 @@
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xs);
+  box-shadow: none;
 }
 
 .result-card-heading {
@@ -422,7 +436,7 @@
   flex-shrink: 0;
   font-size: 11px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-ink);
   background: var(--accent-light);
   border: 1px solid var(--accent-border);
   padding: 2px 7px;
@@ -452,7 +466,7 @@
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xs);
+  box-shadow: none;
 }
 
 @media (max-width: 780px) {
@@ -468,12 +482,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  border-left: 4px solid var(--accent);
+  border-left: 1px solid var(--accent);
   background: var(--bg-surface);
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   border-left-width: 4px;
-  box-shadow: var(--shadow-xs);
+  box-shadow: none;
 }
 
 .reuse-banner.fresh {
@@ -540,7 +554,7 @@
 .skill-filter-tab.active {
   background: var(--accent-light);
   border-color: var(--accent-border);
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 
 .skill-chip {

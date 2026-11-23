@@ -742,7 +742,7 @@ export default function Landing() {
               </p>
             </div>
 
-            <div className="comparison-table-wrap reveal-on-scroll">
+            <div className="comparison-table-wrap reveal-on-scroll" tabIndex={0} role="region" aria-label="Product comparison; scroll horizontally to view all columns">
               <table className="comparison-table">
                 <thead>
                   <tr>
@@ -788,7 +788,7 @@ export default function Landing() {
           <div className="landing-container">
             <div className="landing-cta-banner reveal-on-scroll">
               <div className="cta-banner-copy">
-                <span className="landing-section-eyebrow" style={{ color: "var(--accent)" }}>START PREPARING TODAY</span>
+                <span className="landing-section-eyebrow">START PREPARING TODAY</span>
                 <h2 className="cta-banner-title">Your next interview starts with better preparation.</h2>
                 <p className="cta-banner-desc">
                   Understand where you stand, practice what matters, and build unshakeable confidence for your dream role.

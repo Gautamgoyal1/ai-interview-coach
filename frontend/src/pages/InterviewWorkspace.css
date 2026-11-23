@@ -32,25 +32,26 @@
   min-height: 0;
   background: var(--bg-surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: 0;
+  border-top: 1px solid var(--secondary);
 }
 .iv-focused .iv-question-panel {
   border: 0;
-  background: transparent;
+  background: var(--interviewer-bg);
   box-shadow: none;
-  padding: 28px 36px 22px;
+  padding: 28px 36px 26px;
   border-radius: 0;
-  gap: 14px;
+  gap: 18px;
 }
 .iv-focused .iv-question-body {
   gap: 16px;
 }
 .iv-focused .iv-question-text {
   font-family: var(--font-display, Georgia, serif);
-  font-size: clamp(23px, 2.5vw, 32px);
+  font-size: clamp(25px, 2.6vw, 34px);
   font-weight: 500;
   line-height: 1.38;
-  max-width: 36ch;
+  max-width: 48ch;
   letter-spacing: -0.02em;
 }
 .iv-focused .iv-question-guidance {
@@ -58,6 +59,7 @@
   padding: 0;
   border: 0;
   font-size: 13px;
+  color: var(--text-secondary);
 }
 .iv-focused .iv-question-audio-bar {
   margin: 0;
@@ -74,7 +76,7 @@
   padding: 24px 36px 28px;
   box-shadow: none;
   gap: 14px;
-  background: transparent;
+  background: var(--candidate-bg);
 }
 .iv-response-heading {
   display: flex;
@@ -83,6 +85,27 @@
   gap: 6px 16px;
   justify-content: space-between;
 }
+.iv-speaker-label {
+  color: var(--interviewer-label);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  font-weight: 700;
+  margin: 0;
+}
+.iv-meta-difficulty[data-difficulty="easy"] { color: var(--difficulty-easy); }
+.iv-meta-difficulty[data-difficulty="medium"] { color: var(--difficulty-medium); }
+.iv-meta-difficulty[data-difficulty="hard"] { color: var(--difficulty-hard); }
+.iv-focused .iv-brand-copy strong { font-family: var(--font-editorial); font-size: 24px; font-weight: 500; }
+.iv-focused .iv-qnum-pill { color: var(--interviewer-label); background: var(--bg-surface); border-color: var(--secondary); }
+.iv-focused .iv-mode-pill.active { background: var(--selected-bg); color: var(--selected-text); box-shadow: none; }
+.iv-focused .iv-answer-panel[data-voice-state="listening"] .iv-voice-action-bar { border-color: var(--recording-border); background: var(--recording-bg); }
+.iv-focused .iv-answer-panel:is([data-voice-state="starting"], [data-voice-state="stopping"], [data-voice-state="submitting"]) .iv-voice-action-bar { border-color: var(--info-border); background: var(--info-bg); }
+.iv-focused .iv-answer-panel:is([data-voice-state="starting"], [data-voice-state="stopping"]) .iv-voice-state-indicator .badge { color: var(--processing); background: var(--info-bg); border-color: var(--info-border); }
+.iv-focused .iv-answer-panel[data-voice-state="review"] .iv-voice-action-bar { border-color: var(--success-border); background: var(--success-bg); }
+.iv-focused .iv-audio-pill.active { color: var(--playback); background: var(--surface-soft); }
+.iv-focused .iv-record-btn.active { color: var(--on-danger); animation: none; }
+.iv-focused .iv-transcript-answer { border-left: 1px solid var(--candidate-border); padding-left: 16px; }
 .iv-response-heading h2 {
   font-size: 16px;
   margin: 0;
@@ -101,7 +124,7 @@
   gap: 10px;
 }
 .iv-focused .iv-mode-pill-group {
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
 }
 .iv-focused .iv-mode-pill {
   min-height: 40px;
@@ -109,8 +132,8 @@
 }
 .iv-focused .iv-voice-action-bar {
   padding: 14px 16px;
-  border-radius: var(--radius-md);
-  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
   border: 1px solid var(--border);
   gap: 8px;
 }
@@ -124,9 +147,9 @@
   font-size: 16px;
   line-height: 1.7;
   padding: 16px 18px;
-  border: 1px solid var(--border-strong);
-  background: var(--bg-canvas);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--candidate-border);
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
 }
 .iv-focused .iv-textarea-wrap {
   flex: none;
@@ -168,7 +191,7 @@
   white-space: normal;
 }
 .iv-focused :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--focus-color);
   outline-offset: 3px;
 }
 @media (max-width: 640px) {
@@ -210,10 +233,6 @@
   background: var(--bg-surface);
   color: var(--text-primary);
   border: 1px solid var(--border-strong);
-}
-.iv-focused .iv-record-btn.btn-secondary:hover:not(:disabled) {
-  background: var(--bg-canvas);
-  transform: none;
 }
 
 /* Voice room: a conversation stage beside the question and transcript.
