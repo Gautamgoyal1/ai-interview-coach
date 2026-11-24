@@ -24,6 +24,23 @@ def test_staging_requires_explicit_testers_small_concurrency_and_pool():
     assert Settings(**common, staging_allowed_emails=[' TESTER@example.com ', 'tester@example.com']).staging_allowed_emails == ['tester@example.com']
 
 
+def test_public_staging_keeps_usage_controls_without_an_email_allowlist():
+    value = Settings(_env_file=None, staging_enabled=True, staging_access_mode='public',
+                     staging_allowed_emails=[], staging_registration_enabled=True, ai_global_concurrency=1)
+    assert value.staging_enabled and value.staging_registration_enabled
+    assert value.staging_ai_user_daily_limit == 30 and value.staging_ai_global_daily_limit == 100
+
+
+@pytest.mark.parametrize('values', [
+    {'staging_access_mode':'unknown'},
+    {'staging_access_mode':'public','ai_global_concurrency':3},
+    {'staging_access_mode':'public','db_pool_size':1,'db_max_overflow':0},
+])
+def test_public_access_does_not_relax_invalid_mode_or_capacity_settings(values):
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None, **{'staging_enabled':True,'ai_global_concurrency':1,**values})
+
+
 @pytest.mark.parametrize('value', ['*', '0.0.0.0/0', '::/0', 'proxy.example'])
 def test_unbounded_or_unresolved_proxy_trust_is_rejected(value):
     with pytest.raises(ValidationError):
