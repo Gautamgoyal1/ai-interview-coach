@@ -74,7 +74,9 @@ LangGraph uses an in-memory checkpointer, with database session state for recove
 Interview locks, speech limits and some caches are process-local: use **one backend
 worker**. Compose's frontend is a development server. The backend image uses one
 non-reloading worker. See the [deployment runbook](docs/deployment.md) for cloud
-configuration, database isolation requirements and launch gates.
+configuration, database isolation requirements and launch gates. The finalized
+academic-demo target is **Vercel Hobby + Render Free (Singapore) + existing Azure
+PostgreSQL (East Asia)**; see [the current dashboard instructions](docs/hybrid-deployment.md).
 
 ## Repository structure
 

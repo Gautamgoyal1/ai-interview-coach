@@ -15,6 +15,9 @@ export class ApiError extends Error {
   }
 }
 
+const SERVICE_UNAVAILABLE =
+  "PrepMate's server may be starting or temporarily unavailable. Please wait about a minute, then try again. If you submitted an answer, check your interview before resubmitting.";
+
 export async function apiRequest<T>(
   path: string,
   options: RequestInit = {},
@@ -36,13 +39,25 @@ export async function apiRequest<T>(
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers,
-  });
+  // Keep each user action to one request: replaying a POST after a cold start
+  // or dropped connection could duplicate a saved answer or provider charge.
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch (error) {
+    if (options.signal?.aborted || (error instanceof Error && error.name === "AbortError")) {
+      throw error;
+    }
+    throw new ApiError(SERVICE_UNAVAILABLE, 0);
+  }
 
   if (!response.ok) {
-    let message = `Request failed (${response.status})`;
+    let message = [502, 503, 504].includes(response.status)
+      ? SERVICE_UNAVAILABLE
+      : `Request failed (${response.status})`;
 
     try {
       const data = await response.json();
@@ -57,5 +72,14 @@ export async function apiRequest<T>(
     );
   }
 
-  return response.json() as Promise<T>;
+  try {
+    return await response.json() as T;
+  } catch (error) {
+    if (options.signal?.aborted || (error instanceof Error && error.name === "AbortError")) {
+      throw error;
+    }
+    // A sleeping host can return an HTML loading page with HTTP 200. Never
+    // treat that as a successful API result or expose HTML/parser errors.
+    throw new ApiError(SERVICE_UNAVAILABLE, 502);
+  }
 }
