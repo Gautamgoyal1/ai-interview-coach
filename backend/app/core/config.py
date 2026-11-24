@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     db_pool_timeout: int = Field(default=10, ge=1, le=60)
     db_connect_timeout: int = Field(default=10, ge=1, le=60)
     staging_enabled: bool = False
+    staging_access_mode: Literal["invite_only", "public"] = "invite_only"
     staging_allowed_emails: list[str] = []
     staging_registration_enabled: bool = False
     ai_enabled: bool = True
@@ -109,7 +110,7 @@ class Settings(BaseSettings):
         if self.staging_enabled:
             if self.app_env == "production" and parse_qs(urlsplit(self.database_url).query).get("sslmode", [""])[0] != "verify-full":
                 raise ValueError("Restricted cloud staging requires sslmode=verify-full with a trusted database CA.")
-            if not self.staging_allowed_emails:
+            if self.staging_access_mode == "invite_only" and not self.staging_allowed_emails:
                 raise ValueError("Restricted staging requires a nonempty STAGING_ALLOWED_EMAILS list.")
             if self.ai_global_concurrency > 2:
                 raise ValueError("Restricted staging permits at most two concurrent AI endpoint requests.")

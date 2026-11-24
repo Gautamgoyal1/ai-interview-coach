@@ -62,6 +62,7 @@ coverage.xml
 # Frontend dependencies and generated bundles.
 node_modules/
 dist/
+.vercel/
 coverage/
 *.tsbuildinfo
 
